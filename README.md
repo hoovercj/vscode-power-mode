@@ -10,6 +10,8 @@ I present you, VSCODE POWER MODE!!!
 
 ![demo](images/demo.gif)
 
+To enable, add `"powermode.enabled": true` to your settings.
+
 ## Features:
 * A combo counter
 * A timer that shows how long until your combo expires
