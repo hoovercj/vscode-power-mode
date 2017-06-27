@@ -1,0 +1,67 @@
+{
+    "name": "vscode-power-mode",
+    "displayName": "vscode-power-mode",
+    "description": "Your code is powerful, unleash it! The extension made popular by Code in the Dark has finally made its way to VS Code.",
+    "version": "0.0.1",
+    "publisher": "hoovercj",
+    "engines": {
+        "vscode": "^1.13.0"
+    },
+    "categories": [
+        "Themes",
+        "Other"
+    ],
+    "activationEvents": [
+        "*"
+    ],
+    "main": "./out/src/extension",
+    "contributes": {
+        "configuration": {
+            "properties": {
+                "powermode.enabled": {
+                    "default": false,
+                    "type": "boolean",
+                    "description": "Enable to activate POWER MODE!!!"
+                },
+                "powermode.comboThreshold": {
+                    "default": 0,
+                    "type": "number",
+                    "description": "The combo number needed to activate POWER MODE!!!"
+                },
+                "powermode.comboTimeout": {
+                    "default": 10,
+                    "type": "number",
+                    "description": "The number of seconds before the combo resets"
+                },
+                "powermode.enableExplosions": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Set to false to disable explosions while typing"
+                },
+                "powermode.enableShake": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Set to false to disable shaking while typing"
+                },
+                "powermode.customExplosions": {
+                    "type": "array",
+                    "items": "string",
+                    "description": "Only goes into effect after disabling and re-enabling powermode. Use anything that can go in the 'url()' part of a background image such as a base64 encoded gif or absolute file path WITHOUT quotes."
+                }
+            }
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "tsc -p ./",
+        "compile": "tsc -watch -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "node ./node_modules/vscode/bin/test"
+    },
+    "devDependencies": {
+        "typescript": "^2.0.3",
+        "vscode": "^1.0.0",
+        "mocha": "^2.3.3",
+        "@types/node": "^6.0.40",
+        "@types/mocha": "^2.2.32"
+    }
+}
