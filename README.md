@@ -23,6 +23,8 @@ I present you, VSCODE POWER MODE!!!
    - Set shake intensity
 
 ## Known Issues:
+This is an experiment and may not perform well.
+
 They were right when they said it can't be done. At least not properly. VS Code does not expose the DOM as part of the API. Instead this extension relies on using TextEditorDecorations to set css properties for ranges in the editor. This has a few limitations:
 * The cursor doesn't move with the text as it shakes
 * I have to use gifs instead of CSS animations for the particles/explosions
