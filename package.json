@@ -4,6 +4,7 @@
     "description": "Your code is powerful, unleash it! The extension made popular by Code in the Dark has finally made its way to VS Code.",
     "version": "0.0.1",
     "publisher": "hoovercj",
+    "icon": "/images/icon.jpg",
     "author": {
         "name": "Cody Hoover",
         "email": "vscode@codyhoover.com",
