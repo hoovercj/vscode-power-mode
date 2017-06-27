@@ -57,6 +57,11 @@
                     "default": true,
                     "description": "Set to false to disable shaking while typing"
                 },
+                "powermode.shakeIntensity": {
+                    "type":"number",
+                    "default": 5,
+                    "description": "The intensity with which the screen shakes"
+                },
                 "powermode.customExplosions": {
                     "type": "array",
                     "items": "string",

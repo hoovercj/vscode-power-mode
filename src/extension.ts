@@ -14,6 +14,7 @@ let comboThreshold;
 let customExplosions: string[];
 let enableExplosions: boolean;
 let enableShake: boolean;
+let shakeIntensity: number;
 
 // PowerMode components
 let screenShaker: ScreenShaker;
@@ -84,36 +85,46 @@ export function deactivate() {
 function onDidChangeConfiguration() {
     const config = vscode.workspace.getConfiguration('powermode');
 
+    const oldEnableShake = enableShake;
+    const oldShakeIntensity = shakeIntensity;
+    const oldEnabled = enabled;
+
+    enabled = config.get<boolean>('enabled');
     comboThreshold = config.get<number>('comboThreshold', 0);
     comboTimeout = config.get<number>('comboTimeout', 10);
     customExplosions = config.get<string[]>('customExplosions');
     enableExplosions = config.get<boolean>('enableExplosions', true);
-
-    // If shake was enabled and now it isn't, unshake the screen
-    const newEnableShake = config.get<boolean>('enableShake', true);
-    if (screenShaker && enableShake && !newEnableShake) {
-        screenShaker.unshake();
-    }
-    enableShake = newEnableShake;
-
-    const newEnabled = config.get<boolean>('enabled');
+    shakeIntensity = config.get<number>('shakeIntensity', 5);
+    enableShake = config.get<boolean>('enableShake', true);
 
     // Switching from disabled to enabled
-    if (!enabled && newEnabled) {
-        enabled = true;
+    if (!oldEnabled && enabled) {
         init();
         return;
     }
 
     // Switching from enabled to disabled
-    if (enabled && !newEnabled) {
-        enabled = false;
+    if (oldEnabled && !enabled) {
         deactivate();
         return;
     }
 
-    if (screenShaker && enabled && !isPowerMode()) {
+    // If not enabled, nothing matters
+    // because it will be taken care of
+    // when it gets reenabled
+    if (!enabled) {
+        return;
+    }
+
+    // If shake was enabled and now it isn't, unshake the screen
+    if (screenShaker && oldEnableShake && !enableShake) {
         screenShaker.unshake();
+    }
+
+    // If the shake intensity changed recreate the screen shaker
+    if (enabled && oldShakeIntensity !== shakeIntensity) {
+        screenShaker.dispose();
+        screenShaker = new ScreenShaker(shakeIntensity);
     }
 }
 

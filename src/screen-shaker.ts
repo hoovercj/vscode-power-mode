@@ -3,32 +3,40 @@ import * as vscode from 'vscode';
 
 export class ScreenShaker {
 
-    private negativeX = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
-        textDecoration: "none; margin-left: 0px;"
-    });
+    private negativeX: vscode.TextEditorDecorationType;
+    private positiveX: vscode.TextEditorDecorationType;
+    private negativeY: vscode.TextEditorDecorationType;
+    private positiveY: vscode.TextEditorDecorationType;
+    private shakeDecorations: vscode.TextEditorDecorationType[] = [];
 
-    private positiveX = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
-        textDecoration: "none; margin-left: 10px;"
-    });
-
-    private negativeY = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
-        textDecoration: "none; margin-top: 0px;"
-    });
-
-    private positiveY = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
-        textDecoration: "none; margin-top: 10px;"
-    });
-    private shakeDecorations = [
-        this.negativeX,
-        this.positiveX,
-        this.negativeY,
-        this.positiveY
-    ];
-
-    // A range that represents the full document. This is used to apply a top margin to
-    // which will push every line down the desired amount
+    // A range that represents the full document. A top margin is applied
+    // to this range which will push every line down the desired amount
     private fullRange = [new vscode.Range(new vscode.Position(0, 0), new vscode.Position(Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER))];
 
+    constructor(shakeIntensity: number = 5) {
+        this.negativeX = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
+            textDecoration: `none; margin-left: 0px;`
+        });
+
+        this.positiveX = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
+            textDecoration: `none; margin-left: ${shakeIntensity}px;`
+        });
+
+        this.negativeY = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
+            textDecoration: `none; margin-top: 0px;`
+        });
+
+        this.positiveY = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
+            textDecoration: `none; margin-top: ${shakeIntensity}px;`
+        });
+
+        this.shakeDecorations = [
+            this.negativeX,
+            this.positiveX,
+            this.negativeY,
+            this.positiveY
+        ];
+    }
 
     /**
      * "Shake" the screen by applying decorations that set margins

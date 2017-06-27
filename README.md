@@ -20,6 +20,7 @@ I present you, VSCODE POWER MODE!!!
    - Choose your own explosions with base64 encoded gifs or full urls
    - Disable explosions
    - Disable shake
+   - Set shake intensity
 
 ## Known Issues:
 They were right when they said it can't be done. At least not properly. VS Code does not expose the DOM as part of the API. Instead this extension relies on using TextEditorDecorations to set css properties for ranges in the editor. This has a few limitations:
