@@ -26,15 +26,18 @@ const LEGACY_EXPLOSIONS = [
     explosion2,
 ].concat(DEFAULT_EXPLOSIONS);
 
-export const MAX_EXPLOSIONS = 5;
+export const MAX_EXPLOSIONS = 1;
 export const EXPLOSION_SIZE = 4;
 export const EXPLOSION_FREQUENCY = 3;
 export const EXPLOSION_OFFSET = .35;
+export const EXPLOSION_MODE = 'random';
+export const EXPLOSION_DURATION = 1000;
 
 export class CursorExploder {
 
     private activeDecorations: vscode.TextEditorDecorationType[] = [];
-    private counter = -1;
+    private keystrokeCounter = -1;
+    private explosionIndex = -1;
     private counterTimeout: NodeJS.Timer;
 
     constructor(
@@ -43,11 +46,13 @@ export class CursorExploder {
         public explosionSize = EXPLOSION_SIZE,
         public explosionFrequency = EXPLOSION_FREQUENCY,
         public explosionOffset = EXPLOSION_OFFSET,
+        public explosionMode: number | string = EXPLOSION_MODE,
+        public explosionDuration = EXPLOSION_DURATION,
         public legacyMode = false,
         public customCss = {},
     ) {}
 
-    private getExplosion = (position: vscode.Position) => {
+    private getExplosionDecoration = (position: vscode.Position) => {
         let explosions;
         if (this.customExplosions && this.customExplosions.length > 0) {
             explosions = this.customExplosions;
@@ -56,8 +61,8 @@ export class CursorExploder {
                 LEGACY_EXPLOSIONS :
                 DEFAULT_EXPLOSIONS;
         }
-        const index = getRandomInt(0, explosions.length);
-        const explosion = explosions[index];
+
+        const explosion = this.pickExplosion(explosions);
 
         if (!explosion) {
             return null;
@@ -66,6 +71,31 @@ export class CursorExploder {
         return this.legacyMode ?
             this.createLegacyExplosionDecorationType(explosion) :
             this.createExplosionDecorationType(explosion, position);
+    }
+
+    private pickExplosion(explosions: string[]): string {
+        if (!explosions) {
+            return null;
+        }
+        switch (typeof this.explosionMode) {
+            case 'string':
+                switch (this.explosionMode) {
+                    case 'random':
+                        this.explosionIndex = getRandomInt(0, explosions.length);
+                        break; 
+                    case 'sequential':
+                        this.explosionIndex = (this.explosionIndex + 1) % explosions.length;
+                        break;
+                    default:
+                        this.explosionIndex = 0;
+                }
+                break;
+            case 'number':
+                this.explosionIndex = Math.min(explosions.length - 1, Math.floor(Math.abs(this.explosionMode as number)));
+            default:
+                break;
+        }
+        return explosions[this.explosionIndex];
     }
 
     /**
@@ -130,10 +160,10 @@ export class CursorExploder {
         // This counter resets if the user does not type for 1 second.
         clearTimeout(this.counterTimeout);
         this.counterTimeout = setTimeout(() => {
-            this.counter = -1;
+            this.keystrokeCounter = -1;
         }, 1000);
 
-        if (++this.counter % this.explosionFrequency !== 0) {
+        if (++this.keystrokeCounter % this.explosionFrequency !== 0) {
             return;
         }
 
@@ -155,16 +185,18 @@ export class CursorExploder {
         // A new decoration is used each time because otherwise adjacent
         // gifs will all be identical. This helps them be at least a little
         // offset.
-        const decoration = this.getExplosion(newRange.start);
+        const decoration = this.getExplosionDecoration(newRange.start);
         if (!decoration) {
             return;
         }
 
         this.activeDecorations.push(decoration);
 
-        setTimeout(() => {
-            decoration.dispose();
-        }, 1000);
+        if (this.explosionDuration !== 0) {
+            setTimeout(() => {
+                decoration.dispose();
+            }, this.explosionDuration);
+        }
         activeEditor.setDecorations(decoration, [newRange]);
     }
 

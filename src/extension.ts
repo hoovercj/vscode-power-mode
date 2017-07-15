@@ -2,7 +2,15 @@
 import * as vscode from 'vscode';
 
 import { ScreenShaker, SHAKE_INTENSITY } from './screen-shaker';
-import { CursorExploder, MAX_EXPLOSIONS, EXPLOSION_SIZE, EXPLOSION_FREQUENCY, EXPLOSION_OFFSET } from './cursor-exploder';
+import { 
+    CursorExploder,
+    MAX_EXPLOSIONS,
+    EXPLOSION_SIZE,
+    EXPLOSION_FREQUENCY,
+    EXPLOSION_OFFSET,
+    EXPLOSION_MODE,
+    EXPLOSION_DURATION,
+} from './cursor-exploder';
 import { ProgressBarTimer } from './progress-bar-timer';
 import { StatusBarItem } from './status-bar-item';
 
@@ -19,6 +27,8 @@ let maxExplosions: number;
 let explosionSize: number;
 let explosionFrequency: number;
 let explosionOffset: number;
+let explosionMode: string | number;
+let explosionDuration: number;
 let legacyMode: boolean;
 let customCss: {[key: string]: string};
 
@@ -48,6 +58,8 @@ function init() {
         explosionSize,
         explosionFrequency,
         explosionOffset,
+        explosionMode,
+        explosionDuration,
         legacyMode,
         customCss,
     );
@@ -114,6 +126,8 @@ function onDidChangeConfiguration() {
     explosionSize = config.get<number>('explosionSize', EXPLOSION_SIZE);
     explosionFrequency = config.get<number>('explosionFrequency', EXPLOSION_FREQUENCY);
     explosionOffset = config.get<number>('explosionOffset', EXPLOSION_OFFSET);
+    explosionMode = config.get<number | string>('explosionMode', EXPLOSION_MODE);
+    explosionDuration = config.get<number>('explosionDuration', EXPLOSION_DURATION);
     legacyMode = config.get<boolean>('legacyMode', false);
     customCss = config.get<any>('customCss', {});
 
@@ -153,6 +167,8 @@ function onDidChangeConfiguration() {
     cursorExploder.explosionSize = explosionSize;
     cursorExploder.explosionFrequency = explosionFrequency;
     cursorExploder.explosionOffset = explosionOffset;
+    cursorExploder.explosionDuration = explosionDuration;
+    cursorExploder.explosionMode = explosionMode;
     cursorExploder.legacyMode = legacyMode;
     cursorExploder.customCss = customCss;
 }
