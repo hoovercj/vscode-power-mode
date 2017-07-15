@@ -77,7 +77,7 @@ This is an experiment and may not perform well, so I've tried to make it as conf
 "powermode.enableShake": false,
 ```
 
-![demo](images/clippy.gif)
+![demo](images/demo-clippy.gif)
 
 ### Other Options:
 * `powermode.legacyMode`: If it worked better for you before the upgrade, setting this to `true` will use the original explosions.
