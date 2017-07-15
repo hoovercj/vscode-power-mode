@@ -1,6 +1,8 @@
 'use strict';
 import * as vscode from 'vscode';
 
+export const SHAKE_INTENSITY = 5;
+
 export class ScreenShaker {
 
     private negativeX: vscode.TextEditorDecorationType;
@@ -8,12 +10,13 @@ export class ScreenShaker {
     private negativeY: vscode.TextEditorDecorationType;
     private positiveY: vscode.TextEditorDecorationType;
     private shakeDecorations: vscode.TextEditorDecorationType[] = [];
+    private shakeTimeout: NodeJS.Timer;
 
     // A range that represents the full document. A top margin is applied
     // to this range which will push every line down the desired amount
     private fullRange = [new vscode.Range(new vscode.Position(0, 0), new vscode.Position(Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER))];
 
-    constructor(shakeIntensity: number = 5) {
+    constructor(shakeIntensity: number = SHAKE_INTENSITY) {
         this.negativeX = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
             textDecoration: `none; margin-left: 0px;`
         });
@@ -72,6 +75,11 @@ export class ScreenShaker {
             activeEditor.setDecorations(this.positiveY, []);
             activeEditor.setDecorations(this.negativeY, this.fullRange);
         }
+
+        clearTimeout(this.shakeTimeout);
+        this.shakeTimeout = setTimeout(() => {
+            this.unshake();
+        }, 1000);
     }
 
     /**
@@ -84,6 +92,7 @@ export class ScreenShaker {
     }
 
     dispose = () => {
+        clearTimeout(this.shakeTimeout);
         this.shakeDecorations.forEach(decoration => decoration.dispose());
     }
 }

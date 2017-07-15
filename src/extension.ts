@@ -1,8 +1,8 @@
 'use strict';
 import * as vscode from 'vscode';
 
-import { ScreenShaker } from './screen-shaker';
-import { CursorExploder } from './cursor-exploder';
+import { ScreenShaker, SHAKE_INTENSITY } from './screen-shaker';
+import { CursorExploder, MAX_EXPLOSIONS, EXPLOSION_SIZE, EXPLOSION_FREQUENCY, EXPLOSION_OFFSET } from './cursor-exploder';
 import { ProgressBarTimer } from './progress-bar-timer';
 import { StatusBarItem } from './status-bar-item';
 
@@ -15,6 +15,12 @@ let customExplosions: string[];
 let enableExplosions: boolean;
 let enableShake: boolean;
 let shakeIntensity: number;
+let maxExplosions: number;
+let explosionSize: number;
+let explosionFrequency: number;
+let explosionOffset: number;
+let legacyMode: boolean;
+let customCss: {[key: string]: string};
 
 // PowerMode components
 let screenShaker: ScreenShaker;
@@ -36,7 +42,15 @@ function init() {
     combo = 0;
 
     screenShaker = new ScreenShaker();
-    cursorExploder = new CursorExploder(customExplosions);
+    cursorExploder = new CursorExploder(
+        customExplosions,
+        maxExplosions,
+        explosionSize,
+        explosionFrequency,
+        explosionOffset,
+        legacyMode,
+        customCss,
+    );
     progressBarTimer = new ProgressBarTimer();
     statusBarItem = new StatusBarItem();
 
@@ -89,13 +103,19 @@ function onDidChangeConfiguration() {
     const oldShakeIntensity = shakeIntensity;
     const oldEnabled = enabled;
 
-    enabled = config.get<boolean>('enabled');
+    enabled = config.get<boolean>('enabled', false);
     comboThreshold = config.get<number>('comboThreshold', 0);
     comboTimeout = config.get<number>('comboTimeout', 10);
     customExplosions = config.get<string[]>('customExplosions');
     enableExplosions = config.get<boolean>('enableExplosions', true);
-    shakeIntensity = config.get<number>('shakeIntensity', 5);
+    shakeIntensity = config.get<number>('shakeIntensity', SHAKE_INTENSITY);
     enableShake = config.get<boolean>('enableShake', true);
+    maxExplosions = config.get<number>('maxExplosions', MAX_EXPLOSIONS);
+    explosionSize = config.get<number>('explosionSize', EXPLOSION_SIZE);
+    explosionFrequency = config.get<number>('explosionFrequency', EXPLOSION_FREQUENCY);
+    explosionOffset = config.get<number>('explosionOffset', EXPLOSION_OFFSET);
+    legacyMode = config.get<boolean>('legacyMode', false);
+    customCss = config.get<any>('customCss', {});
 
     // Switching from disabled to enabled
     if (!oldEnabled && enabled) {
@@ -126,6 +146,15 @@ function onDidChangeConfiguration() {
         screenShaker.dispose();
         screenShaker = new ScreenShaker(shakeIntensity);
     }
+
+    // Update the explosion settings
+    cursorExploder.customExplosions = customExplosions;
+    cursorExploder.maxExplosions = maxExplosions;
+    cursorExploder.explosionSize = explosionSize;
+    cursorExploder.explosionFrequency = explosionFrequency;
+    cursorExploder.explosionOffset = explosionOffset;
+    cursorExploder.legacyMode = legacyMode;
+    cursorExploder.customCss = customCss;
 }
 
 function onProgressTimerExpired() {
