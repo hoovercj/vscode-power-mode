@@ -2,7 +2,7 @@
 import * as vscode from 'vscode';
 
 import { ScreenShaker, SHAKE_INTENSITY } from './screen-shaker';
-import { 
+import {
     CursorExploder,
     MAX_EXPLOSIONS,
     EXPLOSION_SIZE,
@@ -13,6 +13,7 @@ import {
 } from './cursor-exploder';
 import { ProgressBarTimer } from './progress-bar-timer';
 import { StatusBarItem } from './status-bar-item';
+import { SettingsSuggester } from './settings-suggester';
 
 // Config values
 let documentChangeListenerDisposer: vscode.Disposable = null;
@@ -31,12 +32,14 @@ let explosionMode: string | number;
 let explosionDuration: number;
 let legacyMode: boolean;
 let customCss: {[key: string]: string};
+let settingSuggestions: boolean;
 
 // PowerMode components
 let screenShaker: ScreenShaker;
 let cursorExploder: CursorExploder;
 let progressBarTimer: ProgressBarTimer;
 let statusBarItem: StatusBarItem;
+let settingsSuggester: SettingsSuggester;
 
 // Current combo count
 let combo = 0;
@@ -65,6 +68,9 @@ function init() {
     );
     progressBarTimer = new ProgressBarTimer();
     statusBarItem = new StatusBarItem();
+    settingsSuggester = new SettingsSuggester();
+
+    vscode.languages.registerCompletionItemProvider({ language: 'json', pattern: '**/settings.json' }, settingsSuggester)
 
     documentChangeListenerDisposer = vscode.workspace.onDidChangeTextDocument(onDidChangeTextDocument);
 }
@@ -106,6 +112,10 @@ export function deactivate() {
         statusBarItem.dispose();
         statusBarItem = null;
     }
+
+    if (settingsSuggester) {
+        settingsSuggester = null;
+    }
 }
 
 function onDidChangeConfiguration() {
@@ -130,6 +140,7 @@ function onDidChangeConfiguration() {
     explosionDuration = config.get<number>('explosionDuration', EXPLOSION_DURATION);
     legacyMode = config.get<boolean>('legacyMode', false);
     customCss = config.get<any>('customCss', {});
+    settingSuggestions = config.get<boolean>('settingSuggestions', true);
 
     // Switching from disabled to enabled
     if (!oldEnabled && enabled) {
@@ -171,6 +182,9 @@ function onDidChangeConfiguration() {
     cursorExploder.explosionMode = explosionMode;
     cursorExploder.legacyMode = legacyMode;
     cursorExploder.customCss = customCss;
+
+    // Update the SettingsSuggester settings
+    settingsSuggester.settingSuggestions = settingSuggestions;
 }
 
 function onProgressTimerExpired() {

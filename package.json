@@ -1,1929 +1,1944 @@
 {
-    "name": "vscode-power-mode",
-    "displayName": "Power Mode",
-    "description": "Your code is powerful, unleash it! The extension made popular by Code in the Dark has finally made its way to VS Code.",
-    "version": "1.1.1",
-    "publisher": "hoovercj",
-    "icon": "images/icon-large.png",
-    "author": {
-        "name": "Cody Hoover",
-        "email": "vscode@codyhoover.com",
-        "url": "https://github.com/hoovercj"
-    },
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/hoovercj/vscode-power-mode/issues"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/hoovercj/vscode-power-mode.git"
-    },
-    "homepage": "https://github.com/hoovercj/vscode-power-mode",
-    "engines": {
-        "vscode": "^1.13.0"
-    },
-    "categories": [
-        "Themes",
-        "Other"
-    ],
-    "activationEvents": [
-        "*"
-    ],
-    "main": "./out/src/extension",
-    "scripts": {
-        "vscode:prepublish": "tsc -p ./",
-        "compile": "tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install",
-        "test": "node ./node_modules/vscode/bin/test"
-    },
-    "devDependencies": {
-        "typescript": "^2.0.3",
-        "vscode": "^1.0.0",
-        "mocha": "^2.3.3",
-        "@types/node": "^6.0.40",
-        "@types/mocha": "^2.2.32"
-    },
-    "contributes": {
-        "configuration": {
-            "properties": {
-                "powermode.enabled": {
-                    "default": false,
-                    "type": "boolean",
-                    "description": "Enable to activate POWER MODE!!!"
-                },
-                "powermode.comboThreshold": {
-                    "default": 0,
-                    "type": "number",
-                    "description": "The combo number needed to activate POWER MODE!!!"
-                },
-                "powermode.comboTimeout": {
-                    "default": 10,
-                    "type": "number",
-                    "description": "The number of seconds before the combo resets"
-                },
-                "powermode.enableExplosions": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Set to false to disable explosions while typing"
-                },
-                "powermode.enableShake": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Set to false to disable shaking while typing"
-                },
-                "powermode.shakeIntensity": {
-                    "type": "number",
-                    "default": 5,
-                    "description": "The intensity with which the screen shakes"
-                },
-                "powermode.maxExplosions": {
-                    "type": "number",
-                    "default": 1,
-                    "description": "The maximum number of simultaneous explosions"
-                },
-                "powermode.explosionSize": {
-                    "type": "number",
-                    "default": 6,
-                    "description": "The size of the explosions. For value X, the height is set to X rem and the width to X ch"
-                },
-                "powermode.explosionFrequency": {
-                    "type": "number",
-                    "default": 2,
-                    "description": "The number of key strokes needed to trigger an explosion. 2 means every second keystroke will explode, 1 means every key stroke."
-                },
-                "powermode.explosionOffset": {
-                    "type": "number",
-                    "default": 0.35,
-                    "description": "The vertical offset of the explosions. Increasing it will move the explosions up, decreasing it will move them down."
-                },
-                "powermode.customExplosions": {
-                    "type": "array",
-                    "items": "string",
-                    "description": "Use anything that can go in the 'url()' part of a background image such as a base64 encoded gif or absolute file path WITHOUT quotes. Urls must be https."
-                },
-                "powermode.legacyMode": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "If true, POWERMODE will use the small, original explosions that appeared behind the letters instead of the new ones that explode in the lines above the letters."
-                },
-                "powermode.explosionMode": {
-                    "description": "Determines how the explosions are cycled. 'random' (default) picks from the list randomly. 'sequential' goes through the list in order, and a number will select the explosion at that (zero based)index in the list",
-                    "default": "random",
-                    "oneOf": [
-                        {
-                            "type": "string",
-                            "enum": [
-                                "random",
-                                "sequential"
-                            ]
-                        },{
-                            "type": "number"
-                        }
-                    ]
-                },
-                "powermode.explosionDuration": {
-                    "description": "Determines how long an explosion lasts (in milliseconds). Set to 0 for it to last forever.",
-                    "type": "number",
-                    "default": 1000
-                },
-                "powermode.customCss": {
-                    "$schema": "http://json-schema.org/draft-04/schema#",
-                    "title": "CSS Schema",
-                    "definitions": {
-                        "length": {
-                            "type": "object",
-                            "properties": {
-                                "value": {
-                                    "type": "integer",
-                                    "default": "2"
-                                },
-                                "unit": {
-                                    "type": "string",
-                                    "enum": [
-                                        "px",
-                                        "em",
-                                        "%"
-                                    ],
-                                    "default": "px"
-                                }
-                            }
-                        },
-                        "time": {
-                            "type": "object",
-                            "properties": {
-                                "value": {
-                                    "type": "integer",
-                                    "default": "2"
-                                },
-                                "unit": {
-                                    "type": "string",
-                                    "enum": [
-                                        "s",
-                                        "ms"
-                                    ],
-                                    "default": "s"
-                                }
-                            }
-                        },
-                        "translation-value": {
-                            "type": "object",
-                            "properties": {
-                                "value": {
-                                    "type": "integer",
-                                    "default": "2"
-                                }
-                            }
-                        },
-                        "btrr": {
-                            "oneOf": [
-                                {
-                                    "title": "radius",
-                                    "$ref": "#/definitions/length"
-                                },
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "0"
-                                    ],
-                                    "required": true
-                                }
-                            ]
-                        },
-                        "border": {
-                            "type": "object",
-                            "properties": {
-                                "unit": {
-                                    "type": "string",
-                                    "enum": [
-                                        "none",
-                                        "solid",
-                                        "ridge",
-                                        "outset",
-                                        "inset",
-                                        "hidden",
-                                        "groove",
-                                        "double",
-                                        "dotted",
-                                        "dashed"
-                                    ],
-                                    "default": "none"
-                                }
-                            }
-                        },
-                        "border-width": {
-                            "type": "object",
-                            "properties": {
-                                "value": {
-                                    "type": "string",
-                                    "enum": [
-                                        "medium",
-                                        "thin",
-                                        "thick"
-                                    ],
-                                    "required": true
-                                }
-                            }
-                        }
-                    },
-                    "type": "object",
-                    "properties": {
-                        "animation-iteration-count": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "1",
-                                        "infinite"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "type": "number"
-                                }
-                            ]
-                        },
-                        "animation-name": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "none"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "type": "string",
-                                    "title": "custom identifier"
-                                }
-                            ]
-                        },
-                        "animation-timing-function": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "title": "animation-timing-function",
-                                    "enum": [
-                                        "ease",
-                                        "step-start",
-                                        "step-end",
-                                        "linear",
-                                        "ease-out",
-                                        "ease-in-out",
-                                        "ease-in"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "type": "object",
-                                    "title": "cubic-bezier",
-                                    "properties": {
-                                        "number1": {
-                                            "type": "string"
-                                        },
-                                        "number2": {
-                                            "type": "string"
-                                        },
-                                        "number3": {
-                                            "type": "string"
-                                        },
-                                        "number4": {
-                                            "type": "string"
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "string",
-                                    "title": "steps",
-                                    "enum": [
-                                        "start",
-                                        "end"
-                                    ],
-                                    "required": true
-                                }
-                            ]
-                        },
-                        "integer": {
-                            "type": "integer"
-                        },
-                        "border-radius": {
-                            "$ref": "#/definitions/length"
-                        },
-                        "border-style": {
-                            "$ref": "#/definitions/border"
-                        },
-                        "border-top-style": {
-                            "$ref": "#/definitions/border"
-                        },
-                        "border-right-style": {
-                            "$ref": "#/definitions/border"
-                        },
-                        "border-bottom-style": {
-                            "$ref": "#/definitions/border"
-                        },
-                        "border-left-style": {
-                            "$ref": "#/definitions/border"
-                        },
-                        "border-width": {
-                            "$ref": "#/definitions/border-width"
-                        },
-                        "border-top-width": {
-                            "$ref": "#/definitions/border-width"
-                        },
-                        "border-right-width": {
-                            "$ref": "#/definitions/border-width"
-                        },
-                        "border-bottom-width": {
-                            "$ref": "#/definitions/border-width"
-                        },
-                        "border-left-width": {
-                            "$ref": "#/definitions/border-width"
-                        },
-                        "color": {
-                            "type": "string",
-                            "format": "color"
-                        },
-                        "background-image": {},
-                        "background-size": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "title": "background-size",
-                                    "enum": [
-                                        "auto",
-                                        "cover",
-                                        "contain"
-                                    ],
-                                    "required": true
-                                }
-                            ]
-                        },
-                        "background-position": {},
-                        "border-color": {
-                            "type": "string",
-                            "format": "color"
-                        },
-                        "top": {
-                            "oneOf": [
-                                {
-                                    "$ref": "#/definitions/length"
-                                },
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "auto"
-                                    ],
-                                    "required": true
-                                }
-                            ]
-                        },
-                        "border-top-color": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "format": "color"
-                                },
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "transparent"
-                                    ],
-                                    "required": true
-                                }
-                            ]
-                        },
-                        "right": {
-                            "oneOf": [
-                                {
-                                    "$ref": "#/definitions/length"
-                                },
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "auto"
-                                    ],
-                                    "required": true
-                                }
-                            ]
-                        },
-                        "border-right-color": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "format": "color"
-                                },
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "transparent"
-                                    ],
-                                    "required": true
-                                }
-                            ]
-                        },
-                        "bottom": {
-                            "oneOf": [
-                                {
-                                    "$ref": "#/definitions/length"
-                                },
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "auto"
-                                    ],
-                                    "required": true
-                                }
-                            ]
-                        },
-                        "border-bottom-color": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "format": "color"
-                                },
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "transparent"
-                                    ],
-                                    "required": true
-                                }
-                            ]
-                        },
-                        "left": {
-                            "oneOf": [
-                                {
-                                    "$ref": "#/definitions/length"
-                                },
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "auto"
-                                    ],
-                                    "required": true
-                                }
-                            ]
-                        },
-                        "border-left-color": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "format": "color"
-                                },
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "transparent"
-                                    ],
-                                    "required": true
-                                }
-                            ]
-                        },
-                        "border-top-left-radius": {
-                            "$ref": "#/definitions/btrr"
-                        },
-                        "border-top-right-radius": {
-                            "$ref": "#/definitions/btrr"
-                        },
-                        "border-bottom-left-radius": {
-                            "$ref": "#/definitions/btrr"
-                        },
-                        "border-bottom-right-radius": {
-                            "$ref": "#/definitions/btrr"
-                        },
-                        "border-image-source": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "none"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "title": "url",
-                                    "type": "string"
-                                }
-                            ]
-                        },
-                        "border-image-slice": {
-                            "type": "object",
-                            "properties": {
-                                "value": {
-                                    "type": "integer",
-                                    "default": "100"
-                                },
-                                "unit": {
-                                    "type": "string",
-                                    "enum": [
-                                        "%"
-                                    ],
-                                    "required": true
-                                }
-                            }
-                        },
-                        "width": {
-                            "oneOf": [
-                                {
-                                    "$ref": "#/definitions/length"
-                                },
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "auto"
-                                    ],
-                                    "required": true
-                                }
-                            ]
-                        },
-                        "border-image-width": {
-                            "type": "integer"
-                        },
-                        "border-image-outset": {
-                            "type": "integer"
-                        },
-                        "border-spacing": {
-                            "type": "array",
-                            "format": "table",
-                            "title": "border-spacing",
-                            "uniqueItems": true,
-                            "items": {
-                                "type": "object",
-                                "title": "border-spacing",
-                                "properties": {
-                                    "first": {
-                                        "$ref": "#/definitions/length"
-                                    },
-                                    "second": {
-                                        "$ref": "#/definitions/length"
-                                    }
-                                }
-                            }
-                        },
-                        "clip": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "auto"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "type": "array",
-                                    "format": "table",
-                                    "title": "rect",
-                                    "uniqueItems": true,
-                                    "items": {
-                                        "type": "object",
-                                        "title": "rect",
-                                        "properties": {
-                                            "length1": {
-                                                "$ref": "#/definitions/length"
-                                            },
-                                            "length2": {
-                                                "$ref": "#/definitions/length"
-                                            },
-                                            "length3": {
-                                                "$ref": "#/definitions/length"
-                                            },
-                                            "length4": {
-                                                "$ref": "#/definitions/length"
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "array",
-                                    "format": "table",
-                                    "title": "inset",
-                                    "uniqueItems": true,
-                                    "items": {
-                                        "type": "object",
-                                        "title": "inset",
-                                        "properties": {
-                                            "length1": {
-                                                "$ref": "#/definitions/length"
-                                            },
-                                            "length2": {
-                                                "$ref": "#/definitions/length"
-                                            },
-                                            "length3": {
-                                                "$ref": "#/definitions/length"
-                                            },
-                                            "length4": {
-                                                "$ref": "#/definitions/length"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        },
-                        "column-width": {
-                            "oneOf": [
-                                {
-                                    "$ref": "#/definitions/length"
-                                },
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "auto"
-                                    ],
-                                    "required": true
-                                }
-                            ]
-                        },
-                        "column-count": {
-                            "oneOf": [
-                                {
-                                    "type": "integer"
-                                },
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "auto"
-                                    ],
-                                    "required": true
-                                }
-                            ]
-                        },
-                        "column-gap": {
-                            "oneOf": [
-                                {
-                                    "$ref": "#/definitions/length"
-                                },
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "normal"
-                                    ],
-                                    "required": true
-                                }
-                            ]
-                        },
-                        "column-rule-color": {
-                            "type": "string",
-                            "format": "color"
-                        },
-                        "column-rule-width": {
-                            "oneOf": [
-                                {
-                                    "title": "crw",
-                                    "type": "string",
-                                    "enum": [
-                                        "medium",
-                                        "thin",
-                                        "thick"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "title": "length",
-                                    "$ref": "#/definitions/length"
-                                }
-                            ]
-                        },
-                        "content": {
-                            "oneOf": [
-                                {
-                                    "title": "content",
-                                    "type": "string",
-                                    "enum": [
-                                        "normal",
-                                        "open-quote",
-                                        "none",
-                                        "no-open-quote",
-                                        "no-close-quote",
-                                        "icon",
-                                        "close-quote"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "title": " identifier",
-                                    "type": "string"
-                                },
-                                {
-                                    "title": " url",
-                                    "type": "string"
-                                },
-                                {
-                                    "title": " counter",
-                                    "type": "string"
-                                }
-                            ]
-                        },
-                        "counter-increment": {
-                            "oneOf": [
-                                {
-                                    "title": "counter-increment",
-                                    "type": "string",
-                                    "enum": [
-                                        "none"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "title": " identifier",
-                                    "type": "string"
-                                },
-                                {
-                                    "title": " integer",
-                                    "type": "integer"
-                                }
-                            ]
-                        },
-                        "counter-reset": {
-                            "oneOf": [
-                                {
-                                    "title": "counter-increment",
-                                    "type": "string",
-                                    "enum": [
-                                        "none"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "title": " identifier",
-                                    "type": "string"
-                                },
-                                {
-                                    "title": " integer",
-                                    "type": "integer"
-                                }
-                            ]
-                        },
-                        "cursor": {
-                            "oneOf": [
-                                {
-                                    "title": "cursor",
-                                    "type": "string",
-                                    "enum": [
-                                        "auto",
-                                        "zoom-out",
-                                        "zoom-in",
-                                        "wait",
-                                        "w-resize",
-                                        "vertical-text",
-                                        "text",
-                                        "sw-resize",
-                                        "se-resize",
-                                        "s-resize",
-                                        "row-resize",
-                                        "progress",
-                                        "pointer",
-                                        "nwse-resize",
-                                        "nw-resize",
-                                        "ns-resize",
-                                        "not-allowed",
-                                        "none",
-                                        "no-drop",
-                                        "nesw-resize",
-                                        "ne-resize",
-                                        "n-resize",
-                                        "move",
-                                        "help",
-                                        "ew-resize",
-                                        "e-resize",
-                                        "default",
-                                        "crosshair",
-                                        "copy",
-                                        "context-menu",
-                                        "col-resize",
-                                        "cell",
-                                        "all-scroll",
-                                        "alias"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "title": "url",
-                                    "type": "string"
-                                }
-                            ]
-                        },
-                        "flex-grow": {
-                            "type": "integer"
-                        },
-                        "flex-shrink": {
-                            "type": "integer",
-                            "default": "1"
-                        },
-                        "flex-basis": {
-                            "oneOf": [
-                                {
-                                    "$ref": "#/definitions/length"
-                                },
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "auto"
-                                    ],
-                                    "required": true
-                                }
-                            ]
-                        },
-                        "font-family": {
-                            "type": "string"
-                        },
-                        "font-size": {
-                            "oneOf": [
-                                {
-                                    "title": "font-size",
-                                    "type": "string",
-                                    "enum": [
-                                        "medium",
-                                        "xx-small",
-                                        "xx-large",
-                                        "x-small",
-                                        "x-large",
-                                        "smaller",
-                                        "small",
-                                        "larger",
-                                        "large"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "title": "size",
-                                    "$ref": "#/definitions/length"
-                                }
-                            ]
-                        },
-                        "font-size-adjust": {
-                            "type": "string",
-                            "default": "none"
-                        },
-                        "height": {
-                            "oneOf": [
-                                {
-                                    "title": "height",
-                                    "type": "string",
-                                    "enum": [
-                                        "auto"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "length": {
-                                            "type": "integer",
-                                            "default": "2"
-                                        },
-                                        "percentage": {
-                                            "type": "string",
-                                            "enum": [
-                                                "%"
-                                            ],
-                                            "required": true
-                                        }
-                                    }
-                                }
-                            ]
-                        },
-                        "icon": {
-                            "type": "string",
-                            "default": "auto"
-                        },
-                        "image-orientation": {
-                            "oneOf": [
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "value": {
-                                            "type": "integer",
-                                            "default": "1"
-                                        },
-                                        "unit": {
-                                            "type": "string",
-                                            "enum": [
-                                                "deg",
-                                                "grad",
-                                                "rad",
-                                                "turn"
-                                            ],
-                                            "required": true
-                                        }
-                                    }
-                                }
-                            ]
-                        },
-                        "letter-spacing": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "normal"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "$ref": "#/definitions/length"
-                                }
-                            ]
-                        },
-                        "line-height": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "normal"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "$ref": "#/definitions/length"
-                                }
-                            ]
-                        },
-                        "list-style-image": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "none"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "title": "url",
-                                    "type": "string"
-                                }
-                            ]
-                        },
-                        "max-height": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "none"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "$ref": "#/definitions/length"
-                                }
-                            ]
-                        },
-                        "max-width": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "none"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "$ref": "#/definitions/length"
-                                }
-                            ]
-                        },
-                        "min-height": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "0",
-                                        "auto"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "$ref": "#/definitions/length"
-                                }
-                            ]
-                        },
-                        "min-width": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "0",
-                                        "auto"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "$ref": "#/definitions/length"
-                                }
-                            ]
-                        },
-                        "object-position": {
-                            "oneOf": [
-                                {
-                                    "type": "array",
-                                    "format": "table",
-                                    "title": "object-position",
-                                    "uniqueItems": true,
-                                    "items": {
-                                        "type": "object",
-                                        "title": "object-position",
-                                        "properties": {
-                                            "first": {
-                                                "type": "string",
-                                                "enum": [
-                                                    "50%",
-                                                    "right ",
-                                                    "left ",
-                                                    "center "
-                                                ],
-                                                "required": true
-                                            },
-                                            "second": {
-                                                "type": "string",
-                                                "enum": [
-                                                    "50%",
-                                                    "bottom",
-                                                    "top",
-                                                    "center "
-                                                ],
-                                                "required": true
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "$ref": "#/definitions/length"
-                                }
-                            ]
-                        },
-                        "opacity": {
-                            "type": "integer",
-                            "default": "1"
-                        },
-                        "orphans": {
-                            "type": "integer",
-                            "default": "2"
-                        },
-                        "outline-color": {
-                            "oneOf": [
-                                {
-                                    "title": "invert",
-                                    "type": "string",
-                                    "enum": [
-                                        "invert"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "type": "string",
-                                    "format": "color"
-                                }
-                            ]
-                        },
-                        "outline-offset": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "0"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "$ref": "#/definitions/length"
-                                }
-                            ]
-                        },
-                        "outline-width": {
-                            "oneOf": [
-                                {
-                                    "title": "crw",
-                                    "type": "string",
-                                    "enum": [
-                                        "medium",
-                                        "thin",
-                                        "thick"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "title": "length",
-                                    "$ref": "#/definitions/length"
-                                }
-                            ]
-                        },
-                        "padding-top": {
-                            "oneOf": [
-                                {
-                                    "title": "padding-top",
-                                    "type": "string",
-                                    "enum": [
-                                        "0"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "title": "padding-top",
-                                    "$ref": "#/definitions/length"
-                                }
-                            ]
-                        },
-                        "padding-bottom": {
-                            "oneOf": [
-                                {
-                                    "title": "padding-top",
-                                    "type": "string",
-                                    "enum": [
-                                        "0"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "title": "padding-top",
-                                    "$ref": "#/definitions/length"
-                                }
-                            ]
-                        },
-                        "padding-left": {
-                            "oneOf": [
-                                {
-                                    "title": "padding-top",
-                                    "type": "string",
-                                    "enum": [
-                                        "0"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "title": "padding-top",
-                                    "$ref": "#/definitions/length"
-                                }
-                            ]
-                        },
-                        "padding-right": {
-                            "oneOf": [
-                                {
-                                    "title": "padding-top",
-                                    "type": "string",
-                                    "enum": [
-                                        "0"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "title": "padding-top",
-                                    "$ref": "#/definitions/length"
-                                }
-                            ]
-                        },
-                        "perspective": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "none"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "$ref": "#/definitions/length"
-                                }
-                            ]
-                        },
-                        "perspective-origin": {
-                            "oneOf": [
-                                {
-                                    "type": "array",
-                                    "format": "table",
-                                    "title": "perspective-origin",
-                                    "uniqueItems": true,
-                                    "items": {
-                                        "type": "object",
-                                        "title": "perspective-origin",
-                                        "properties": {
-                                            "first": {
-                                                "type": "string",
-                                                "enum": [
-                                                    "50%",
-                                                    "top",
-                                                    "right",
-                                                    "left",
-                                                    "center",
-                                                    "bottom"
-                                                ],
-                                                "required": true
-                                            },
-                                            "second": {
-                                                "type": "string",
-                                                "enum": [
-                                                    "50%"
-                                                ],
-                                                "required": true
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "$ref": "#/definitions/length"
-                                }
-                            ]
-                        },
-                        "quotes": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "none"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "type": "array",
-                                    "format": "table",
-                                    "title": "quotes",
-                                    "uniqueItems": true,
-                                    "items": {
-                                        "type": "object",
-                                        "title": "quotes",
-                                        "properties": {
-                                            "first": {
-                                                "type": "string"
-                                            },
-                                            "second": {
-                                                "type": "string"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        },
-                        "tab-size": {
-                            "oneOf": [
-                                {
-                                    "title": "tab-size",
-                                    "type": "integer"
-                                },
-                                {
-                                    "$ref": "#/definitions/length"
-                                },
-                                {
-                                    "title": "Integer",
-                                    "type": "integer"
-                                }
-                            ]
-                        },
-                        "text-align": {
-                            "oneOf": [
-                                {
-                                    "title": "text-align",
-                                    "type": "string",
-                                    "enum": [
-                                        "start",
-                                        "right",
-                                        "left",
-                                        "match-parent",
-                                        "justify",
-                                        "end",
-                                        "center"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "title": "String",
-                                    "type": "string"
-                                }
-                            ]
-                        },
-                        "text-emphasis-style": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "none",
-                                        "triangle",
-                                        "sesame",
-                                        "open",
-                                        "filled",
-                                        "double-circle",
-                                        "dot",
-                                        "circle"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "title": "String",
-                                    "type": "string"
-                                }
-                            ]
-                        },
-                        "text-emphasis-color": {
-                            "type": "string",
-                            "format": "color"
-                        },
-                        "text-indent": {
-                            "oneOf": [
-                                {
-                                    "title": "text-indent",
-                                    "type": "string",
-                                    "enum": [
-                                        "0"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "title": "percentage",
-                                    "type": "string",
-                                    "enum": [
-                                        "%"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "type": "array",
-                                    "format": "table",
-                                    "title": "hanging each-line",
-                                    "uniqueItems": true,
-                                    "items": {
-                                        "type": "object",
-                                        "title": "hanging each-line",
-                                        "properties": {
-                                            "length": {
-                                                "$ref": "#/definitions/length"
-                                            },
-                                            "hanging": {
-                                                "type": "string",
-                                                "enum": [
-                                                    "hanging"
-                                                ],
-                                                "required": true
-                                            },
-                                            "each-line": {
-                                                "type": "string",
-                                                "enum": [
-                                                    "each-line"
-                                                ],
-                                                "required": true
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "array",
-                                    "format": "table",
-                                    "title": "hanging",
-                                    "uniqueItems": true,
-                                    "items": {
-                                        "type": "object",
-                                        "title": "hanging",
-                                        "properties": {
-                                            "length": {
-                                                "$ref": "#/definitions/length"
-                                            },
-                                            "hanging": {
-                                                "type": "string",
-                                                "enum": [
-                                                    "hanging"
-                                                ],
-                                                "required": true
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "array",
-                                    "format": "table",
-                                    "title": "each-line",
-                                    "uniqueItems": true,
-                                    "items": {
-                                        "type": "object",
-                                        "title": "each-line",
-                                        "properties": {
-                                            "length": {
-                                                "$ref": "#/definitions/length"
-                                            },
-                                            "each-line": {
-                                                "type": "string",
-                                                "enum": [
-                                                    "each-line"
-                                                ],
-                                                "required": true
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "title": "length",
-                                    "$ref": "#/definitions/length"
-                                }
-                            ]
-                        },
-                        "text-combine-horizontal": {
-                            "oneOf": [
-                                {
-                                    "title": "text-combine-horizontal",
-                                    "type": "string",
-                                    "enum": [
-                                        "none",
-                                        "all"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "title": "digits",
-                                    "type": "integer"
-                                }
-                            ]
-                        },
-                        "text-overflow": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "clip",
-                                        "ellipsis"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "title": "String",
-                                    "type": "string"
-                                }
-                            ]
-                        },
-                        "transform": {
-                            "oneOf": [
-                                {
-                                    "title": "String",
-                                    "type": "string",
-                                    "enum": [
-                                        "none"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "title": "translateZ",
-                                    "$ref": "#/definitions/length"
-                                },
-                                {
-                                    "title": "translateY",
-                                    "$ref": "#/definitions/translation-value"
-                                },
-                                {
-                                    "title": "translateX",
-                                    "$ref": "#/definitions/translation-value"
-                                },
-                                {
-                                    "type": "array",
-                                    "format": "table",
-                                    "title": "translate3d",
-                                    "uniqueItems": true,
-                                    "items": {
-                                        "type": "object",
-                                        "title": "translate3d",
-                                        "properties": {
-                                            "translation-value1": {
-                                                "$ref": "#/definitions/translation-value"
-                                            },
-                                            "translation-value2": {
-                                                "$ref": "#/definitions/translation-value"
-                                            },
-                                            "length": {
-                                                "$ref": "#/definitions/length"
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "array",
-                                    "format": "table",
-                                    "title": "translate",
-                                    "uniqueItems": true,
-                                    "items": {
-                                        "type": "object",
-                                        "title": "translate",
-                                        "properties": {
-                                            "translation-value1": {
-                                                "$ref": "#/definitions/translation-value"
-                                            },
-                                            "translation-value2": {
-                                                "$ref": "#/definitions/translation-value"
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "title": "skewY",
-                                    "type": "string",
-                                    "enum": [
-                                        "deg",
-                                        "grad",
-                                        "rad",
-                                        "turn"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "title": "skewX",
-                                    "type": "string",
-                                    "enum": [
-                                        "deg",
-                                        "grad",
-                                        "rad",
-                                        "turn"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "title": "scaleZ",
-                                    "type": "integer"
-                                },
-                                {
-                                    "title": "scaleY",
-                                    "type": "integer"
-                                },
-                                {
-                                    "title": "scaleX",
-                                    "type": "integer"
-                                },
-                                {
-                                    "title": "rotateZ",
-                                    "type": "string",
-                                    "enum": [
-                                        "deg",
-                                        "grad",
-                                        "rad",
-                                        "turn"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "title": "rotateY",
-                                    "type": "string",
-                                    "enum": [
-                                        "deg",
-                                        "grad",
-                                        "rad",
-                                        "turn"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "title": "rotateX",
-                                    "type": "string",
-                                    "enum": [
-                                        "deg",
-                                        "grad",
-                                        "rad",
-                                        "turn"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "title": "rotate",
-                                    "type": "string",
-                                    "enum": [
-                                        "deg",
-                                        "grad",
-                                        "rad",
-                                        "turn"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "type": "array",
-                                    "format": "table",
-                                    "title": "rotate3d",
-                                    "uniqueItems": true,
-                                    "items": {
-                                        "type": "object",
-                                        "title": "rotate3d",
-                                        "properties": {
-                                            "number1": {
-                                                "type": "integer"
-                                            },
-                                            "number2": {
-                                                "type": "integer"
-                                            },
-                                            "number3": {
-                                                "type": "integer"
-                                            },
-                                            "angle": {
-                                                "type": "string",
-                                                "enum": [
-                                                    "deg",
-                                                    "grad",
-                                                    "rad",
-                                                    "turn"
-                                                ],
-                                                "required": true
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "title": "perspective",
-                                    "$ref": "#/definitions/length"
-                                },
-                                {
-                                    "type": "array",
-                                    "format": "table",
-                                    "title": "matrix3d",
-                                    "uniqueItems": true,
-                                    "items": {
-                                        "type": "object",
-                                        "title": "matrix3d",
-                                        "properties": {
-                                            "number1": {
-                                                "type": "integer"
-                                            },
-                                            "number2": {
-                                                "type": "integer"
-                                            },
-                                            "number3": {
-                                                "type": "integer"
-                                            },
-                                            "number4": {
-                                                "type": "integer"
-                                            },
-                                            "number5": {
-                                                "type": "integer"
-                                            },
-                                            "number6": {
-                                                "type": "integer"
-                                            },
-                                            "number7": {
-                                                "type": "integer"
-                                            },
-                                            "number8": {
-                                                "type": "integer"
-                                            },
-                                            "number9": {
-                                                "type": "integer"
-                                            },
-                                            "number10": {
-                                                "type": "integer"
-                                            },
-                                            "number11": {
-                                                "type": "integer"
-                                            },
-                                            "number12": {
-                                                "type": "integer"
-                                            },
-                                            "number13": {
-                                                "type": "integer"
-                                            },
-                                            "number14": {
-                                                "type": "integer"
-                                            },
-                                            "number15": {
-                                                "type": "integer"
-                                            },
-                                            "number16": {
-                                                "type": "integer"
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "array",
-                                    "format": "table",
-                                    "title": "matrix",
-                                    "uniqueItems": true,
-                                    "items": {
-                                        "type": "object",
-                                        "title": "matrix",
-                                        "properties": {
-                                            "number1": {
-                                                "type": "integer"
-                                            },
-                                            "number2": {
-                                                "type": "integer"
-                                            },
-                                            "number3": {
-                                                "type": "integer"
-                                            },
-                                            "number4": {
-                                                "type": "integer"
-                                            },
-                                            "number5": {
-                                                "type": "integer"
-                                            },
-                                            "number6": {
-                                                "type": "integer"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        },
-                        "transform-origin": {
-                            "oneOf": [
-                                {
-                                    "type": "array",
-                                    "format": "table",
-                                    "title": "transform-origin",
-                                    "uniqueItems": true,
-                                    "items": {
-                                        "type": "object",
-                                        "title": "transform-origin",
-                                        "properties": {
-                                            "first": {
-                                                "type": "string",
-                                                "enum": [
-                                                    "50%",
-                                                    "top",
-                                                    "right",
-                                                    "left",
-                                                    "center",
-                                                    "bottom"
-                                                ],
-                                                "required": true
-                                            },
-                                            "second": {
-                                                "type": "string",
-                                                "enum": [
-                                                    "50%"
-                                                ],
-                                                "required": true
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "$ref": "#/definitions/length"
-                                }
-                            ]
-                        },
-                        "text-shadow": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "none"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "type": "array",
-                                    "format": "table",
-                                    "title": "text-shadow",
-                                    "uniqueItems": true,
-                                    "items": {
-                                        "type": "object",
-                                        "title": "text-shadow",
-                                        "properties": {
-                                            "length1": {
-                                                "$ref": "#/definitions/length"
-                                            },
-                                            "length2": {
-                                                "$ref": "#/definitions/length"
-                                            },
-                                            "length3": {
-                                                "$ref": "#/definitions/length"
-                                            },
-                                            "length4": {
-                                                "title": "color",
-                                                "type": "string",
-                                                "format": "color"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        },
-                        "transition-property": {
-                            "oneOf": [
-                                {
-                                    "title": "text-combine-horizontal",
-                                    "type": "string",
-                                    "enum": [
-                                        "none",
-                                        "all"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "title": "String",
-                                    "type": "string"
-                                }
-                            ]
-                        },
-                        "transition-timing-function": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "title": "transition-timing-function",
-                                    "enum": [
-                                        "ease",
-                                        "step-start",
-                                        "step-end",
-                                        "linear",
-                                        "ease-out",
-                                        "ease-in-out",
-                                        "ease-in"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "type": "object",
-                                    "title": "cubic-bezier",
-                                    "properties": {
-                                        "number1": {
-                                            "type": "string"
-                                        },
-                                        "number2": {
-                                            "type": "string"
-                                        },
-                                        "number3": {
-                                            "type": "string"
-                                        },
-                                        "number4": {
-                                            "type": "string"
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "string",
-                                    "title": "steps",
-                                    "enum": [
-                                        "start",
-                                        "end"
-                                    ],
-                                    "required": true
-                                }
-                            ]
-                        },
-                        "transition-duration": {
-                            "$ref": "#/definitions/time"
-                        },
-                        "vertical-align": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "baseline",
-                                        "top",
-                                        "text-top",
-                                        "text-bottom",
-                                        "super",
-                                        "sub",
-                                        "middle",
-                                        "bottom"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "title": "Percentage",
-                                    "type": "string",
-                                    "enum": [
-                                        "%"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "$ref": "#/definitions/length"
-                                }
-                            ]
-                        },
-                        "widows": {
-                            "title": "integer",
-                            "type": "integer",
-                            "default": "2"
-                        },
-                        "word-spacing": {
-                            "oneOf": [
-                                {
-                                    "title": "word-spacing",
-                                    "type": "string",
-                                    "enum": [
-                                        "normal"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "$ref": "#/definitions/length"
-                                },
-                                {
-                                    "title": "spacing",
-                                    "type": "string",
-                                    "enum": [
-                                        "%"
-                                    ],
-                                    "required": true
-                                }
-                            ]
-                        },
-                        "z-index": {
-                            "oneOf": [
-                                {
-                                    "title": "z-index",
-                                    "type": "string",
-                                    "enum": [
-                                        "auto"
-                                    ],
-                                    "required": true
-                                },
-                                {
-                                    "title": "Integer",
-                                    "type": "integer"
-                                }
-                            ]
-                        }
-                    }
-                }
+  "name": "vscode-power-mode",
+  "displayName": "Power Mode",
+  "description": "Your code is powerful, unleash it! The extension made popular by Code in the Dark has finally made its way to VS Code.",
+  "version": "1.2.0",
+  "publisher": "hoovercj",
+  "icon": "images/icon-large.png",
+  "author": {
+    "name": "Cody Hoover",
+    "email": "vscode@codyhoover.com",
+    "url": "https://github.com/hoovercj"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hoovercj/vscode-power-mode/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hoovercj/vscode-power-mode.git"
+  },
+  "homepage": "https://github.com/hoovercj/vscode-power-mode",
+  "engines": {
+    "vscode": "^1.13.0"
+  },
+  "categories": [
+    "Themes",
+    "Other"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./out/src/extension",
+  "scripts": {
+    "vscode:prepublish": "tsc -p ./",
+    "compile": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "node ./node_modules/vscode/bin/test"
+  },
+  "devDependencies": {
+    "typescript": "^2.0.3",
+    "vscode": "^1.0.0",
+    "mocha": "^2.3.3",
+    "@types/node": "^6.0.40",
+    "@types/mocha": "^2.2.32"
+  },
+  "contributes": {
+    "configuration": {
+      "properties": {
+        "powermode.enabled": {
+          "default": false,
+          "type": "boolean",
+          "description": "Enable to activate POWER MODE!!!"
+        },
+        "powermode.comboThreshold": {
+          "default": 0,
+          "type": "number",
+          "description": "The combo number needed to activate POWER MODE!!!"
+        },
+        "powermode.comboTimeout": {
+          "default": 10,
+          "type": "number",
+          "description": "The number of seconds before the combo resets"
+        },
+        "powermode.enableExplosions": {
+          "type": "boolean",
+          "default": true,
+          "description": "Set to false to disable explosions while typing"
+        },
+        "powermode.enableShake": {
+          "type": "boolean",
+          "default": true,
+          "description": "Set to false to disable shaking while typing"
+        },
+        "powermode.shakeIntensity": {
+          "type": "number",
+          "default": 5,
+          "description": "The intensity with which the screen shakes"
+        },
+        "powermode.maxExplosions": {
+          "type": "number",
+          "default": 1,
+          "description": "The maximum number of simultaneous explosions"
+        },
+        "powermode.explosionSize": {
+          "type": "number",
+          "default": 6,
+          "description": "The size of the explosions. For value X, the height is set to X rem and the width to X ch"
+        },
+        "powermode.explosionFrequency": {
+          "type": "number",
+          "default": 2,
+          "description": "The number of key strokes needed to trigger an explosion. 2 means every second keystroke will explode, 1 means every key stroke."
+        },
+        "powermode.explosionOffset": {
+          "type": "number",
+          "default": 0.35,
+          "description": "The vertical offset of the explosions. Increasing it will move the explosions up, decreasing it will move them down."
+        },
+        "powermode.customExplosions": {
+          "type": "array",
+          "items": "string",
+          "description": "Use anything that can go in the 'url()' part of a background image such as a base64 encoded gif or absolute file path WITHOUT quotes. Urls must be https."
+        },
+        "powermode.legacyMode": {
+          "type": "boolean",
+          "default": false,
+          "description": "If true, POWERMODE will use the small, original explosions that appeared behind the letters instead of the new ones that explode in the lines above the letters."
+        },
+        "powermode.explosionMode": {
+          "description": "Determines how the explosions are cycled. 'random' (default) picks from the list randomly. 'sequential' goes through the list in order, and a number will select the explosion at that (zero based)index in the list",
+          "default": "random",
+          "oneOf": [
+            {
+              "type": "string",
+              "enum": [
+                "random",
+                "sequential"
+              ]
+            },{
+              "type": "number"
             }
+          ]
+        },
+        "powermode.explosionDuration": {
+          "description": "Determines how long an explosion lasts (in milliseconds). Set to 0 for it to last forever.",
+          "type": "number",
+          "default": 1000
+        },
+        "powermode.settingSuggestions": {
+          "description": "Experimental: Get community provided setting suggestions in settings.json when typing 'powermode'.",
+          "type": "boolean",
+          "default": true
+        },
+        "powermode.customCss": {
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "title": "CSS Schema",
+          "definitions": {
+            "length": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "integer",
+                  "default": "2"
+                },
+                "unit": {
+                  "type": "string",
+                  "enum": [
+                    "px",
+                    "em",
+                    "%"
+                  ],
+                  "default": "px"
+                }
+              }
+            },
+            "time": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "integer",
+                  "default": "2"
+                },
+                "unit": {
+                  "type": "string",
+                  "enum": [
+                    "s",
+                    "ms"
+                  ],
+                  "default": "s"
+                }
+              }
+            },
+            "translation-value": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "integer",
+                  "default": "2"
+                }
+              }
+            },
+            "btrr": {
+              "oneOf": [
+                {
+                  "title": "radius",
+                  "$ref": "#/definitions/length"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "0"
+                  ],
+                  "required": true
+                }
+              ]
+            },
+            "border": {
+              "type": "object",
+              "properties": {
+                "unit": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "solid",
+                    "ridge",
+                    "outset",
+                    "inset",
+                    "hidden",
+                    "groove",
+                    "double",
+                    "dotted",
+                    "dashed"
+                  ],
+                  "default": "none"
+                }
+              }
+            },
+            "border-width": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "string",
+                  "enum": [
+                    "medium",
+                    "thin",
+                    "thick"
+                  ],
+                  "required": true
+                }
+              }
+            }
+          },
+          "type": "object",
+          "properties": {
+            "animation-iteration-count": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "1",
+                    "infinite"
+                  ],
+                  "required": true
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "animation-name": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none"
+                  ],
+                  "required": true
+                },
+                {
+                  "type": "string",
+                  "title": "custom identifier"
+                }
+              ]
+            },
+            "animation-timing-function": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "title": "animation-timing-function",
+                  "enum": [
+                    "ease",
+                    "step-start",
+                    "step-end",
+                    "linear",
+                    "ease-out",
+                    "ease-in-out",
+                    "ease-in"
+                  ],
+                  "required": true
+                },
+                {
+                  "type": "object",
+                  "title": "cubic-bezier",
+                  "properties": {
+                    "number1": {
+                      "type": "string"
+                    },
+                    "number2": {
+                      "type": "string"
+                    },
+                    "number3": {
+                      "type": "string"
+                    },
+                    "number4": {
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "type": "string",
+                  "title": "steps",
+                  "enum": [
+                    "start",
+                    "end"
+                  ],
+                  "required": true
+                }
+              ]
+            },
+            "integer": {
+              "type": "integer"
+            },
+            "border-radius": {
+              "$ref": "#/definitions/length"
+            },
+            "border-style": {
+              "$ref": "#/definitions/border"
+            },
+            "border-top-style": {
+              "$ref": "#/definitions/border"
+            },
+            "border-right-style": {
+              "$ref": "#/definitions/border"
+            },
+            "border-bottom-style": {
+              "$ref": "#/definitions/border"
+            },
+            "border-left-style": {
+              "$ref": "#/definitions/border"
+            },
+            "border-width": {
+              "$ref": "#/definitions/border-width"
+            },
+            "border-top-width": {
+              "$ref": "#/definitions/border-width"
+            },
+            "border-right-width": {
+              "$ref": "#/definitions/border-width"
+            },
+            "border-bottom-width": {
+              "$ref": "#/definitions/border-width"
+            },
+            "border-left-width": {
+              "$ref": "#/definitions/border-width"
+            },
+            "color": {
+              "type": "string",
+              "format": "color"
+            },
+            "background-image": {},
+            "background-size": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "title": "background-size",
+                  "enum": [
+                    "auto",
+                    "cover",
+                    "contain"
+                  ],
+                  "required": true
+                }
+              ]
+            },
+            "background-position": {},
+            "border-color": {
+              "type": "string",
+              "format": "color"
+            },
+            "top": {
+              "oneOf": [
+                {
+                  "$ref": "#/definitions/length"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "auto"
+                  ],
+                  "required": true
+                }
+              ]
+            },
+            "border-top-color": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "format": "color"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "transparent"
+                  ],
+                  "required": true
+                }
+              ]
+            },
+            "right": {
+              "oneOf": [
+                {
+                  "$ref": "#/definitions/length"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "auto"
+                  ],
+                  "required": true
+                }
+              ]
+            },
+            "border-right-color": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "format": "color"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "transparent"
+                  ],
+                  "required": true
+                }
+              ]
+            },
+            "bottom": {
+              "oneOf": [
+                {
+                  "$ref": "#/definitions/length"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "auto"
+                  ],
+                  "required": true
+                }
+              ]
+            },
+            "border-bottom-color": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "format": "color"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "transparent"
+                  ],
+                  "required": true
+                }
+              ]
+            },
+            "left": {
+              "oneOf": [
+                {
+                  "$ref": "#/definitions/length"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "auto"
+                  ],
+                  "required": true
+                }
+              ]
+            },
+            "border-left-color": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "format": "color"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "transparent"
+                  ],
+                  "required": true
+                }
+              ]
+            },
+            "border-top-left-radius": {
+              "$ref": "#/definitions/btrr"
+            },
+            "border-top-right-radius": {
+              "$ref": "#/definitions/btrr"
+            },
+            "border-bottom-left-radius": {
+              "$ref": "#/definitions/btrr"
+            },
+            "border-bottom-right-radius": {
+              "$ref": "#/definitions/btrr"
+            },
+            "border-image-source": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none"
+                  ],
+                  "required": true
+                },
+                {
+                  "title": "url",
+                  "type": "string"
+                }
+              ]
+            },
+            "border-image-slice": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "integer",
+                  "default": "100"
+                },
+                "unit": {
+                  "type": "string",
+                  "enum": [
+                    "%"
+                  ],
+                  "required": true
+                }
+              }
+            },
+            "width": {
+              "oneOf": [
+                {
+                  "$ref": "#/definitions/length"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "auto"
+                  ],
+                  "required": true
+                }
+              ]
+            },
+            "border-image-width": {
+              "type": "integer"
+            },
+            "border-image-outset": {
+              "type": "integer"
+            },
+            "border-spacing": {
+              "type": "array",
+              "format": "table",
+              "title": "border-spacing",
+              "uniqueItems": true,
+              "items": {
+                "type": "object",
+                "title": "border-spacing",
+                "properties": {
+                  "first": {
+                    "$ref": "#/definitions/length"
+                  },
+                  "second": {
+                    "$ref": "#/definitions/length"
+                  }
+                }
+              }
+            },
+            "clip": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "auto"
+                  ],
+                  "required": true
+                },
+                {
+                  "type": "array",
+                  "format": "table",
+                  "title": "rect",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "object",
+                    "title": "rect",
+                    "properties": {
+                      "length1": {
+                        "$ref": "#/definitions/length"
+                      },
+                      "length2": {
+                        "$ref": "#/definitions/length"
+                      },
+                      "length3": {
+                        "$ref": "#/definitions/length"
+                      },
+                      "length4": {
+                        "$ref": "#/definitions/length"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "array",
+                  "format": "table",
+                  "title": "inset",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "object",
+                    "title": "inset",
+                    "properties": {
+                      "length1": {
+                        "$ref": "#/definitions/length"
+                      },
+                      "length2": {
+                        "$ref": "#/definitions/length"
+                      },
+                      "length3": {
+                        "$ref": "#/definitions/length"
+                      },
+                      "length4": {
+                        "$ref": "#/definitions/length"
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "column-width": {
+              "oneOf": [
+                {
+                  "$ref": "#/definitions/length"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "auto"
+                  ],
+                  "required": true
+                }
+              ]
+            },
+            "column-count": {
+              "oneOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "auto"
+                  ],
+                  "required": true
+                }
+              ]
+            },
+            "column-gap": {
+              "oneOf": [
+                {
+                  "$ref": "#/definitions/length"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal"
+                  ],
+                  "required": true
+                }
+              ]
+            },
+            "column-rule-color": {
+              "type": "string",
+              "format": "color"
+            },
+            "column-rule-width": {
+              "oneOf": [
+                {
+                  "title": "crw",
+                  "type": "string",
+                  "enum": [
+                    "medium",
+                    "thin",
+                    "thick"
+                  ],
+                  "required": true
+                },
+                {
+                  "title": "length",
+                  "$ref": "#/definitions/length"
+                }
+              ]
+            },
+            "content": {
+              "oneOf": [
+                {
+                  "title": "content",
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "open-quote",
+                    "none",
+                    "no-open-quote",
+                    "no-close-quote",
+                    "icon",
+                    "close-quote"
+                  ],
+                  "required": true
+                },
+                {
+                  "title": " identifier",
+                  "type": "string"
+                },
+                {
+                  "title": " url",
+                  "type": "string"
+                },
+                {
+                  "title": " counter",
+                  "type": "string"
+                }
+              ]
+            },
+            "counter-increment": {
+              "oneOf": [
+                {
+                  "title": "counter-increment",
+                  "type": "string",
+                  "enum": [
+                    "none"
+                  ],
+                  "required": true
+                },
+                {
+                  "title": " identifier",
+                  "type": "string"
+                },
+                {
+                  "title": " integer",
+                  "type": "integer"
+                }
+              ]
+            },
+            "counter-reset": {
+              "oneOf": [
+                {
+                  "title": "counter-increment",
+                  "type": "string",
+                  "enum": [
+                    "none"
+                  ],
+                  "required": true
+                },
+                {
+                  "title": " identifier",
+                  "type": "string"
+                },
+                {
+                  "title": " integer",
+                  "type": "integer"
+                }
+              ]
+            },
+            "cursor": {
+              "oneOf": [
+                {
+                  "title": "cursor",
+                  "type": "string",
+                  "enum": [
+                    "auto",
+                    "zoom-out",
+                    "zoom-in",
+                    "wait",
+                    "w-resize",
+                    "vertical-text",
+                    "text",
+                    "sw-resize",
+                    "se-resize",
+                    "s-resize",
+                    "row-resize",
+                    "progress",
+                    "pointer",
+                    "nwse-resize",
+                    "nw-resize",
+                    "ns-resize",
+                    "not-allowed",
+                    "none",
+                    "no-drop",
+                    "nesw-resize",
+                    "ne-resize",
+                    "n-resize",
+                    "move",
+                    "help",
+                    "ew-resize",
+                    "e-resize",
+                    "default",
+                    "crosshair",
+                    "copy",
+                    "context-menu",
+                    "col-resize",
+                    "cell",
+                    "all-scroll",
+                    "alias"
+                  ],
+                  "required": true
+                },
+                {
+                  "title": "url",
+                  "type": "string"
+                }
+              ]
+            },
+            "flex-grow": {
+              "type": "integer"
+            },
+            "flex-shrink": {
+              "type": "integer",
+              "default": "1"
+            },
+            "flex-basis": {
+              "oneOf": [
+                {
+                  "$ref": "#/definitions/length"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "auto"
+                  ],
+                  "required": true
+                }
+              ]
+            },
+            "font-family": {
+              "type": "string"
+            },
+            "font-size": {
+              "oneOf": [
+                {
+                  "title": "font-size",
+                  "type": "string",
+                  "enum": [
+                    "medium",
+                    "xx-small",
+                    "xx-large",
+                    "x-small",
+                    "x-large",
+                    "smaller",
+                    "small",
+                    "larger",
+                    "large"
+                  ],
+                  "required": true
+                },
+                {
+                  "title": "size",
+                  "$ref": "#/definitions/length"
+                }
+              ]
+            },
+            "font-size-adjust": {
+              "type": "string",
+              "default": "none"
+            },
+            "height": {
+              "oneOf": [
+                {
+                  "title": "height",
+                  "type": "string",
+                  "enum": [
+                    "auto"
+                  ],
+                  "required": true
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "length": {
+                      "type": "integer",
+                      "default": "2"
+                    },
+                    "percentage": {
+                      "type": "string",
+                      "enum": [
+                        "%"
+                      ],
+                      "required": true
+                    }
+                  }
+                }
+              ]
+            },
+            "icon": {
+              "type": "string",
+              "default": "auto"
+            },
+            "image-orientation": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "value": {
+                      "type": "integer",
+                      "default": "1"
+                    },
+                    "unit": {
+                      "type": "string",
+                      "enum": [
+                        "deg",
+                        "grad",
+                        "rad",
+                        "turn"
+                      ],
+                      "required": true
+                    }
+                  }
+                }
+              ]
+            },
+            "letter-spacing": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal"
+                  ],
+                  "required": true
+                },
+                {
+                  "$ref": "#/definitions/length"
+                }
+              ]
+            },
+            "line-height": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal"
+                  ],
+                  "required": true
+                },
+                {
+                  "$ref": "#/definitions/length"
+                }
+              ]
+            },
+            "list-style-image": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none"
+                  ],
+                  "required": true
+                },
+                {
+                  "title": "url",
+                  "type": "string"
+                }
+              ]
+            },
+            "max-height": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none"
+                  ],
+                  "required": true
+                },
+                {
+                  "$ref": "#/definitions/length"
+                }
+              ]
+            },
+            "max-width": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none"
+                  ],
+                  "required": true
+                },
+                {
+                  "$ref": "#/definitions/length"
+                }
+              ]
+            },
+            "min-height": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "0",
+                    "auto"
+                  ],
+                  "required": true
+                },
+                {
+                  "$ref": "#/definitions/length"
+                }
+              ]
+            },
+            "min-width": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "0",
+                    "auto"
+                  ],
+                  "required": true
+                },
+                {
+                  "$ref": "#/definitions/length"
+                }
+              ]
+            },
+            "object-position": {
+              "oneOf": [
+                {
+                  "type": "array",
+                  "format": "table",
+                  "title": "object-position",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "object",
+                    "title": "object-position",
+                    "properties": {
+                      "first": {
+                        "type": "string",
+                        "enum": [
+                          "50%",
+                          "right ",
+                          "left ",
+                          "center "
+                        ],
+                        "required": true
+                      },
+                      "second": {
+                        "type": "string",
+                        "enum": [
+                          "50%",
+                          "bottom",
+                          "top",
+                          "center "
+                        ],
+                        "required": true
+                      }
+                    }
+                  }
+                },
+                {
+                  "$ref": "#/definitions/length"
+                }
+              ]
+            },
+            "opacity": {
+              "type": "integer",
+              "default": "1"
+            },
+            "orphans": {
+              "type": "integer",
+              "default": "2"
+            },
+            "outline-color": {
+              "oneOf": [
+                {
+                  "title": "invert",
+                  "type": "string",
+                  "enum": [
+                    "invert"
+                  ],
+                  "required": true
+                },
+                {
+                  "type": "string",
+                  "format": "color"
+                }
+              ]
+            },
+            "outline-offset": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "0"
+                  ],
+                  "required": true
+                },
+                {
+                  "$ref": "#/definitions/length"
+                }
+              ]
+            },
+            "outline-width": {
+              "oneOf": [
+                {
+                  "title": "crw",
+                  "type": "string",
+                  "enum": [
+                    "medium",
+                    "thin",
+                    "thick"
+                  ],
+                  "required": true
+                },
+                {
+                  "title": "length",
+                  "$ref": "#/definitions/length"
+                }
+              ]
+            },
+            "padding-top": {
+              "oneOf": [
+                {
+                  "title": "padding-top",
+                  "type": "string",
+                  "enum": [
+                    "0"
+                  ],
+                  "required": true
+                },
+                {
+                  "title": "padding-top",
+                  "$ref": "#/definitions/length"
+                }
+              ]
+            },
+            "padding-bottom": {
+              "oneOf": [
+                {
+                  "title": "padding-top",
+                  "type": "string",
+                  "enum": [
+                    "0"
+                  ],
+                  "required": true
+                },
+                {
+                  "title": "padding-top",
+                  "$ref": "#/definitions/length"
+                }
+              ]
+            },
+            "padding-left": {
+              "oneOf": [
+                {
+                  "title": "padding-top",
+                  "type": "string",
+                  "enum": [
+                    "0"
+                  ],
+                  "required": true
+                },
+                {
+                  "title": "padding-top",
+                  "$ref": "#/definitions/length"
+                }
+              ]
+            },
+            "padding-right": {
+              "oneOf": [
+                {
+                  "title": "padding-top",
+                  "type": "string",
+                  "enum": [
+                    "0"
+                  ],
+                  "required": true
+                },
+                {
+                  "title": "padding-top",
+                  "$ref": "#/definitions/length"
+                }
+              ]
+            },
+            "perspective": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none"
+                  ],
+                  "required": true
+                },
+                {
+                  "$ref": "#/definitions/length"
+                }
+              ]
+            },
+            "perspective-origin": {
+              "oneOf": [
+                {
+                  "type": "array",
+                  "format": "table",
+                  "title": "perspective-origin",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "object",
+                    "title": "perspective-origin",
+                    "properties": {
+                      "first": {
+                        "type": "string",
+                        "enum": [
+                          "50%",
+                          "top",
+                          "right",
+                          "left",
+                          "center",
+                          "bottom"
+                        ],
+                        "required": true
+                      },
+                      "second": {
+                        "type": "string",
+                        "enum": [
+                          "50%"
+                        ],
+                        "required": true
+                      }
+                    }
+                  }
+                },
+                {
+                  "$ref": "#/definitions/length"
+                }
+              ]
+            },
+            "quotes": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none"
+                  ],
+                  "required": true
+                },
+                {
+                  "type": "array",
+                  "format": "table",
+                  "title": "quotes",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "object",
+                    "title": "quotes",
+                    "properties": {
+                      "first": {
+                        "type": "string"
+                      },
+                      "second": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "tab-size": {
+              "oneOf": [
+                {
+                  "title": "tab-size",
+                  "type": "integer"
+                },
+                {
+                  "$ref": "#/definitions/length"
+                },
+                {
+                  "title": "Integer",
+                  "type": "integer"
+                }
+              ]
+            },
+            "text-align": {
+              "oneOf": [
+                {
+                  "title": "text-align",
+                  "type": "string",
+                  "enum": [
+                    "start",
+                    "right",
+                    "left",
+                    "match-parent",
+                    "justify",
+                    "end",
+                    "center"
+                  ],
+                  "required": true
+                },
+                {
+                  "title": "String",
+                  "type": "string"
+                }
+              ]
+            },
+            "text-emphasis-style": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "triangle",
+                    "sesame",
+                    "open",
+                    "filled",
+                    "double-circle",
+                    "dot",
+                    "circle"
+                  ],
+                  "required": true
+                },
+                {
+                  "title": "String",
+                  "type": "string"
+                }
+              ]
+            },
+            "text-emphasis-color": {
+              "type": "string",
+              "format": "color"
+            },
+            "text-indent": {
+              "oneOf": [
+                {
+                  "title": "text-indent",
+                  "type": "string",
+                  "enum": [
+                    "0"
+                  ],
+                  "required": true
+                },
+                {
+                  "title": "percentage",
+                  "type": "string",
+                  "enum": [
+                    "%"
+                  ],
+                  "required": true
+                },
+                {
+                  "type": "array",
+                  "format": "table",
+                  "title": "hanging each-line",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "object",
+                    "title": "hanging each-line",
+                    "properties": {
+                      "length": {
+                        "$ref": "#/definitions/length"
+                      },
+                      "hanging": {
+                        "type": "string",
+                        "enum": [
+                          "hanging"
+                        ],
+                        "required": true
+                      },
+                      "each-line": {
+                        "type": "string",
+                        "enum": [
+                          "each-line"
+                        ],
+                        "required": true
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "array",
+                  "format": "table",
+                  "title": "hanging",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "object",
+                    "title": "hanging",
+                    "properties": {
+                      "length": {
+                        "$ref": "#/definitions/length"
+                      },
+                      "hanging": {
+                        "type": "string",
+                        "enum": [
+                          "hanging"
+                        ],
+                        "required": true
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "array",
+                  "format": "table",
+                  "title": "each-line",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "object",
+                    "title": "each-line",
+                    "properties": {
+                      "length": {
+                        "$ref": "#/definitions/length"
+                      },
+                      "each-line": {
+                        "type": "string",
+                        "enum": [
+                          "each-line"
+                        ],
+                        "required": true
+                      }
+                    }
+                  }
+                },
+                {
+                  "title": "length",
+                  "$ref": "#/definitions/length"
+                }
+              ]
+            },
+            "text-combine-horizontal": {
+              "oneOf": [
+                {
+                  "title": "text-combine-horizontal",
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "all"
+                  ],
+                  "required": true
+                },
+                {
+                  "title": "digits",
+                  "type": "integer"
+                }
+              ]
+            },
+            "text-overflow": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "clip",
+                    "ellipsis"
+                  ],
+                  "required": true
+                },
+                {
+                  "title": "String",
+                  "type": "string"
+                }
+              ]
+            },
+            "transform": {
+              "oneOf": [
+                {
+                  "title": "String",
+                  "type": "string",
+                  "enum": [
+                    "none"
+                  ],
+                  "required": true
+                },
+                {
+                  "title": "translateZ",
+                  "$ref": "#/definitions/length"
+                },
+                {
+                  "title": "translateY",
+                  "$ref": "#/definitions/translation-value"
+                },
+                {
+                  "title": "translateX",
+                  "$ref": "#/definitions/translation-value"
+                },
+                {
+                  "type": "array",
+                  "format": "table",
+                  "title": "translate3d",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "object",
+                    "title": "translate3d",
+                    "properties": {
+                      "translation-value1": {
+                        "$ref": "#/definitions/translation-value"
+                      },
+                      "translation-value2": {
+                        "$ref": "#/definitions/translation-value"
+                      },
+                      "length": {
+                        "$ref": "#/definitions/length"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "array",
+                  "format": "table",
+                  "title": "translate",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "object",
+                    "title": "translate",
+                    "properties": {
+                      "translation-value1": {
+                        "$ref": "#/definitions/translation-value"
+                      },
+                      "translation-value2": {
+                        "$ref": "#/definitions/translation-value"
+                      }
+                    }
+                  }
+                },
+                {
+                  "title": "skewY",
+                  "type": "string",
+                  "enum": [
+                    "deg",
+                    "grad",
+                    "rad",
+                    "turn"
+                  ],
+                  "required": true
+                },
+                {
+                  "title": "skewX",
+                  "type": "string",
+                  "enum": [
+                    "deg",
+                    "grad",
+                    "rad",
+                    "turn"
+                  ],
+                  "required": true
+                },
+                {
+                  "title": "scaleZ",
+                  "type": "integer"
+                },
+                {
+                  "title": "scaleY",
+                  "type": "integer"
+                },
+                {
+                  "title": "scaleX",
+                  "type": "integer"
+                },
+                {
+                  "title": "rotateZ",
+                  "type": "string",
+                  "enum": [
+                    "deg",
+                    "grad",
+                    "rad",
+                    "turn"
+                  ],
+                  "required": true
+                },
+                {
+                  "title": "rotateY",
+                  "type": "string",
+                  "enum": [
+                    "deg",
+                    "grad",
+                    "rad",
+                    "turn"
+                  ],
+                  "required": true
+                },
+                {
+                  "title": "rotateX",
+                  "type": "string",
+                  "enum": [
+                    "deg",
+                    "grad",
+                    "rad",
+                    "turn"
+                  ],
+                  "required": true
+                },
+                {
+                  "title": "rotate",
+                  "type": "string",
+                  "enum": [
+                    "deg",
+                    "grad",
+                    "rad",
+                    "turn"
+                  ],
+                  "required": true
+                },
+                {
+                  "type": "array",
+                  "format": "table",
+                  "title": "rotate3d",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "object",
+                    "title": "rotate3d",
+                    "properties": {
+                      "number1": {
+                        "type": "integer"
+                      },
+                      "number2": {
+                        "type": "integer"
+                      },
+                      "number3": {
+                        "type": "integer"
+                      },
+                      "angle": {
+                        "type": "string",
+                        "enum": [
+                          "deg",
+                          "grad",
+                          "rad",
+                          "turn"
+                        ],
+                        "required": true
+                      }
+                    }
+                  }
+                },
+                {
+                  "title": "perspective",
+                  "$ref": "#/definitions/length"
+                },
+                {
+                  "type": "array",
+                  "format": "table",
+                  "title": "matrix3d",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "object",
+                    "title": "matrix3d",
+                    "properties": {
+                      "number1": {
+                        "type": "integer"
+                      },
+                      "number2": {
+                        "type": "integer"
+                      },
+                      "number3": {
+                        "type": "integer"
+                      },
+                      "number4": {
+                        "type": "integer"
+                      },
+                      "number5": {
+                        "type": "integer"
+                      },
+                      "number6": {
+                        "type": "integer"
+                      },
+                      "number7": {
+                        "type": "integer"
+                      },
+                      "number8": {
+                        "type": "integer"
+                      },
+                      "number9": {
+                        "type": "integer"
+                      },
+                      "number10": {
+                        "type": "integer"
+                      },
+                      "number11": {
+                        "type": "integer"
+                      },
+                      "number12": {
+                        "type": "integer"
+                      },
+                      "number13": {
+                        "type": "integer"
+                      },
+                      "number14": {
+                        "type": "integer"
+                      },
+                      "number15": {
+                        "type": "integer"
+                      },
+                      "number16": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "array",
+                  "format": "table",
+                  "title": "matrix",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "object",
+                    "title": "matrix",
+                    "properties": {
+                      "number1": {
+                        "type": "integer"
+                      },
+                      "number2": {
+                        "type": "integer"
+                      },
+                      "number3": {
+                        "type": "integer"
+                      },
+                      "number4": {
+                        "type": "integer"
+                      },
+                      "number5": {
+                        "type": "integer"
+                      },
+                      "number6": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "transform-origin": {
+              "oneOf": [
+                {
+                  "type": "array",
+                  "format": "table",
+                  "title": "transform-origin",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "object",
+                    "title": "transform-origin",
+                    "properties": {
+                      "first": {
+                        "type": "string",
+                        "enum": [
+                          "50%",
+                          "top",
+                          "right",
+                          "left",
+                          "center",
+                          "bottom"
+                        ],
+                        "required": true
+                      },
+                      "second": {
+                        "type": "string",
+                        "enum": [
+                          "50%"
+                        ],
+                        "required": true
+                      }
+                    }
+                  }
+                },
+                {
+                  "$ref": "#/definitions/length"
+                }
+              ]
+            },
+            "text-shadow": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none"
+                  ],
+                  "required": true
+                },
+                {
+                  "type": "array",
+                  "format": "table",
+                  "title": "text-shadow",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "object",
+                    "title": "text-shadow",
+                    "properties": {
+                      "length1": {
+                        "$ref": "#/definitions/length"
+                      },
+                      "length2": {
+                        "$ref": "#/definitions/length"
+                      },
+                      "length3": {
+                        "$ref": "#/definitions/length"
+                      },
+                      "length4": {
+                        "title": "color",
+                        "type": "string",
+                        "format": "color"
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "transition-property": {
+              "oneOf": [
+                {
+                  "title": "text-combine-horizontal",
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "all"
+                  ],
+                  "required": true
+                },
+                {
+                  "title": "String",
+                  "type": "string"
+                }
+              ]
+            },
+            "transition-timing-function": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "title": "transition-timing-function",
+                  "enum": [
+                    "ease",
+                    "step-start",
+                    "step-end",
+                    "linear",
+                    "ease-out",
+                    "ease-in-out",
+                    "ease-in"
+                  ],
+                  "required": true
+                },
+                {
+                  "type": "object",
+                  "title": "cubic-bezier",
+                  "properties": {
+                    "number1": {
+                      "type": "string"
+                    },
+                    "number2": {
+                      "type": "string"
+                    },
+                    "number3": {
+                      "type": "string"
+                    },
+                    "number4": {
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "type": "string",
+                  "title": "steps",
+                  "enum": [
+                    "start",
+                    "end"
+                  ],
+                  "required": true
+                }
+              ]
+            },
+            "transition-duration": {
+              "$ref": "#/definitions/time"
+            },
+            "vertical-align": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "baseline",
+                    "top",
+                    "text-top",
+                    "text-bottom",
+                    "super",
+                    "sub",
+                    "middle",
+                    "bottom"
+                  ],
+                  "required": true
+                },
+                {
+                  "title": "Percentage",
+                  "type": "string",
+                  "enum": [
+                    "%"
+                  ],
+                  "required": true
+                },
+                {
+                  "$ref": "#/definitions/length"
+                }
+              ]
+            },
+            "widows": {
+              "title": "integer",
+              "type": "integer",
+              "default": "2"
+            },
+            "word-spacing": {
+              "oneOf": [
+                {
+                  "title": "word-spacing",
+                  "type": "string",
+                  "enum": [
+                    "normal"
+                  ],
+                  "required": true
+                },
+                {
+                  "$ref": "#/definitions/length"
+                },
+                {
+                  "title": "spacing",
+                  "type": "string",
+                  "enum": [
+                    "%"
+                  ],
+                  "required": true
+                }
+              ]
+            },
+            "z-index": {
+              "oneOf": [
+                {
+                  "title": "z-index",
+                  "type": "string",
+                  "enum": [
+                    "auto"
+                  ],
+                  "required": true
+                },
+                {
+                  "title": "Integer",
+                  "type": "integer"
+                }
+              ]
+            }
+          }
         }
+      }
     }
+  },
+  "dependencies": {
+    "@types/request-promise-native": "^1.0.6",
+    "audio-loader": "^1.0.3",
+    "audio-play": "^2.2.0",
+    "play-sound": "^1.1.1",
+    "player": "^0.6.1",
+    "request": "^2.81.0",
+    "request-promise-native": "^1.0.4",
+    "speaker": "^0.3.0"
+  }
 }

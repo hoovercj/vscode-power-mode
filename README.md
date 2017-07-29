@@ -17,6 +17,7 @@ To enable, add `"powermode.enabled": true` to your settings.
 * A combo counter
 * A timer that shows how long until your combo expires
 * Awful explosion gifs and screen shake effect when power mode is reached
+* Community setting suggestions
 * Configuration for:
    - Combo timeout
    - The Power Mode combo threshold
@@ -30,8 +31,14 @@ To enable, add `"powermode.enabled": true` to your settings.
    - Set shake intensity
    - Legacy Mode
 
-## Configuration Ideas:
-This is an experiment and may not perform well, so I've tried to make it as configurable as possible. You can disable certain effects or reduce them to have less impact. Or you can increase them to set your machine on fire. Here are a few ideas:
+## Cool Configurations:
+I've tried to make power mode as configurable as possible. From doge to clippy, the only limit is your imagination. And now you can now see configurations shared by the community by typing `powermode` (without quotes) in `settings.json`. Share your own ideas with the community [here](https://github.com/hoovercj/vscode-power-mode/issues/7):
+
+![demo](images/demo-settings-suggestions.gif)
+
+**Note:** This feature is experimental and only available with powermode enabled. You can also disable this feature by adding `"powermode.settingSuggestions": false` to your user or workspace settings.
+
+Here are a few ideas to get you started:
 
 ### Simple
 ```json
@@ -101,6 +108,8 @@ If you can provide some lightweight, more attractive gifs that improve how power
 Thanks to [@horvay](https://github.com/horvay) for giving me ideas to get around the limitations I had in v0.0.1
 
 ## Changelog:
+- v1.2.0
+  - Suggest configurations in settings.json
 - v1.1.0
   - Configure explosion duration
   - Configure explosion "mode": random, sequential, or a specific explosion
