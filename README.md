@@ -108,6 +108,8 @@ If you can provide some lightweight, more attractive gifs that improve how power
 Thanks to [@horvay](https://github.com/horvay) for giving me ideas to get around the limitations I had in v0.0.1
 
 ## Changelog:
+- v1.2.1
+  - Remove intellisense for CSS configuration due to this [issue](https://github.com/Microsoft/vscode/issues/31932#issuecomment-326341653)
 - v1.2.0
   - Suggest configurations in settings.json
 - v1.1.0
