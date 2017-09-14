@@ -82,7 +82,7 @@ export class CursorExploder {
                 switch (this.explosionMode) {
                     case 'random':
                         this.explosionIndex = getRandomInt(0, explosions.length);
-                        break; 
+                        break;
                     case 'sequential':
                         this.explosionIndex = (this.explosionIndex + 1) % explosions.length;
                         break;
@@ -102,9 +102,10 @@ export class CursorExploder {
      * @returns an decoration type with the configured background image
      */
     private createExplosionDecorationType = (explosion: string, editorPosition: vscode.Position ) => {
-        const backgroundRepeat = 'background-repeat: no-repeat;';
-        const backgroundSize = 'background-size: contain;';
-        const backgroundImage = `background-image: url('${explosion}');`;  
+        const backgroundRepeat = '-webkit-mask-repeat: no-repeat;';
+        const backgroundSize = '-webkit-mask-size: contain;';
+        const backgroundColor = `background: currentColor; filter: saturate(150%); -webkit-mask-composite: xor; -webkit-mask-image: url('https://i.imgur.com/PB34u4G.gif');`
+        // const backgroundColor = ``;
         const position = 'position: absolute;';
         // subtract 1 ch to account for the character and divide by two to make it centered
         const leftValue = (this.explosionSize - 1) / 2;
@@ -129,7 +130,7 @@ export class CursorExploder {
         return vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
             after: {
                 contentText: '',
-                textDecoration: `none; ${backgroundRepeat} ${backgroundSize} ${backgroundImage} ${position} ${left} ${top} ${width} ${height} ${display} ${customCss}`,
+                textDecoration: `none; ${backgroundColor} ${backgroundRepeat} ${backgroundSize} ${position} ${left} ${top} ${width} ${height} ${display} ${customCss}`,
             },
             textDecoration: `none; position: relative;`,
             rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
