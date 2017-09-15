@@ -10,6 +10,8 @@ import {
     EXPLOSION_OFFSET,
     EXPLOSION_MODE,
     EXPLOSION_DURATION,
+    BACKGROUND_MODE,
+    GIF_MODE,
 } from './cursor-exploder';
 import { ProgressBarTimer } from './progress-bar-timer';
 import { StatusBarItem } from './status-bar-item';
@@ -31,6 +33,8 @@ let explosionOffset: number;
 let explosionMode: string | number;
 let explosionDuration: number;
 let legacyMode: boolean;
+let backgroundMode: string;
+let gifMode: string;
 let customCss: {[key: string]: string};
 let settingSuggestions: boolean;
 
@@ -64,6 +68,8 @@ function init() {
         explosionMode,
         explosionDuration,
         legacyMode,
+        backgroundMode,
+        gifMode,
         customCss,
     );
     progressBarTimer = new ProgressBarTimer();
@@ -139,6 +145,8 @@ function onDidChangeConfiguration() {
     explosionMode = config.get<number | string>('explosionMode', EXPLOSION_MODE);
     explosionDuration = config.get<number>('explosionDuration', EXPLOSION_DURATION);
     legacyMode = config.get<boolean>('legacyMode', false);
+    backgroundMode = config.get<string>('backgroundMode', BACKGROUND_MODE);
+    gifMode = config.get<string>('gifMode', GIF_MODE);
     customCss = config.get<any>('customCss', {});
     settingSuggestions = config.get<boolean>('settingSuggestions', true);
 
@@ -182,6 +190,8 @@ function onDidChangeConfiguration() {
     cursorExploder.explosionMode = explosionMode;
     cursorExploder.legacyMode = legacyMode;
     cursorExploder.customCss = customCss;
+    cursorExploder.backgroundMode = backgroundMode;
+    cursorExploder.gifMode = gifMode;
 
     // Update the SettingsSuggester settings
     settingsSuggester.settingSuggestions = settingSuggestions;

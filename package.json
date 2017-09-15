@@ -102,6 +102,24 @@
           "items": "string",
           "description": "Use anything that can go in the 'url()' part of a background image such as a base64 encoded gif or absolute file path WITHOUT quotes. Urls must be https."
         },
+        "powermode.backgroundMode": {
+          "type": "string",
+          "enum": [
+            "mask",
+            "image"
+          ],
+          "description": "Blah",
+          "default": "mask"
+        },
+        "powermode.gifMode": {
+          "type": "string",
+          "enum": [
+            "continue",
+            "restart"
+          ],
+          "description": "Blah",
+          "default": "restart"
+        },
         "powermode.legacyMode": {
           "type": "boolean",
           "default": false,
