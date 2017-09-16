@@ -1,9 +1,17 @@
 'use strict';
 import * as vscode from 'vscode';
+import { Plugin } from '../plugin';
+import { ThemeConfig, getConfigValue } from '../config/config';
 
-export const SHAKE_INTENSITY = 5;
+const ENABLED = true;
+const SHAKE_INTENSITY = 5;
 
-export class ScreenShaker {
+export class ScreenShakerConfig {
+    enableShake: boolean;
+    shakeIntensity?: number;
+}
+
+export class ScreenShaker implements Plugin {
 
     private negativeX: vscode.TextEditorDecorationType;
     private positiveX: vscode.TextEditorDecorationType;
@@ -11,18 +19,22 @@ export class ScreenShaker {
     private positiveY: vscode.TextEditorDecorationType;
     private shakeDecorations: vscode.TextEditorDecorationType[] = [];
     private shakeTimeout: NodeJS.Timer;
+    private config: ScreenShakerConfig = {} as ScreenShakerConfig;
 
     // A range that represents the full document. A top margin is applied
     // to this range which will push every line down the desired amount
     private fullRange = [new vscode.Range(new vscode.Position(0, 0), new vscode.Position(Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER))];
 
-    constructor(shakeIntensity: number = SHAKE_INTENSITY) {
+    constructor(public themeConfig: ThemeConfig) {}
+
+    public activate = () => {
+        this.dispose();
         this.negativeX = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
             textDecoration: `none; margin-left: 0px;`
         });
 
         this.positiveX = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
-            textDecoration: `none; margin-left: ${shakeIntensity}px;`
+            textDecoration: `none; margin-left: ${this.config.shakeIntensity}px;`
         });
 
         this.negativeY = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
@@ -30,7 +42,7 @@ export class ScreenShaker {
         });
 
         this.positiveY = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
-            textDecoration: `none; margin-top: ${shakeIntensity}px;`
+            textDecoration: `none; margin-top: ${this.config.shakeIntensity}px;`
         });
 
         this.shakeDecorations = [
@@ -41,11 +53,76 @@ export class ScreenShaker {
         ];
     }
 
+    public dispose = () => {
+        clearTimeout(this.shakeTimeout);
+        this.shakeDecorations.forEach(decoration => decoration.dispose());
+    }
+
+    public onPowermodeStart = (combo: number) => {
+        // Do nothing
+    }
+
+    public onPowermodeStop = (combo: number) => {
+        this.unshake();
+    }
+
+    public onDidChangeTextDocument = (combo: number, powermode: boolean, event: vscode.TextDocumentChangeEvent) => {
+        if (!this.config.enableShake || !powermode) {
+            return;
+        }
+
+        this.shake();
+    }
+
+    public onDidChangeConfiguration = (config: vscode.WorkspaceConfiguration) => {
+
+        const newConfig: ScreenShakerConfig = {
+            enableShake: getConfigValue<boolean>('enableShake', config, this.themeConfig),
+            shakeIntensity: getConfigValue<number>('shakeIntensity', config, this.themeConfig),
+        };
+
+        let changed = false;
+        Object.keys(newConfig).forEach(key => {
+            if (this.config[key] !== newConfig[key]) {
+                changed = true;
+            }
+        });
+
+        if (!changed) {
+            return;
+        }
+
+        const oldConfig = this.config;
+        this.config = newConfig;
+
+        // If it is enabled but was not before, activate
+        if (this.config.enableShake && !oldConfig.enableShake) {
+            this.activate();
+            return;
+        }
+
+        // If the shake intensity changed recreate the screen shaker
+        if (this.config.shakeIntensity !== oldConfig.shakeIntensity) {
+            this.activate();
+            return;
+        }
+
+        // If it is now disabled, unshake the screen
+        if (!this.config.enableShake) {
+            this.dispose();
+            return;
+        }
+    }
+
     /**
      * "Shake" the screen by applying decorations that set margins
      * to move them horizontally or vertically
      */
-    shake = () => {
+    private shake = () => {
+        if (!this.config.enableShake) {
+            return;
+        }
+
         const activeEditor = vscode.window.activeTextEditor;
 
         // A range is created for each line in the document that only applies to the first character
@@ -85,15 +162,10 @@ export class ScreenShaker {
     /**
      * Unset all shake decorations
      */
-    unshake = () => {
+    private unshake = () => {
         this.shakeDecorations.forEach(decoration => {
             vscode.window.activeTextEditor.setDecorations(decoration, []);
         });
-    }
-
-    dispose = () => {
-        clearTimeout(this.shakeTimeout);
-        this.shakeDecorations.forEach(decoration => decoration.dispose());
     }
 }
 

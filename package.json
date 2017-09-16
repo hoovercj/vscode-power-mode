@@ -52,6 +52,15 @@
           "type": "boolean",
           "description": "Enable to activate POWER MODE!!!"
         },
+        "powermode.presets": {
+          "type": "string",
+          "enum": [
+            "fireworks",
+            "particles"
+          ],
+          "default": "fireworks",
+          "description": "Blah"
+        },
         "powermode.comboThreshold": {
           "default": 0,
           "type": "number",
@@ -64,12 +73,10 @@
         },
         "powermode.enableExplosions": {
           "type": "boolean",
-          "default": true,
           "description": "Set to false to disable explosions while typing"
         },
         "powermode.enableShake": {
           "type": "boolean",
-          "default": true,
           "description": "Set to false to disable shaking while typing"
         },
         "powermode.shakeIntensity": {
@@ -79,22 +86,18 @@
         },
         "powermode.maxExplosions": {
           "type": "number",
-          "default": 1,
           "description": "The maximum number of simultaneous explosions"
         },
         "powermode.explosionSize": {
           "type": "number",
-          "default": 6,
           "description": "The size of the explosions. For value X, the height is set to X rem and the width to X ch"
         },
         "powermode.explosionFrequency": {
           "type": "number",
-          "default": 2,
           "description": "The number of key strokes needed to trigger an explosion. 2 means every second keystroke will explode, 1 means every key stroke."
         },
         "powermode.explosionOffset": {
           "type": "number",
-          "default": 0.35,
           "description": "The vertical offset of the explosions. Increasing it will move the explosions up, decreasing it will move them down."
         },
         "powermode.customExplosions": {
@@ -108,8 +111,7 @@
             "mask",
             "image"
           ],
-          "description": "Blah",
-          "default": "mask"
+          "description": "Blah"
         },
         "powermode.gifMode": {
           "type": "string",
@@ -117,17 +119,10 @@
             "continue",
             "restart"
           ],
-          "description": "Blah",
-          "default": "restart"
-        },
-        "powermode.legacyMode": {
-          "type": "boolean",
-          "default": false,
-          "description": "If true, POWERMODE will use the small, original explosions that appeared behind the letters instead of the new ones that explode in the lines above the letters."
+          "description": "Blah"
         },
         "powermode.explosionMode": {
           "description": "Determines how the explosions are cycled. 'random' (default) picks from the list randomly. 'sequential' goes through the list in order, and a number will select the explosion at that (zero based)index in the list",
-          "default": "random",
           "oneOf": [
             {
               "type": "string",
@@ -142,8 +137,8 @@
         },
         "powermode.explosionDuration": {
           "description": "Determines how long an explosion lasts (in milliseconds). Set to 0 for it to last forever.",
-          "type": "number",
-          "default": 1000
+          "type": "number"
+
         },
         "powermode.settingSuggestions": {
           "description": "Experimental: Get community provided setting suggestions in settings.json when typing 'powermode'.",
@@ -152,8 +147,8 @@
         },
         "powermode.customCss": {
           "description": "Set custom CSS that will apply to the explosion element.",
-          "type": "object",
-          "default": {}
+          "type": "object"
+
         }
       }
     }
