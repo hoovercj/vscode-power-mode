@@ -143,11 +143,6 @@
           "type": "number"
 
         },
-        "powermode.settingSuggestions": {
-          "description": "Experimental: Get community provided setting suggestions in settings.json when typing 'powermode'.",
-          "type": "boolean",
-          "default": true
-        },
         "powermode.customCss": {
           "description": "Set custom CSS that will apply to the explosion element.",
           "type": "object"

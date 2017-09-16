@@ -10,7 +10,7 @@ const threeColorfulFireworks2 = "data:image/gif;base64,R0lGODlhoAB4APQbAAAAABAQC
 export const Fireworks: ThemeConfig = {
     enableShake: true,
     enableExplosions: true,
-    maxExplosions: 1,
+    maxExplosions: 3,
     explosionSize: 6,
     explosionFrequency: 2,
     explosionOrder: 'random',

@@ -11,7 +11,6 @@ import { ScreenShaker } from './screen-shaker/screen-shaker';
 import { CursorExploder } from './cursor-exploder/cursor-exploder';
 import { ProgressBarTimer } from './progress-bar-timer';
 import { StatusBarItem } from './status-bar-item';
-import { SettingsSuggester } from './settings-suggester';
 
 const DEFAULT_THEME_ID = 'particles';
 const DEFAULT_THEME_CONFIG = Particles;
@@ -31,7 +30,6 @@ let cursorExploder: CursorExploder;
 let plugins: Plugin[] = [];
 let progressBarTimer: ProgressBarTimer;
 let statusBarItem: StatusBarItem;
-let settingsSuggester: SettingsSuggester;
 
 // Themes
 let themes: {[key: string]: ThemeConfig} = {
@@ -70,9 +68,6 @@ function init(config: vscode.WorkspaceConfiguration, activeTheme: ThemeConfig) {
 
     progressBarTimer = new ProgressBarTimer();
     statusBarItem = new StatusBarItem();
-    settingsSuggester = new SettingsSuggester();
-
-    vscode.languages.registerCompletionItemProvider({ language: 'json', pattern: '**/settings.json' }, settingsSuggester)
 
     documentChangeListenerDisposer = vscode.workspace.onDidChangeTextDocument(onDidChangeTextDocument);
 }
@@ -107,10 +102,6 @@ export function deactivate() {
     if (statusBarItem) {
         statusBarItem.dispose();
         statusBarItem = null;
-    }
-
-    if (settingsSuggester) {
-        settingsSuggester = null;
     }
 }
 
@@ -150,9 +141,6 @@ function onDidChangeConfiguration() {
     cursorExploder.themeConfig = theme;
 
     plugins.forEach(plugin => plugin.onDidChangeConfiguration(config));
-
-    // Update the SettingsSuggester settings
-    settingsSuggester.settingSuggestions = settingSuggestions;
 }
 
 // This will be exposed so other extensions can contribute their own themes
