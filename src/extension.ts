@@ -57,17 +57,19 @@ function init(config: vscode.WorkspaceConfiguration, activeTheme: ThemeConfig) {
     // The native plugins need this special theme, a subset of the config
     screenShaker = new ScreenShaker(activeTheme),
     cursorExploder = new CursorExploder(activeTheme),
+    statusBarItem = new StatusBarItem();
 
     plugins.push(
         screenShaker,
         cursorExploder,
-        new StatusBarItem(),
+        statusBarItem,
     );
+
 
     plugins.forEach(plugin => plugin.onDidChangeConfiguration(config));
 
+    statusBarItem.activate();
     progressBarTimer = new ProgressBarTimer();
-    statusBarItem = new StatusBarItem();
 
     documentChangeListenerDisposer = vscode.workspace.onDidChangeTextDocument(onDidChangeTextDocument);
 }
@@ -87,11 +89,6 @@ export function deactivate() {
 
     while (plugins.length > 0) {
         plugins.shift().dispose();
-    }
-
-    if (statusBarItem) {
-        statusBarItem.dispose();
-        statusBarItem = null;
     }
 
     if (progressBarTimer) {
