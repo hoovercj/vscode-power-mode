@@ -2,7 +2,7 @@
   "name": "vscode-power-mode",
   "displayName": "Power Mode",
   "description": "Your code is powerful, unleash it! The extension made popular by Code in the Dark has finally made its way to VS Code.",
-  "version": "1.2.1",
+  "version": "2.0.0",
   "publisher": "hoovercj",
   "icon": "images/icon-large.png",
   "author": {
@@ -55,11 +55,14 @@
         "powermode.presets": {
           "type": "string",
           "enum": [
+            "particles",
             "fireworks",
-            "particles"
+            "flames",
+            "magic",
+            "clippy"
           ],
-          "default": "fireworks",
-          "description": "Blah"
+          "default": "particles",
+          "description": "Choose between different preset gifs to use when powermode is activated"
         },
         "powermode.comboThreshold": {
           "default": 0,
@@ -111,7 +114,7 @@
             "mask",
             "image"
           ],
-          "description": "Blah"
+          "description": "Affects the css properties used to display the gif. `mask` uses the gifs as a mask to let the background come through (similar to atom power mode) and `image` will display the actual gif."
         },
         "powermode.gifMode": {
           "type": "string",
@@ -119,9 +122,9 @@
             "continue",
             "restart"
           ],
-          "description": "Blah"
+          "description": "`restart` will restart the gif each time it is shown, `continue` will resume playing it from its previous point"
         },
-        "powermode.explosionMode": {
+        "powermode.explosionOrder": {
           "description": "Determines how the explosions are cycled. 'random' (default) picks from the list randomly. 'sequential' goes through the list in order, and a number will select the explosion at that (zero based)index in the list",
           "oneOf": [
             {

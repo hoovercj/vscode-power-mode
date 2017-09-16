@@ -2,15 +2,19 @@
 import * as vscode from 'vscode';
 import { Plugin } from './plugin';
 import { ThemeConfig, getConfigValue } from './config/config';
-import { Fireworks } from './config/fireworks';
 import { Particles } from './config/particles';
+import { Fireworks } from './config/fireworks';
+import { Flames } from './config/flames';
+import { Magic } from './config/magic';
+import { Clippy } from './config/clippy';
 import { ScreenShaker } from './screen-shaker/screen-shaker';
 import { CursorExploder } from './cursor-exploder/cursor-exploder';
 import { ProgressBarTimer } from './progress-bar-timer';
 import { StatusBarItem } from './status-bar-item';
 import { SettingsSuggester } from './settings-suggester';
 
-const DEFAULT_THEME = 'fireworks';
+const DEFAULT_THEME_ID = 'particles';
+const DEFAULT_THEME_CONFIG = Particles;
 
 // Config values
 let documentChangeListenerDisposer: vscode.Disposable = null;
@@ -19,17 +23,24 @@ let comboTimeout;
 let comboThreshold;
 let settingSuggestions: boolean;
 
-// PowerMode components
+// Native plugins
 let screenShaker: ScreenShaker;
 let cursorExploder: CursorExploder;
+
+// PowerMode components
 let plugins: Plugin[] = [];
 let progressBarTimer: ProgressBarTimer;
 let statusBarItem: StatusBarItem;
 let settingsSuggester: SettingsSuggester;
 
+// Themes
 let themes: {[key: string]: ThemeConfig} = {
-    [DEFAULT_THEME]: Fireworks,
+    fireworks: Fireworks,
     particles: Particles,
+    flames: Flames,
+    magic: Magic,
+    clippy: Clippy,
+    [DEFAULT_THEME_ID]: DEFAULT_THEME_CONFIG,
 };
 
 // Current combo count
@@ -45,6 +56,7 @@ function init(config: vscode.WorkspaceConfiguration, activeTheme: ThemeConfig) {
     deactivate();
     combo = 0;
 
+    // The native plugins need this special theme, a subset of the config
     screenShaker = new ScreenShaker(activeTheme),
     cursorExploder = new CursorExploder(activeTheme),
 
@@ -133,6 +145,7 @@ function onDidChangeConfiguration() {
         return;
     }
 
+    // The theme needs set BEFORE onDidChangeConfiguration is called
     screenShaker.themeConfig = theme;
     cursorExploder.themeConfig = theme;
 
@@ -142,9 +155,10 @@ function onDidChangeConfiguration() {
     settingsSuggester.settingSuggestions = settingSuggestions;
 }
 
-function registerTheme(themeId: string, config: ThemeConfig) {
-    themes[themeId] = config;
-}
+// This will be exposed so other extensions can contribute their own themes
+// function registerTheme(themeId: string, config: ThemeConfig) {
+//     themes[themeId] = config;
+// }
 
 function getThemeConfig(themeId: string): ThemeConfig {
     return themes[themeId];

@@ -6,14 +6,15 @@ Power Mode is one of the most requested extensions for VS Code. Unfortunatley, t
 
 However, after seeing [this list](https://github.com/codeinthedark/awesome-power-mode) and realizing that VS Code was the only modern editor without it, I knew I had to try. I couldn't let VS Code live in the shadow of its big brother or Atom.
 
-I present you, VSCODE POWER MODE!!! (NOW WITH BIGGER EXPLOSIONS!)
+I present you, VSCODE POWER MODE!!! (NOW WITH ATOM-LIKE EXPLOSIONS!)
 
 ![demo](images/demo.gif)
 
 To enable, add `"powermode.enabled": true` to your settings.
 
 ## Features:
-* NEW: BIGGER EXPLOSIONS!
+* NEW: Atom-like explosions!
+* NEW: Multiple explosion sets to choose from
 * A combo counter
 * A timer that shows how long until your combo expires
 * Awful explosion gifs and screen shake effect when power mode is reached
@@ -21,73 +22,33 @@ To enable, add `"powermode.enabled": true` to your settings.
 * Configuration for:
    - Combo timeout
    - The Power Mode combo threshold
+   - Built-in explosion sets
    - Choose your own explosions with base64 encoded gifs or full URIs (i.e. "data:image/gif;base64,1337GIF", "C:/my/cat/gif", "https://coolgif.io")
-   - Choose how long the explosions last
+   - Choose how long the explosions last and how they loop
+   - Choose how the gif is displayed (same color as the text or as an image)
    - Choose how to cycle through the explosions (random, sequential, or a specific index)
    - Set the size, number, and frequency of explosions
    - Change the vertical offset of the explosions
    - Disable explosions
    - Disable shake
    - Set shake intensity
-   - Legacy Mode
 
-## Cool Configurations:
-I've tried to make power mode as configurable as possible. From doge to clippy, the only limit is your imagination. And now you can now see configurations shared by the community by typing `powermode` (without quotes) in `settings.json`. Share your own ideas with the community [here](https://github.com/hoovercj/vscode-power-mode/issues/7):
+## Choose your explosions:
+You can now choose your explosions with a single setting: `powermode.presets`. Check out the options below:
+
+# TODO: Add examples here
+
+## Advanced Configuration:
+Hopefully power mode will work great for you out of the box, but if it doesn't I've tried to make power mode as configurable as possible. Tweak the settings for performance or for fun. From doge to clippy, the only limit is your imagination.
+
+And now you can now see configurations shared by the community by typing `powermode` (without quotes) in `settings.json`. Share your own ideas with the community [here](https://github.com/hoovercj/vscode-power-mode/issues/7):
 
 ![demo](images/demo-settings-suggestions.gif)
 
 **Note:** This feature is experimental and only available with powermode enabled. You can also disable this feature by adding `"powermode.settingSuggestions": false` to your user or workspace settings.
 
-Here are a few ideas to get you started:
-
-### Simple
-```json
-// Disable shake
-"powermode.enableShake": false,
-// Use the second (out of three) built in explosions
-"powermode.explosionMode": 1,
-```
-
-![demo](images/demo-simple.gif)
-
-
-### Chaos  
-```json
-// Make them often
-"powermode.explosionFrequency": 1,
-// Make them many
-"powermode.maxExplosions": 5,
-// Make them huge
-"powermode.explosionSize": 20,
-// Make them powerful!
-"powermode.shakeIntensity": 15,
-
-```
-
-![demo](images/demo-chaos.gif)
-
-### Clippy
-```json
-// https url link to image (http won't work) 
-"powermode.customExplosions": [ "https://m.popkey.co/6a12ff/YN1DZ_s-200x150.gif" ],
-// Make sure there is only one clippy
-"powermode.maxExplosions": 1,
-// Have him stay forever
-"powermode.explosionDuration": 0,
-// Position him to the bottom right of the cursor
-"powermode.customCss": {
-    "left": "1ch",
-    "top": "1em",
-    "z-index": 1
-},
-// Turn off shaking
-"powermode.enableShake": false,
-```
-
-![demo](images/demo-clippy.gif)
-
-### Other Options:
-* `powermode.legacyMode`: If it worked better for you before the upgrade, setting this to `true` will use the original explosions.
+* `powermode.backgroundMode`: `mask` will use the gif as a mask, letting the shape of the gif through with the color of the text. `image` will use the gif itself as the background.
+* `powermode.gifMode`: `restart` will restart a gif each time it is displayed, `continue` will play the gif from the place it stopped. `continue` is useful when you only have 1 visible gif, `restart` is useful when you have multiple.
 * `powermode.maxExplosions`: Reducing this will reduce the number of explosions rendered at once.
 * `powermode.explosionFrequency`: Increasing this will increase the number of keystrokes between explosions. It means that there will be gaps between explosions as you type but may help performance.
 * `powermode.customExplosions`: Provide your own lighter weight gifs to use (And share them [here](https://github.com/hoovercj/vscode-power-mode/issues/1))
@@ -99,15 +60,19 @@ They were right when they said it can't be done. At least not properly. VS Code 
 * The cursor doesn't move with the text as it shakes
 * When deleting characters, the explosion will briefly move to the beginning of the line. This is because I am using an "after" pseudoclass to apply the decorations, and when you delete the letter that it is anchored to it repositions to the next anchor which is the entire line.
 * I have to use gifs instead of CSS animations for the particles/explosions
-* I am not an artist, so I am using free gifs I found online
 
 ## Help Wanted:
 If you can provide some lightweight, more attractive gifs that improve how power mode looks and performs, I would be happy to include them!
 
 ## Acknowledgements:
+Thanks to [@darkvertex](https://github.com/darkvertex) for providing awesome gifs added in version 2.0
 Thanks to [@horvay](https://github.com/horvay) for giving me ideas to get around the limitations I had in v0.0.1
 
 ## Changelog:
+- v2.0
+ - Removed `powermode.legacyMode`
+ - Added `powermode.presets` to choose between different built-in explosion sets
+ - Added `powermode.backgroundMode` to allow 'atom like' explosions (explosions that match the color of the text being typed)
 - v1.2.1
   - Remove intellisense for CSS configuration due to this [issue](https://github.com/Microsoft/vscode/issues/31932#issuecomment-326341653)
 - v1.2.0

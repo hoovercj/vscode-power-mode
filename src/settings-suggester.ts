@@ -24,7 +24,7 @@ const ALLOWED_SETTINGS = [
     'powermode.explosionOffset',
     'powermode.customExplosions',
     'powermode.legacyMode',
-    'powermode.explosionMode',
+    'powermode.explosionOrder',
     'powermode.explosionDuration',
     'powermode.customCss',
 ]

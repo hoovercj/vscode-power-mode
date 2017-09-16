@@ -13,7 +13,7 @@ export const Fireworks: ThemeConfig = {
     maxExplosions: 1,
     explosionSize: 6,
     explosionFrequency: 2,
-    explosionMode: 'random',
+    explosionOrder: 'random',
     gifMode: 'restart',
     explosionDuration: 1000,
     explosionOffset: .35,
