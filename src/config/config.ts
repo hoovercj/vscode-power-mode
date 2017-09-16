@@ -17,13 +17,23 @@ export function getConfigValue<T>(key: string, vscodeConfig: WorkspaceConfigurat
         return vscodeConfig.get<T>(key);
     }
 
-    // Otherwise first use the themeConfig value if set,
-    // falling back to the package.json default value
+    // Use the themeConfig value if set,
+    const themeValue = themeConfig[key];
+    if (!isNullOrUndefined(themeValue)) {
+        return themeValue;
+    }
+
+    // Fall back to the package.json default value
     // as a last resort
-    return themeConfig[key] || vscodeConfig.get<T>(key);
+    return vscodeConfig.get<T>(key);
+}
+
+function isNullOrUndefined(value: any) {
+    return value === null || value === undefined;
 }
 
 function isConfigSet(key: string, config: WorkspaceConfiguration): boolean {
     const inspectionResults = config.inspect(key);
-    return !!inspectionResults.globalValue || !!inspectionResults.workspaceValue;
+    return !isNullOrUndefined(inspectionResults.globalValue) ||
+           !isNullOrUndefined(inspectionResults.workspaceValue);
 }
