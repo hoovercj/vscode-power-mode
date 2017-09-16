@@ -48,7 +48,7 @@ Hopefully power mode will work great for you out of the box, but if it doesn't I
 
 * `powermode.customExplosions`: Choose your own explosions with base64 encoded gifs or full URIs (i.e. "data:image/gif;base64,1337GIF", "C:/my/cat/gif", "https://coolgif.io")
 * `powermode.backgroundMode`: `mask` will use the gif as a mask, letting the shape of the gif through with the color of the text. `image` will use the gif itself as the background.
-[!mask]()
+![mask](images/demo-mask-fireworks.gif)
 * `powermode.gifMode`: `restart` will restart a gif each time it is displayed, `continue` will play the gif from the place it stopped. `continue` is useful when you only have 1 visible gif, `restart` is useful when you have multiple.
 * `powermode.maxExplosions`: Reducing this will reduce the number of explosions rendered at once.
 * `powermode.explosionFrequency`: Increasing this will increase the number of keystrokes between explosions. It means that there will be gaps between explosions as you type but may help performance.
