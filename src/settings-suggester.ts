@@ -124,6 +124,7 @@ export class SettingsSuggester {
             return comments;
         }).catch(e => {
               console.error(e);
+              return [];
         });
     }
 }
