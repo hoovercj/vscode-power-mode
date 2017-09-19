@@ -29,11 +29,11 @@ const ALLOWED_SETTINGS = [
     'powermode.customCss',
 ]
 
-let comments: Comment[] = null;
-
 export class SettingsSuggester {
 
     public settingSuggestions: boolean = true;
+
+    private commentsPromise: Promise<Comment[]>;
 
     provideCompletionItems = (document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): Promise<vscode.CompletionItem[]> => {
         if (!this.settingSuggestions) {
@@ -64,68 +64,69 @@ export class SettingsSuggester {
     }
 
     private getComments = (): Promise<Comment[]> => {
+        if (!this.commentsPromise) {
+            this.commentsPromise = request(url, { headers: { 'User-Agent': 'vscode' } })
+                .then(body => this.parseComments(body))
+                .catch(reason => {
+                    console.error(reason);
+                    return [];
+                });
+        }
+        return this.commentsPromise;
+    }
+    
+    private parseComments = (responseBody): Comment[] => {
+        let comments: Comment[] = [];
+        try {
+            const rawComments = JSON.parse(responseBody);
+            for (const rawComment of rawComments) {
+                const body: string = rawComment.body.trim();
+                // Start with assumption that we'll parse the whole comment
+                let startIndex = 0;
+                let endIndex = body.length;
 
-        if (comments && comments.length !== 0) {
-            return Promise.resolve(comments);
+                // Search for code tags
+                const startTagIndex = body.indexOf(COMMENT_PREFIX);
+                const endTagIndex = body.lastIndexOf(COMMENT_SUFFIX);
+
+                // If there is a starting code tag, move the start index to the end of it
+                if (startTagIndex >= 0) {
+                    startIndex = startTagIndex + COMMENT_PREFIX.length;
+                }
+
+                // stop parsing at the ending code tag if it is after
+                // the start index or is the same as the start tag
+                if (endTagIndex >= startIndex) {
+                    endIndex = endTagIndex;
+                }
+
+                // Extract the text
+                const settingsText = body.substring(startIndex, endIndex);
+
+                // if it is empty, ignore it
+                if (!settingsText) {
+                    return;
+                }
+
+                try {
+                    // Try to parse the comment body. If it is parseable
+                    // and it has a 'settings' property, keep it
+                    const comment: Comment = JSON.parse(settingsText);
+                    if (comment && comment.label && comment.settings) {
+                        comments.push(comment);
+                    }
+                }
+                catch (e) {
+                    console.error(e);
+                    // ignore
+                }
+            }
+        }
+        catch (e) {
+            console.error(e);
+            // ignore
         }
 
-        comments = [];
-        return request(url, { headers: { 'User-Agent': 'vscode' } })
-        .then(res => {
-            try {
-                const rawComments = JSON.parse(res);
-                rawComments.forEach(comment => {
-                    const body: string = comment.body.trim();
-                    // Start with assumption that we'll parse the whole comment
-                    let startIndex = 0;
-                    let endIndex = body.length;
-
-                    // Search for code tags
-                    const startTagIndex = body.indexOf(COMMENT_PREFIX);
-                    const endTagIndex = body.lastIndexOf(COMMENT_SUFFIX);
-
-                    // If there is a starting code tag, move the start index to the end of it
-                    if (startTagIndex >= 0) {
-                        startIndex = startTagIndex + COMMENT_PREFIX.length;
-                    }
-
-                    // stop parsing at the ending code tag if it is after
-                    // the start index or is the same as the start tag
-                    if (endTagIndex >= startIndex) {
-                        endIndex = endTagIndex;
-                    }
-
-                    // Extract the text
-                    const settingsText = body.substring(startIndex, endIndex);
-
-                    // if it is empty, ignore it
-                    if (!settingsText) {
-                        return;
-                    }
-
-                    try {
-                        // Try to parse the body. If it is parseable
-                        // and it has a 'settings' property, keep it
-                        const settings: Comment = JSON.parse(settingsText);
-                        if (settings && settings.label && settings.settings) {
-                            comments.push(settings);
-                        }
-                    }
-                    catch (e) {
-                        console.error(e);
-                        // ignore
-                    }
-                });
-            }
-            catch (e) {
-                console.error(e);
-                // ignore
-            }
-
-            return comments;
-        }).catch(e => {
-              console.error(e);
-              return [];
-        });
+        return comments;
     }
 }
