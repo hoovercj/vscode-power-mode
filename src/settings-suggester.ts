@@ -29,7 +29,8 @@ const ALLOWED_SETTINGS = [
     'powermode.customCss',
 ]
 
-let comments: Comment[] = null;;
+let comments: Comment[] = null;
+
 export class SettingsSuggester {
 
     public settingSuggestions: boolean = true;
