@@ -41,14 +41,14 @@ export class CursorExploder implements Plugin {
     }
 
     dispose = () => {
-        // Nothing to dispose yet
+        this.onPowermodeStop();
     }
 
-    public onPowermodeStart = (combo: number) => {
+    public onPowermodeStart = (combo?: number) => {
         // Do nothing
     }
 
-    public onPowermodeStop = (combo: number) => {
+    public onPowermodeStop = (combo?: number) => {
         // Dispose all explosions
         while(this.activeDecorations.length > 0) {
             this.activeDecorations.shift().dispose();
@@ -101,8 +101,9 @@ export class CursorExploder implements Plugin {
     }
 
     public initialize = () => {
+        this.dispose();
+
         if (!this.config.enableExplosions) {
-            this.dispose();
             return;
         }
 

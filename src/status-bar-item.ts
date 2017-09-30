@@ -38,10 +38,6 @@ export class StatusBarItem implements Plugin {
     }
 
     public onDidChangeTextDocument = (combo: number, powermode: boolean, event: vscode.TextDocumentChangeEvent) => {
-        if (!powermode) {
-            return;
-        }
-
         this.updateStatusBar(combo, powermode);
     }
 

@@ -48,10 +48,10 @@ Hopefully power mode will work great for you out of the box, but if it doesn't I
 * `powermode.customExplosions`: Choose your own explosions with base64 encoded gifs or full URIs (i.e. "data:image/gif;base64,1337GIF", "C:/my/cat/gif", "https://coolgif.io")
 * `powermode.backgroundMode`: `mask` will use the gif as a mask, letting the shape of the gif through with the color of the text. `image` will use the gif itself as the background.
 ![mask](images/demo-mask-fireworks.gif)
-* `powermode.gifMode`: `restart` will restart a gif each time it is displayed, `continue` will play the gif from the place it stopped. `continue` is useful when you only have 1 visible gif, `restart` is useful when you have multiple.
+* `powermode.gifMode`: `restart` will restart a gif each time it is displayed, `continue` will play the gif from the place it stopped. `continue` is particularly useful when you only have 1 visible gif, `restart` is useful when you have multiple, but may reduce performance.
 * `powermode.maxExplosions`: Reducing this will reduce the number of explosions rendered at once.
 * `powermode.explosionFrequency`: Increasing this will increase the number of keystrokes between explosions. It means that there will be gaps between explosions as you type but may help performance.
-* `powermode.customExplosions`: Provide your own lighter weight gifs to use (And share them [here](https://github.com/hoovercj/vscode-power-mode/issues/1))
+* `powermode.customExplosions`: Provide your own gifs to use (And share them [here](https://github.com/hoovercj/vscode-power-mode/issues/1))
 * `powermode.customCss`: Changes the CSS applied to the "after" pseudoelement. You can experiment with ways to make it look or perform better.
 * `powermode.explosionOrder`: `sequential` will cycle through explosions in order, `random` will pick one randomly, and providing a number will select the explosion at that (zero-based) index in the list of explosions.
 
@@ -68,10 +68,10 @@ They were right when they said it can't be done. At least not properly. VS Code 
 "workbench.colorCustomizations": {
     "editorWhitespace.foreground": "#FFFFFF00"
 },
-``` 
+```
 
 ## Help Wanted:
-If you can provide some lightweight, more attractive gifs that improve how power mode looks and performs, I would be happy to include them!
+If you can provide some lightweight, attractive gifs that improve how power mode looks and performs, I would be happy to include them! Share them [here](https://github.com/hoovercj/vscode-power-mode/issues/1).
 
 ## Acknowledgements:
 * Thanks to [@darkvertex](https://github.com/darkvertex) for providing awesome gifs added in version 2.0

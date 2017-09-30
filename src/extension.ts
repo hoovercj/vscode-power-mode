@@ -18,8 +18,8 @@ const DEFAULT_THEME_CONFIG = Particles;
 // Config values
 let documentChangeListenerDisposer: vscode.Disposable = null;
 let enabled = false;
-let comboTimeout;
-let comboThreshold;
+let comboTimeout: number;
+let comboThreshold: number;
 
 // Native plugins
 let screenShaker: ScreenShaker;

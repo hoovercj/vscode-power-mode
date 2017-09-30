@@ -13,6 +13,10 @@ export class ProgressBarTimer {
      * which displays the time remaining for the current combo
      */
     startTimer = (timeLimit: number, onTimerExpired: () => void) => {
+        if (timeLimit === 0) {
+            return;
+        }
+
         this.stopTimer();
         this.active = true;
         this.secondsRemaining = timeLimit;

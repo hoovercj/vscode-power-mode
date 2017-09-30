@@ -37,11 +37,11 @@
     "test": "node ./node_modules/vscode/bin/test"
   },
   "devDependencies": {
-    "typescript": "^2.0.3",
-    "vscode": "^1.0.0",
-    "mocha": "^2.3.3",
-    "@types/node": "^6.0.40",
-    "@types/mocha": "^2.2.32"
+    "typescript": "2.5.2",
+    "vscode": "1.1.5",
+    "mocha": "2.3.3",
+    "@types/node": "6.0.40",
+    "@types/mocha": "2.2.32"
   },
   "contributes": {
     "configuration": {
@@ -76,10 +76,12 @@
         },
         "powermode.enableExplosions": {
           "type": "boolean",
+          "default": true,
           "description": "Set to false to disable explosions while typing"
         },
         "powermode.enableShake": {
           "type": "boolean",
+          "default": true,
           "description": "Set to false to disable shaking while typing"
         },
         "powermode.shakeIntensity": {
@@ -89,23 +91,28 @@
         },
         "powermode.maxExplosions": {
           "type": "number",
+          "default": 1,
           "description": "The maximum number of simultaneous explosions"
         },
         "powermode.explosionSize": {
           "type": "number",
+          "default": 6,
           "description": "The size of the explosions. For value X, the height is set to X rem and the width to X ch"
         },
         "powermode.explosionFrequency": {
           "type": "number",
+          "default": 2,
           "description": "The number of key strokes needed to trigger an explosion. 2 means every second keystroke will explode, 1 means every key stroke."
         },
         "powermode.explosionOffset": {
           "type": "number",
+          "default": 0.35,
           "description": "The vertical offset of the explosions. Increasing it will move the explosions up, decreasing it will move them down."
         },
         "powermode.customExplosions": {
           "type": "array",
           "items": "string",
+          "default": [],
           "description": "Use anything that can go in the 'url()' part of a background image such as a base64 encoded gif or absolute file path WITHOUT quotes. Urls must be https."
         },
         "powermode.backgroundMode": {
@@ -114,6 +121,7 @@
             "mask",
             "image"
           ],
+          "default": "mask",
           "description": "Affects the css properties used to display the gif. `mask` uses the gifs as a mask to let the background come through (similar to atom power mode) and `image` will display the actual gif."
         },
         "powermode.gifMode": {
@@ -122,6 +130,7 @@
             "continue",
             "restart"
           ],
+          "default": "continue",
           "description": "`restart` will restart the gif each time it is shown, `continue` will resume playing it from its previous point"
         },
         "powermode.explosionOrder": {
@@ -136,17 +145,18 @@
             },{
               "type": "number"
             }
-          ]
+          ],
+          "default": "random"
         },
         "powermode.explosionDuration": {
           "description": "Determines how long an explosion lasts (in milliseconds). Set to 0 for it to last forever.",
-          "type": "number"
-
+          "type": "number",
+          "default": 1000
         },
         "powermode.customCss": {
           "description": "Set custom CSS that will apply to the explosion element.",
-          "type": "object"
-
+          "type": "object",
+          "default": {}
         }
       }
     }
