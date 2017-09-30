@@ -2,7 +2,7 @@
   "name": "vscode-power-mode",
   "displayName": "Power Mode",
   "description": "Your code is powerful, unleash it! The extension made popular by Code in the Dark has finally made its way to VS Code.",
-  "version": "1.2.1",
+  "version": "2.0.0",
   "publisher": "hoovercj",
   "icon": "images/icon-large.png",
   "author": {
@@ -37,11 +37,11 @@
     "test": "node ./node_modules/vscode/bin/test"
   },
   "devDependencies": {
-    "typescript": "^2.0.3",
-    "vscode": "^1.0.0",
-    "mocha": "^2.3.3",
-    "@types/node": "^6.0.40",
-    "@types/mocha": "^2.2.32"
+    "typescript": "2.5.2",
+    "vscode": "1.1.5",
+    "mocha": "2.3.3",
+    "@types/node": "6.0.40",
+    "@types/mocha": "2.2.32"
   },
   "contributes": {
     "configuration": {
@@ -51,6 +51,18 @@
           "default": false,
           "type": "boolean",
           "description": "Enable to activate POWER MODE!!!"
+        },
+        "powermode.presets": {
+          "type": "string",
+          "enum": [
+            "particles",
+            "fireworks",
+            "flames",
+            "magic",
+            "clippy"
+          ],
+          "default": "particles",
+          "description": "Choose between different preset gifs to use when powermode is activated"
         },
         "powermode.comboThreshold": {
           "default": 0,
@@ -100,16 +112,29 @@
         "powermode.customExplosions": {
           "type": "array",
           "items": "string",
+          "default": [],
           "description": "Use anything that can go in the 'url()' part of a background image such as a base64 encoded gif or absolute file path WITHOUT quotes. Urls must be https."
         },
-        "powermode.legacyMode": {
-          "type": "boolean",
-          "default": false,
-          "description": "If true, POWERMODE will use the small, original explosions that appeared behind the letters instead of the new ones that explode in the lines above the letters."
+        "powermode.backgroundMode": {
+          "type": "string",
+          "enum": [
+            "mask",
+            "image"
+          ],
+          "default": "mask",
+          "description": "Affects the css properties used to display the gif. `mask` uses the gifs as a mask to let the background come through (similar to atom power mode) and `image` will display the actual gif."
         },
-        "powermode.explosionMode": {
+        "powermode.gifMode": {
+          "type": "string",
+          "enum": [
+            "continue",
+            "restart"
+          ],
+          "default": "continue",
+          "description": "`restart` will restart the gif each time it is shown, `continue` will resume playing it from its previous point"
+        },
+        "powermode.explosionOrder": {
           "description": "Determines how the explosions are cycled. 'random' (default) picks from the list randomly. 'sequential' goes through the list in order, and a number will select the explosion at that (zero based)index in the list",
-          "default": "random",
           "oneOf": [
             {
               "type": "string",
@@ -120,17 +145,13 @@
             },{
               "type": "number"
             }
-          ]
+          ],
+          "default": "random"
         },
         "powermode.explosionDuration": {
           "description": "Determines how long an explosion lasts (in milliseconds). Set to 0 for it to last forever.",
           "type": "number",
           "default": 1000
-        },
-        "powermode.settingSuggestions": {
-          "description": "Experimental: Get community provided setting suggestions in settings.json when typing 'powermode'.",
-          "type": "boolean",
-          "default": true
         },
         "powermode.customCss": {
           "description": "Set custom CSS that will apply to the explosion element.",
@@ -139,15 +160,5 @@
         }
       }
     }
-  },
-  "dependencies": {
-    "@types/request-promise-native": "^1.0.6",
-    "audio-loader": "^1.0.3",
-    "audio-play": "^2.2.0",
-    "play-sound": "^1.1.1",
-    "player": "^0.6.1",
-    "request": "^2.81.0",
-    "request-promise-native": "^1.0.4",
-    "speaker": "^0.3.0"
   }
 }

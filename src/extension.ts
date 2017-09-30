@@ -1,76 +1,74 @@
 'use strict';
 import * as vscode from 'vscode';
-
-import { ScreenShaker, SHAKE_INTENSITY } from './screen-shaker';
-import {
-    CursorExploder,
-    MAX_EXPLOSIONS,
-    EXPLOSION_SIZE,
-    EXPLOSION_FREQUENCY,
-    EXPLOSION_OFFSET,
-    EXPLOSION_MODE,
-    EXPLOSION_DURATION,
-} from './cursor-exploder';
+import { Plugin } from './plugin';
+import { ThemeConfig, getConfigValue } from './config/config';
+import { Particles } from './config/particles';
+import { Fireworks } from './config/fireworks';
+import { Flames } from './config/flames';
+import { Magic } from './config/magic';
+import { Clippy } from './config/clippy';
+import { ScreenShaker } from './screen-shaker/screen-shaker';
+import { CursorExploder } from './cursor-exploder/cursor-exploder';
 import { ProgressBarTimer } from './progress-bar-timer';
 import { StatusBarItem } from './status-bar-item';
-import { SettingsSuggester } from './settings-suggester';
+
+const DEFAULT_THEME_ID = 'particles';
+const DEFAULT_THEME_CONFIG = Particles;
 
 // Config values
 let documentChangeListenerDisposer: vscode.Disposable = null;
 let enabled = false;
-let comboTimeout;
-let comboThreshold;
-let customExplosions: string[];
-let enableExplosions: boolean;
-let enableShake: boolean;
-let shakeIntensity: number;
-let maxExplosions: number;
-let explosionSize: number;
-let explosionFrequency: number;
-let explosionOffset: number;
-let explosionMode: string | number;
-let explosionDuration: number;
-let legacyMode: boolean;
-let customCss: {[key: string]: string};
-let settingSuggestions: boolean;
+let comboTimeout: number;
+let comboThreshold: number;
 
-// PowerMode components
+// Native plugins
 let screenShaker: ScreenShaker;
 let cursorExploder: CursorExploder;
+
+// PowerMode components
+let plugins: Plugin[] = [];
 let progressBarTimer: ProgressBarTimer;
 let statusBarItem: StatusBarItem;
-let settingsSuggester: SettingsSuggester;
+
+// Themes
+let themes: {[key: string]: ThemeConfig} = {
+    fireworks: Fireworks,
+    particles: Particles,
+    flames: Flames,
+    magic: Magic,
+    clippy: Clippy,
+    [DEFAULT_THEME_ID]: DEFAULT_THEME_CONFIG,
+};
 
 // Current combo count
 let combo = 0;
 
 export function activate(context: vscode.ExtensionContext) {
-    vscode.workspace.onDidChangeConfiguration(onDidChangeConfiguration)
+    vscode.workspace.onDidChangeConfiguration(onDidChangeConfiguration);
     onDidChangeConfiguration();
 }
 
-function init() {
+function init(config: vscode.WorkspaceConfiguration, activeTheme: ThemeConfig) {
     // Just in case something was left behind, clean it up
     deactivate();
     combo = 0;
 
-    screenShaker = new ScreenShaker();
-    cursorExploder = new CursorExploder(
-        customExplosions,
-        maxExplosions,
-        explosionSize,
-        explosionFrequency,
-        explosionOffset,
-        explosionMode,
-        explosionDuration,
-        legacyMode,
-        customCss,
-    );
-    progressBarTimer = new ProgressBarTimer();
+    // The native plugins need this special theme, a subset of the config
+    screenShaker = new ScreenShaker(activeTheme),
+    cursorExploder = new CursorExploder(activeTheme),
     statusBarItem = new StatusBarItem();
-    settingsSuggester = new SettingsSuggester();
 
-    vscode.languages.registerCompletionItemProvider({ language: 'json', pattern: '**/settings.json' }, settingsSuggester)
+    plugins.push(
+        screenShaker,
+        cursorExploder,
+        statusBarItem,
+    );
+
+
+    plugins.forEach(plugin => plugin.onDidChangeConfiguration(config));
+
+    statusBarItem.activate();
+    progressBarTimer = new ProgressBarTimer();
 
     documentChangeListenerDisposer = vscode.workspace.onDidChangeTextDocument(onDidChangeTextDocument);
 }
@@ -88,19 +86,8 @@ export function deactivate() {
         documentChangeListenerDisposer = null;
     }
 
-    if (screenShaker) {
-        screenShaker.dispose();
-        screenShaker = null;
-    }
-
-    if (cursorExploder) {
-        cursorExploder.dispose();
-        cursorExploder = null;
-    }
-
-    if (statusBarItem) {
-        statusBarItem.dispose();
-        statusBarItem = null;
+    while (plugins.length > 0) {
+        plugins.shift().dispose();
     }
 
     if (progressBarTimer) {
@@ -112,39 +99,22 @@ export function deactivate() {
         statusBarItem.dispose();
         statusBarItem = null;
     }
-
-    if (settingsSuggester) {
-        settingsSuggester = null;
-    }
 }
 
 function onDidChangeConfiguration() {
     const config = vscode.workspace.getConfiguration('powermode');
+    const themeId = config.get<string>('presets');
+    const theme = getThemeConfig(themeId)
 
-    const oldEnableShake = enableShake;
-    const oldShakeIntensity = shakeIntensity;
     const oldEnabled = enabled;
 
     enabled = config.get<boolean>('enabled', false);
     comboThreshold = config.get<number>('comboThreshold', 0);
     comboTimeout = config.get<number>('comboTimeout', 10);
-    customExplosions = config.get<string[]>('customExplosions');
-    enableExplosions = config.get<boolean>('enableExplosions', true);
-    shakeIntensity = config.get<number>('shakeIntensity', SHAKE_INTENSITY);
-    enableShake = config.get<boolean>('enableShake', true);
-    maxExplosions = config.get<number>('maxExplosions', MAX_EXPLOSIONS);
-    explosionSize = config.get<number>('explosionSize', EXPLOSION_SIZE);
-    explosionFrequency = config.get<number>('explosionFrequency', EXPLOSION_FREQUENCY);
-    explosionOffset = config.get<number>('explosionOffset', EXPLOSION_OFFSET);
-    explosionMode = config.get<number | string>('explosionMode', EXPLOSION_MODE);
-    explosionDuration = config.get<number>('explosionDuration', EXPLOSION_DURATION);
-    legacyMode = config.get<boolean>('legacyMode', false);
-    customCss = config.get<any>('customCss', {});
-    settingSuggestions = config.get<boolean>('settingSuggestions', true);
 
     // Switching from disabled to enabled
     if (!oldEnabled && enabled) {
-        init();
+        init(config, theme);
         return;
     }
 
@@ -161,41 +131,29 @@ function onDidChangeConfiguration() {
         return;
     }
 
-    // If shake was enabled and now it isn't, unshake the screen
-    if (screenShaker && oldEnableShake && !enableShake) {
-        screenShaker.unshake();
-    }
+    // The theme needs set BEFORE onDidChangeConfiguration is called
+    screenShaker.themeConfig = theme;
+    cursorExploder.themeConfig = theme;
 
-    // If the shake intensity changed recreate the screen shaker
-    if (enabled && oldShakeIntensity !== shakeIntensity) {
-        screenShaker.dispose();
-        screenShaker = new ScreenShaker(shakeIntensity);
-    }
+    plugins.forEach(plugin => plugin.onDidChangeConfiguration(config));
+}
 
-    // Update the explosion settings
-    cursorExploder.customExplosions = customExplosions;
-    cursorExploder.maxExplosions = maxExplosions;
-    cursorExploder.explosionSize = explosionSize;
-    cursorExploder.explosionFrequency = explosionFrequency;
-    cursorExploder.explosionOffset = explosionOffset;
-    cursorExploder.explosionDuration = explosionDuration;
-    cursorExploder.explosionMode = explosionMode;
-    cursorExploder.legacyMode = legacyMode;
-    cursorExploder.customCss = customCss;
+// This will be exposed so other extensions can contribute their own themes
+// function registerTheme(themeId: string, config: ThemeConfig) {
+//     themes[themeId] = config;
+// }
 
-    // Update the SettingsSuggester settings
-    settingsSuggester.settingSuggestions = settingSuggestions;
+function getThemeConfig(themeId: string): ThemeConfig {
+    return themes[themeId];
 }
 
 function onProgressTimerExpired() {
-    combo = 0;
-    if (statusBarItem) {
-        statusBarItem.updateStatusBar(0);
-    }
+    plugins.forEach(plugin => plugin.onPowermodeStop(combo));
 
-    if (screenShaker) {
-        screenShaker.unshake();
-    }
+    // TODO: Evaluate if this event is needed
+    // plugins.forEach(plugin => plugin.onComboReset(combo));
+
+    combo = 0;
 }
 
 function isPowerMode() {
@@ -205,6 +163,7 @@ function isPowerMode() {
 function onDidChangeTextDocument(event: vscode.TextDocumentChangeEvent) {
     combo++;
 
+    // TODO: Move to a plugin
     if (progressBarTimer) {
         if (!progressBarTimer.active) {
             progressBarTimer.startTimer(comboTimeout, onProgressTimerExpired);
@@ -213,24 +172,8 @@ function onDidChangeTextDocument(event: vscode.TextDocumentChangeEvent) {
         }
     }
 
-    if (statusBarItem) {
-        statusBarItem.updateStatusBar(combo, isPowerMode());
-    }
-
-    if (isPowerMode()) {
-        if (enableExplosions && cursorExploder) {
-            // If the content change is empty then it was likely a delete
-            // This means there may not be text after the cursor, so do the
-            // explosion before instead.
-            const changes = event.contentChanges[0];
-            const left = changes && changes.text.length === 0;
-            cursorExploder.explode(left);
-        }
-
-        if (enableShake && screenShaker) {
-            screenShaker.shake();
-        }
-    }
+    const powermode = isPowerMode();
+    plugins.forEach(plugin => plugin.onDidChangeTextDocument(combo, powermode, event));
 }
 
 
