@@ -8,14 +8,24 @@ export const Particles: ThemeConfig = {
     enableShake: true,
     enableExplosions: true,
     maxExplosions: 5,
-    explosionSize: 10,
+    explosionSize: 15,
     explosionFrequency: 1,
     explosionOrder: 'random',
     gifMode: 'restart',
-    explosionDuration: 500,
-    explosionOffset: .3,
+    explosionDuration: 400,
+    explosionOffset: .25,
     backgroundMode: 'mask',
     customExplosions: [
-        atomExplosion,
+        // atomExplosion,
+        "https://i.imgur.com/MiQWTj5.gif", // a
+        "https://i.imgur.com/3GKCOch.gif", // b
+        "https://i.imgur.com/K8e0aqM.gif", // c
+        "https://i.imgur.com/4RXiBAx.gif", // d
+        "https://i.imgur.com/BvpfEgA.gif", // e
+        "https://i.imgur.com/DaOTgug.gif", // f
+        "https://i.imgur.com/Tuv8EsP.gif", // g
+        "https://i.imgur.com/eM5CSno.gif", // h
+        "https://i.imgur.com/2lsLIEY.gif", // i
+        "https://i.imgur.com/dnxBYmA.gif"  // j
     ],
 }

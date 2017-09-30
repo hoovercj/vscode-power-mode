@@ -42,7 +42,6 @@ You can now choose explosions with a single setting: `powermode.presets`. Check 
 
 ![clippy](images/demo-presets-clippy.gif)
 
-
 ## Configuration:
 Hopefully power mode will work great for you out of the box, but if it doesn't I've tried to make power mode as configurable as possible. Tweak the settings for performance or for fun. From doge to clippy, the only limit is your imagination. Some of the options are explained below:
 
@@ -62,6 +61,14 @@ They were right when they said it can't be done. At least not properly. VS Code 
 * The cursor doesn't move with the text as it shakes
 * When deleting characters, the explosion will briefly move to the beginning of the line. This is because I am using an "after" pseudoclass to apply the decorations, and when you delete the letter that it is anchored to it repositions to the next anchor which is the entire line.
 * I have to use gifs instead of CSS animations for the particles/explosions
+* "Vertical Shake" only works if `editor.renderWhitespace` is turned on. I don't know why, but if you want vertical shake without seeing the whitespace being rendered, you can use these settings:
+
+```
+"editor.renderWhitespace": "all",
+"workbench.colorCustomizations": {
+    "editorWhitespace.foreground": "#FFFFFF00"
+},
+``` 
 
 ## Help Wanted:
 If you can provide some lightweight, more attractive gifs that improve how power mode looks and performs, I would be happy to include them!

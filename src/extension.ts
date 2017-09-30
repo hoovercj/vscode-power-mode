@@ -20,7 +20,6 @@ let documentChangeListenerDisposer: vscode.Disposable = null;
 let enabled = false;
 let comboTimeout;
 let comboThreshold;
-let settingSuggestions: boolean;
 
 // Native plugins
 let screenShaker: ScreenShaker;
@@ -45,7 +44,7 @@ let themes: {[key: string]: ThemeConfig} = {
 let combo = 0;
 
 export function activate(context: vscode.ExtensionContext) {
-    vscode.workspace.onDidChangeConfiguration(onDidChangeConfiguration)
+    vscode.workspace.onDidChangeConfiguration(onDidChangeConfiguration);
     onDidChangeConfiguration();
 }
 
@@ -112,7 +111,6 @@ function onDidChangeConfiguration() {
     enabled = config.get<boolean>('enabled', false);
     comboThreshold = config.get<number>('comboThreshold', 0);
     comboTimeout = config.get<number>('comboTimeout', 10);
-    settingSuggestions = config.get<boolean>('settingSuggestions', true);
 
     // Switching from disabled to enabled
     if (!oldEnabled && enabled) {

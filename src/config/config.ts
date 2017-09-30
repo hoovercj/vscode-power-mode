@@ -8,7 +8,6 @@ export interface ExtensionConfig extends ThemeConfig {
     enabled?: boolean;
     comboThreshold?: number;
     comboTimeout?: number;
-    settingSuggestions?: boolean;
 }
 
 export function getConfigValue<T>(key: string, vscodeConfig: WorkspaceConfiguration, themeConfig: any): T {

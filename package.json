@@ -150,15 +150,5 @@
         }
       }
     }
-  },
-  "dependencies": {
-    "@types/request-promise-native": "^1.0.6",
-    "audio-loader": "^1.0.3",
-    "audio-play": "^2.2.0",
-    "play-sound": "^1.1.1",
-    "player": "^0.6.1",
-    "request": "^2.81.0",
-    "request-promise-native": "^1.0.4",
-    "speaker": "^0.3.0"
   }
 }
