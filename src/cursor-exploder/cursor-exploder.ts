@@ -160,7 +160,7 @@ export class CursorExploder implements Plugin {
         // Lowering them makes them appear in a more natural position,
         // but limiting the top to the line number keeps it from going
         // off the top of the editor
-        const topValue = Math.min(editorPosition.line, this.config.explosionSize * this.config.explosionOffset);
+        const topValue = this.config.explosionSize * this.config.explosionOffset;
 
         const explosionUrl = this.getExplosionUrl(explosion);
 
