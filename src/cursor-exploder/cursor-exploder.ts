@@ -170,8 +170,8 @@ export class CursorExploder implements Plugin {
 
         const defaultCss = {
             position: 'absolute',
-            left: `-${leftValue}ch`,
-            top: `-${topValue}rem`,
+            ['margin-left'] : `-${leftValue}ch`,
+            ['margin-top']: `-${topValue}rem`,
             width: `${this.config.explosionSize}ch`,
             height: `${this.config.explosionSize}rem`,
             display: `inline-block`,
@@ -183,7 +183,7 @@ export class CursorExploder implements Plugin {
         const customCssString = this.objectToCssString(this.config.customCss || {});
 
         return vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
-            after: {
+            before: {
                 contentText: '',
                 textDecoration: `none; ${defaultCssString} ${backgroundCssString} ${customCssString}`,
             },
