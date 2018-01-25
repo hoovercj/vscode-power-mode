@@ -175,7 +175,7 @@ export class CursorExploder implements Plugin {
             width: `${this.config.explosionSize}ch`,
             height: `${this.config.explosionSize}rem`,
             display: `inline-block`,
-            ['z-index']: 1,
+            ['z-index']: -1,
         };
 
         const backgroundCssString = this.objectToCssString(backgroundCss);
