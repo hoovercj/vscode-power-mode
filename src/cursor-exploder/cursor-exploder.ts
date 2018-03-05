@@ -1,4 +1,3 @@
-'use strict';
 import * as vscode from 'vscode';
 import { Plugin } from '../plugin';
 import { ThemeConfig, getConfigValue } from '../config/config';
