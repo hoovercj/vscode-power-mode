@@ -22,6 +22,20 @@ To enable, add `"powermode.enabled": true` to your settings.
 ## Choose Your Explosions:
 You can now choose explosions with a single setting: `powermode.presets`. Check out the options below (note: it looks better IRL than in these gifs):
 
+### NEW! Rift (Simple)
+
+![simple rift](images/demo-presets-simple-rift.gif)
+
+### New! Rift (Exploding)
+
+![exploding rift](images/demo-presets-exploding-rift.gif)
+
+**Note:** If your code becomes hard to read, you may need to set `editor.lineHighlightBackground` in your user or workspace settings. For example, if your theme is `Default Dark+`, try:
+
+```
+"editor.lineHighlightBackground": "#1E1E1EAA"
+```
+
 ### Particles
 
 ![particles](images/demo-presets-particles.gif)
@@ -74,12 +88,17 @@ They were right when they said it can't be done. At least not properly. VS Code 
 If you can provide some lightweight, attractive gifs that improve how power mode looks and performs, I would be happy to include them! Share them [here](https://github.com/hoovercj/vscode-power-mode/issues/1).
 
 ## Acknowledgements:
-* Thanks to [@darkvertex](https://github.com/darkvertex) for providing awesome gifs added in version 2.0
+* Thanks to [@RPuffer](https://github.com/RPuffer) for providing the incredible gifs added in version 2.1 
+* Thanks to [@darkvertex](https://github.com/darkvertex) for providing the awesome gifs added in version 2.0
 * Thanks to [@horvay](https://github.com/horvay) for giving me ideas to get around the limitations I had in v0.0.1
 
 ## Changelog:
-- v2.1.0
+- v2.2.0
   - Added `powermode.enableStatusBarComboCounter` and `powermode.enableStatusBarComboTimer` to toggle status bar items
+  - Added new presets
+  - Bug fixes
+- v2.1.0
+  - Fixed [#20](https://github.com/hoovercj/vscode-power-mode/issues/20) (Thanks @kirkone)
 - v2.0.0
   - Added `powermode.presets` to choose between different built-in explosion sets
   - Added `powermode.backgroundMode` to allow 'atom like' explosions (explosions that match the color of the text being typed)

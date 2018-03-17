@@ -1,4 +1,4 @@
-import { ThemeConfig } from './config';
+import { ThemeConfig, CSS_LEFT } from './config';
 
 // http://photobucket.com/gallery/user/Phlip64/media/bWVkaWFJZDo3MDYwMzA3Mg==/?ref=1
 // Thanks to @darkvertex
@@ -19,6 +19,6 @@ export const Flames: ThemeConfig = {
         flame,
     ],
     customCss: {
-        "left": "-1ch",
+        [CSS_LEFT]: "-1ch",
     }
 }

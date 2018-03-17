@@ -59,7 +59,9 @@
             "fireworks",
             "flames",
             "magic",
-            "clippy"
+            "clippy",
+            "simple-rift",
+            "exploding-rift"
           ],
           "default": "particles",
           "description": "Choose between different preset gifs to use when powermode is activated"

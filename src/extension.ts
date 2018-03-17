@@ -6,6 +6,7 @@ import { Fireworks } from './config/fireworks';
 import { Flames } from './config/flames';
 import { Magic } from './config/magic';
 import { Clippy } from './config/clippy';
+import { SimpleRift, ExplodingRift } from './config/rift';
 import { ScreenShaker } from './screen-shaker/screen-shaker';
 import { CursorExploder } from './cursor-exploder/cursor-exploder';
 import { ProgressBarTimer } from './progress-bar-timer';
@@ -35,7 +36,8 @@ let themes: {[key: string]: ThemeConfig} = {
     flames: Flames,
     magic: Magic,
     clippy: Clippy,
-    [DEFAULT_THEME_ID]: DEFAULT_THEME_CONFIG,
+    ["simple-rift"]: SimpleRift,
+    ["exploding-rift"]: ExplodingRift,
 };
 
 // Current combo count

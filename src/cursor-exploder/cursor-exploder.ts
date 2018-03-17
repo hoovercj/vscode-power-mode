@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { Plugin } from '../plugin';
-import { ThemeConfig, getConfigValue } from '../config/config';
+import { ThemeConfig, getConfigValue, CSS_LEFT, CSS_TOP } from '../config/config';
 
 export type ExplosionOrder = 'random' | 'sequential' | number;
 export type BackgroundMode = 'mask' | 'image';
@@ -169,12 +169,13 @@ export class CursorExploder implements Plugin {
 
         const defaultCss = {
             position: 'absolute',
-            ['margin-left'] : `-${leftValue}ch`,
-            ['margin-top']: `-${topValue}rem`,
+            [CSS_LEFT] : `-${leftValue}ch`,
+            [CSS_TOP]: `-${topValue}rem`,
             width: `${this.config.explosionSize}ch`,
             height: `${this.config.explosionSize}rem`,
             display: `inline-block`,
             ['z-index']: 1,
+            ['pointer-events']: 'none',
         };
 
         const backgroundCssString = this.objectToCssString(backgroundCss);
