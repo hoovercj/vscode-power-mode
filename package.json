@@ -79,6 +79,16 @@
           "default": true,
           "description": "Set to false to disable explosions while typing"
         },
+        "powermode.enableStatusBarComboCounter": {
+          "type": "boolean",
+          "default": true,
+          "description": "Set to false to disable showing the combo in the statusbar"
+        },
+        "powermode.enableStatusBarComboTimer": {
+          "type": "boolean",
+          "default": true,
+          "description": "Set to false to disable showing the timer in the statusbar"
+        },
         "powermode.enableShake": {
           "type": "boolean",
           "default": true,

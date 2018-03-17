@@ -3,11 +3,19 @@ import { Plugin } from './plugin';
 
 const ENABLED = false;
 
+export interface StatusBarItemConfig {
+    enableStatusBarComboCounter?: boolean;
+}
+
 export class StatusBarItem implements Plugin {
 
+    private config: StatusBarItemConfig = {};
     private statusBarItem: vscode.StatusBarItem;
 
     public activate = () => {
+        if (this.statusBarItem) {
+            return;
+        }
         this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
         this.statusBarItem.show();
     }
@@ -41,7 +49,12 @@ export class StatusBarItem implements Plugin {
     }
 
     public onDidChangeConfiguration = (config: vscode.WorkspaceConfiguration) => {
-        // Do nothing
+        this.config.enableStatusBarComboCounter = config.get<boolean>('enableStatusBarComboCounter', true);
+        if (this.config.enableStatusBarComboCounter) {
+            this.activate();
+        } else {
+            this.dispose();
+        }
     }
 
     private updateStatusBar = (combo: number, powermode?: boolean) => {

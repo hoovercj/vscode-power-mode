@@ -78,6 +78,8 @@ If you can provide some lightweight, attractive gifs that improve how power mode
 * Thanks to [@horvay](https://github.com/horvay) for giving me ideas to get around the limitations I had in v0.0.1
 
 ## Changelog:
+- v2.1.0
+  - Added `powermode.enableStatusBarComboCounter` and `powermode.enableStatusBarComboTimer` to toggle status bar items
 - v2.0.0
   - Added `powermode.presets` to choose between different built-in explosion sets
   - Added `powermode.backgroundMode` to allow 'atom like' explosions (explosions that match the color of the text being typed)

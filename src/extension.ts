@@ -17,17 +17,16 @@ const DEFAULT_THEME_CONFIG = Particles;
 // Config values
 let documentChangeListenerDisposer: vscode.Disposable = null;
 let enabled = false;
-let comboTimeout: number;
 let comboThreshold: number;
 
 // Native plugins
 let screenShaker: ScreenShaker;
 let cursorExploder: CursorExploder;
+let statusBarItem: StatusBarItem;
+let progressBarTimer: ProgressBarTimer;
 
 // PowerMode components
 let plugins: Plugin[] = [];
-let progressBarTimer: ProgressBarTimer;
-let statusBarItem: StatusBarItem;
 
 // Themes
 let themes: {[key: string]: ThemeConfig} = {
@@ -56,18 +55,18 @@ function init(config: vscode.WorkspaceConfiguration, activeTheme: ThemeConfig) {
     screenShaker = new ScreenShaker(activeTheme),
     cursorExploder = new CursorExploder(activeTheme),
     statusBarItem = new StatusBarItem();
+    progressBarTimer = new ProgressBarTimer(onProgressTimerExpired);
 
     plugins.push(
         screenShaker,
         cursorExploder,
         statusBarItem,
+        progressBarTimer,
     );
 
 
     plugins.forEach(plugin => plugin.onDidChangeConfiguration(config));
 
-    statusBarItem.activate();
-    progressBarTimer = new ProgressBarTimer();
 
     documentChangeListenerDisposer = vscode.workspace.onDidChangeTextDocument(onDidChangeTextDocument);
 }
@@ -88,16 +87,6 @@ export function deactivate() {
     while (plugins.length > 0) {
         plugins.shift().dispose();
     }
-
-    if (progressBarTimer) {
-        progressBarTimer.stopTimer();
-        progressBarTimer = null;
-    }
-
-    if (statusBarItem) {
-        statusBarItem.dispose();
-        statusBarItem = null;
-    }
 }
 
 function onDidChangeConfiguration() {
@@ -109,7 +98,6 @@ function onDidChangeConfiguration() {
 
     enabled = config.get<boolean>('enabled', false);
     comboThreshold = config.get<number>('comboThreshold', 0);
-    comboTimeout = config.get<number>('comboTimeout', 10);
 
     // Switching from disabled to enabled
     if (!oldEnabled && enabled) {
@@ -146,7 +134,7 @@ function getThemeConfig(themeId: string): ThemeConfig {
     return themes[themeId];
 }
 
-function onProgressTimerExpired() {
+const onProgressTimerExpired = () => {
     plugins.forEach(plugin => plugin.onPowermodeStop(combo));
 
     // TODO: Evaluate if this event is needed
@@ -161,16 +149,6 @@ function isPowerMode() {
 
 function onDidChangeTextDocument(event: vscode.TextDocumentChangeEvent) {
     combo++;
-
-    // TODO: Move to a plugin
-    if (progressBarTimer) {
-        if (!progressBarTimer.active) {
-            progressBarTimer.startTimer(comboTimeout, onProgressTimerExpired);
-        } else {
-            progressBarTimer.extendTimer(comboTimeout);
-        }
-    }
-
     const powermode = isPowerMode();
     plugins.forEach(plugin => plugin.onDidChangeTextDocument(combo, powermode, event));
 }
