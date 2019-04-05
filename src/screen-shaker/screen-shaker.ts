@@ -29,15 +29,15 @@ export class ScreenShaker implements Plugin {
     public activate = () => {
         this.dispose();
         this.negativeX = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
-            textDecoration: `none; margin-left: 0px;`
+            textDecoration: `none; margin-left: -${this.config.shakeIntensity/2}px;`
         });
 
         this.positiveX = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
-            textDecoration: `none; margin-left: ${this.config.shakeIntensity}px;`
+            textDecoration: `none; margin-left: ${this.config.shakeIntensity/2}px;`
         });
 
         this.negativeY = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
-            textDecoration: `none; margin-top: 0px;`
+            textDecoration: `none; margin-top: ${this.config.shakeIntensity/2}px;`
         });
 
         this.positiveY = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
@@ -136,12 +136,14 @@ export class ScreenShaker implements Plugin {
         // This approach is used so that the decorations themselves can
         // be reused. My assumption is that this is more performant than
         // disposing and creating a new decoration each time.
-        if (Math.random() > 0.5) {
-            activeEditor.setDecorations(this.negativeX, []);
-            activeEditor.setDecorations(this.positiveX, xRanges);
-        } else {
-            activeEditor.setDecorations(this.positiveX, []);
-            activeEditor.setDecorations(this.negativeX, xRanges);
+        if (Math.random() >= 0.6) {
+            if (Math.random() > 0.5) {
+                activeEditor.setDecorations(this.negativeX, []);
+                activeEditor.setDecorations(this.positiveX, xRanges);
+            } else {
+                activeEditor.setDecorations(this.positiveX, []);
+                activeEditor.setDecorations(this.negativeX, xRanges);
+            }
         }
 
         if (Math.random() > 0.5) {
@@ -155,7 +157,7 @@ export class ScreenShaker implements Plugin {
         clearTimeout(this.shakeTimeout);
         this.shakeTimeout = setTimeout(() => {
             this.unshake();
-        }, 1000);
+        }, 75);
     }
 
     /**
