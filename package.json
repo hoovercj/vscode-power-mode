@@ -37,11 +37,11 @@
     "test": "node ./node_modules/vscode/bin/test"
   },
   "devDependencies": {
-    "typescript": "2.5.2",
-    "vscode": "1.1.5",
-    "mocha": "2.3.3",
-    "@types/node": "6.0.40",
-    "@types/mocha": "2.2.32"
+    "typescript": "3.6.3",
+    "vscode": "1.1.36",
+    "mocha": "6.2.1",
+    "@types/node": "12.7.11",
+    "@types/mocha": "5.2.7"
   },
   "contributes": {
     "configuration": {
@@ -154,7 +154,8 @@
                 "random",
                 "sequential"
               ]
-            },{
+            },
+            {
               "type": "number"
             }
           ],
