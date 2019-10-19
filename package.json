@@ -71,6 +71,11 @@
           "type": "number",
           "description": "The combo number needed to activate POWER MODE!!!"
         },
+        "powermode.maximumCombo": {
+          "default": 99999,
+          "type": "number",
+          "description": "The maximum combo for POWER MODE!"
+        },
         "powermode.comboTimeout": {
           "default": 10,
           "type": "number",
