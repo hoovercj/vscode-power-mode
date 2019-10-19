@@ -68,7 +68,7 @@ Hopefully power mode will work great for you out of the box, but if it doesn't I
 * `powermode.customExplosions`: Provide your own gifs to use (And share them [here](https://github.com/hoovercj/vscode-power-mode/issues/1))
 * `powermode.customCss`: Changes the CSS applied to the "after" pseudoelement. You can experiment with ways to make it look or perform better.
 * `powermode.explosionOrder`: `sequential` will cycle through explosions in order, `random` will pick one randomly, and providing a number will select the explosion at that (zero-based) index in the list of explosions.
-
+* `powermode.maximumCombo`: Change your maximum number for Powermode default value is 9999
 ## Known Issues
 
 They were right when they said it can't be done. At least not properly. VS Code does not expose the DOM as part of the API. Instead this extension relies on using TextEditorDecorations to set css properties for ranges in the editor. This has a few limitations:

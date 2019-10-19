@@ -19,7 +19,7 @@ const DEFAULT_THEME_CONFIG = Particles;
 let documentChangeListenerDisposer: vscode.Disposable = null;
 let enabled = false;
 let comboThreshold: number;
-
+let maximumCombo: number;
 // Native plugins
 let screenShaker: ScreenShaker;
 let cursorExploder: CursorExploder;
@@ -100,7 +100,7 @@ function onDidChangeConfiguration() {
 
     enabled = config.get<boolean>('enabled', false);
     comboThreshold = config.get<number>('comboThreshold', 0);
-
+    maximumCombo = config.get<number>('maximumCombo', 0);
     // Switching from disabled to enabled
     if (!oldEnabled && enabled) {
         init(config, theme);
@@ -150,7 +150,9 @@ function isPowerMode() {
 }
 
 function onDidChangeTextDocument(event: vscode.TextDocumentChangeEvent) {
-    combo++;
+    if(combo < maximumCombo) {
+        combo++;
+    }
     const powermode = isPowerMode();
     plugins.forEach(plugin => plugin.onDidChangeTextDocument(combo, powermode, event));
 }
