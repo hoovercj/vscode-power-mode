@@ -5,7 +5,6 @@
   "version": "2.2.0",
   "publisher": "hoovercj",
   "icon": "images/icon-large.png",
-  "enableProposedApi": true,
   "author": {
     "name": "Cody Hoover",
     "email": "vscode@codyhoover.com",
