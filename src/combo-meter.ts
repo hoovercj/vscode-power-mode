@@ -13,6 +13,10 @@ export class ComboMeter implements Plugin {
     private comboTitle: vscode.TextEditorDecorationType;
     private comboCount: vscode.TextEditorDecorationType;
 
+    private combo: number = 0;
+    // TODO: Currently unused. Use this to style the combo
+    private powermode: boolean = false;
+
     private static readonly DEFAULT_CSS = ComboMeter.objectToCssString({
         position: 'absolute',
         right: "5%",
@@ -28,14 +32,7 @@ export class ComboMeter implements Plugin {
 
     public activate = () => {
         vscode.window.onDidChangeTextEditorVisibleRanges((e: vscode.TextEditorVisibleRangesChangeEvent) => {
-            const ranges = [e.visibleRanges.sort()[0]];
-            if (this.comboTitle) {
-                e.textEditor.setDecorations(this.comboTitle, ranges);
-            }
-
-            if (this.comboCount) {
-                e.textEditor.setDecorations(this.comboCount, ranges);
-            }
+            this.updateDecorations(e.textEditor);
         });
     }
 
@@ -52,23 +49,27 @@ export class ComboMeter implements Plugin {
     }
 
     public onPowermodeStart = (combo: number) => {
-        // Do nothing
+        this.powermode = true;
     }
 
     public onPowermodeStop = (combo: number) => {
-        // Do nothing
+        this.powermode = false;
     }
 
     public onComboStart = (combo: number) => {
-        this.updateDecorations(combo);
+        this.combo = combo;
+        this.updateDecorations();
     }
 
     public onComboStop = (combo: number) => {
-        this.updateDecorations(combo);
+        this.combo = combo;
+        this.updateDecorations();
     }
 
     public onDidChangeTextDocument = (combo: number, powermode: boolean, event: vscode.TextDocumentChangeEvent) => {
-        this.updateDecorations(combo, powermode);
+        this.combo = combo;
+        this.powermode = powermode;
+        this.updateDecorations();
     }
 
     public onDidChangeConfiguration = (config: vscode.WorkspaceConfiguration) => {
@@ -80,16 +81,15 @@ export class ComboMeter implements Plugin {
         }
     }
 
-    private updateDecorations = (combo: number, powermode?: boolean) => {
+    private updateDecorations = (editor: vscode.TextEditor = vscode.window.activeTextEditor) => {
         this.dispose();
 
-        this.createComboCountDecoration(combo);
+        this.createComboCountDecoration(this.combo);
         this.createComboTitleDecoration();
 
-        const activeEditor = vscode.window.activeTextEditor;
-        const ranges = [activeEditor.visibleRanges.sort()[0]];
-        activeEditor.setDecorations(this.comboTitle, ranges);
-        activeEditor.setDecorations(this.comboCount, ranges);
+        const ranges = [editor.visibleRanges.sort()[0]];
+        editor.setDecorations(this.comboTitle, ranges);
+        editor.setDecorations(this.comboCount, ranges);
     }
 
     private createComboTitleDecoration() {
