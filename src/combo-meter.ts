@@ -84,10 +84,16 @@ export class ComboMeter implements Plugin {
     private updateDecorations = (editor: vscode.TextEditor = vscode.window.activeTextEditor) => {
         this.dispose();
 
+        const firstVisibleRange = editor.visibleRanges.sort()[0];
+        if (!firstVisibleRange) {
+            return;
+        }
+
         this.createComboCountDecoration(this.combo);
         this.createComboTitleDecoration();
 
-        const ranges = [editor.visibleRanges.sort()[0]];
+        const position = firstVisibleRange.start;
+        const ranges = [new vscode.Range(position, position)];
         editor.setDecorations(this.comboTitle, ranges);
         editor.setDecorations(this.comboCount, ranges);
     }
@@ -98,6 +104,7 @@ export class ComboMeter implements Plugin {
         });
 
         this.comboTitle = vscode.window.createTextEditorDecorationType({
+            // Title and Count cannot use the same pseudoelement
             before: {
                 contentText: "Combo:",
                 color: "white",
@@ -113,7 +120,8 @@ export class ComboMeter implements Plugin {
         });
 
         this.comboCount = vscode.window.createTextEditorDecorationType({
-            before: {
+            // Title and Count cannot use the same pseudoelement
+            after: {
                 margin: ".6em 0 0 0",
                 contentText: count.toString(),
                 color: "#9cdcfe",
