@@ -1,8 +1,6 @@
 import * as vscode from 'vscode';
 import { Plugin } from './plugin';
 
-const ENABLED = false;
-
 export interface ComboMeterConfig {
     enableEditorComboCounter?: boolean;
 }
@@ -16,6 +14,7 @@ export class ComboMeter implements Plugin {
     private combo: number = 0;
     // TODO: Currently unused. Use this to style the combo
     private powermode: boolean = false;
+    private enabled: boolean = false;
 
     private static readonly DEFAULT_CSS = ComboMeter.objectToCssString({
         position: 'absolute',
@@ -73,15 +72,21 @@ export class ComboMeter implements Plugin {
     }
 
     public onDidChangeConfiguration = (config: vscode.WorkspaceConfiguration) => {
-        this.config.enableEditorComboCounter = config.get<boolean>('enableStatusBarComboCounter', true);
+        this.config.enableEditorComboCounter = config.get<boolean>('enableEditorComboCounter', false);
         if (this.config.enableEditorComboCounter) {
+            this.enabled = true;
             this.activate();
         } else {
+            this.enabled = false;
             this.dispose();
         }
     }
 
     private updateDecorations = (editor: vscode.TextEditor = vscode.window.activeTextEditor) => {
+        if (!this.enabled) {
+            return;
+        }
+
         this.dispose();
 
         const firstVisibleRange = editor.visibleRanges.sort()[0];

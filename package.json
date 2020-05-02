@@ -81,6 +81,11 @@
           "default": true,
           "description": "Set to false to disable explosions while typing"
         },
+        "powermode.enableEditorComboCounter": {
+          "type": "boolean",
+          "default": false,
+          "description": "Set to true to enable showing the combo in the editor"
+        },
         "powermode.enableStatusBarComboCounter": {
           "type": "boolean",
           "default": true,
