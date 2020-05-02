@@ -8,9 +8,10 @@ export interface ComboMeterConfig {
 export class ComboMeter implements Plugin {
 
     private config: ComboMeterConfig = {};
-    private comboTitle: vscode.TextEditorDecorationType;
-    private comboCount: vscode.TextEditorDecorationType;
-
+    private comboTitleDecoration: vscode.TextEditorDecorationType;
+    private comboCountDecoration: vscode.TextEditorDecorationType;
+    
+    private renderedComboCount: number = undefined;
     private combo: number = 0;
     // TODO: Currently unused. Use this to style the combo
     private powermode: boolean = false;
@@ -36,14 +37,14 @@ export class ComboMeter implements Plugin {
     }
 
     dispose = () => {
-        if (this.comboCount) {
-            this.comboCount.dispose();
-            this.comboCount = null;
+        if (this.comboCountDecoration) {
+            this.comboCountDecoration.dispose();
+            this.comboCountDecoration = null;
         }
 
-        if (this.comboTitle) {
-            this.comboTitle.dispose();
-            this.comboTitle = null;
+        if (this.comboTitleDecoration) {
+            this.comboTitleDecoration.dispose();
+            this.comboTitleDecoration = null;
         }
     }
 
@@ -87,28 +88,33 @@ export class ComboMeter implements Plugin {
             return;
         }
 
-        this.dispose();
-
         const firstVisibleRange = editor.visibleRanges.sort()[0];
         if (!firstVisibleRange) {
+            this.dispose();
             return;
         }
 
-        this.createComboCountDecoration(this.combo);
-        this.createComboTitleDecoration();
+        // The combo title doesn't ever change, so only create it once
+        !!this.comboTitleDecoration || this.createComboTitleDecoration();
+        // If the combo count changes, however, create a new decoration
+        if (this.combo !== this.renderedComboCount) {
+            this.createComboCountDecoration(this.combo);
+        }
 
         const position = firstVisibleRange.start;
         const ranges = [new vscode.Range(position, position)];
-        editor.setDecorations(this.comboTitle, ranges);
-        editor.setDecorations(this.comboCount, ranges);
+        editor.setDecorations(this.comboTitleDecoration, ranges);
+        editor.setDecorations(this.comboCountDecoration, ranges);
     }
 
     private createComboTitleDecoration() {
+        this.comboTitleDecoration && this.comboTitleDecoration.dispose();
+
         const titleCss = ComboMeter.objectToCssString({
             ["font-size"]: "2em"
         });
 
-        this.comboTitle = vscode.window.createTextEditorDecorationType({
+        this.comboTitleDecoration = vscode.window.createTextEditorDecorationType({
             // Title and Count cannot use the same pseudoelement
             before: {
                 contentText: "Combo:",
@@ -120,11 +126,13 @@ export class ComboMeter implements Plugin {
     }
 
     private createComboCountDecoration(count: number) {
+        this.comboCountDecoration && this.comboCountDecoration.dispose();
+
         const countCss = ComboMeter.objectToCssString({
             ["font-size"]: "4em"
         });
 
-        this.comboCount = vscode.window.createTextEditorDecorationType({
+        this.comboCountDecoration = vscode.window.createTextEditorDecorationType({
             // Title and Count cannot use the same pseudoelement
             after: {
                 margin: ".6em 0 0 0",
