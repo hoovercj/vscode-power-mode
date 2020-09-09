@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import { Plugin } from './plugin';
 
 export interface ProgressBarTimerConfig {
-    enableStatusBarComboTimer?: boolean;
     comboTimeout?: number;
 }
 
@@ -19,14 +18,9 @@ export class ProgressBarTimer implements Plugin {
     constructor(private timerExpiredCallback: () => void) {}
 
     public onDidChangeConfiguration = (config: vscode.WorkspaceConfiguration) => {
-        this.config.enableStatusBarComboTimer = config.get<boolean>('enableStatusBarComboTimer', true);
         this.config.comboTimeout = config.get<number>('comboTimeout', ProgressBarTimer.DEFAULT_TIMEOUT);
         if (isNaN(this.config.comboTimeout) || this.config.comboTimeout < 0) {
             this.config.comboTimeout = ProgressBarTimer.DEFAULT_TIMEOUT;
-        }
-
-        if (!this.config.enableStatusBarComboTimer) {
-            this.stopTimer();
         }
     }
 
@@ -47,10 +41,6 @@ export class ProgressBarTimer implements Plugin {
     }
 
     public onDidChangeTextDocument(combo: number, powermode: boolean, event: vscode.TextDocumentChangeEvent): void {
-        if (!this.config.enableStatusBarComboTimer) {
-            return;
-        }
-
         if (!this.active) {
             this.startTimer(this.config.comboTimeout, this.timerExpiredCallback);
         } else {
@@ -63,10 +53,6 @@ export class ProgressBarTimer implements Plugin {
      * which displays the time remaining for the current combo
      */
     private startTimer = (timeLimit: number, onTimerExpired: () => void) => {
-        if (!this.config.enableStatusBarComboTimer) {
-            return;
-        }
-
         if (timeLimit === 0) {
             return;
         }
