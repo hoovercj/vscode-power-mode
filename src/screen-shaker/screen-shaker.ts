@@ -128,7 +128,8 @@ export class ScreenShaker implements Plugin {
         // This pushes each line to the right by the desired amount without adding spacing between characters
         const xRanges = [];
         for (let i = 0; i < activeEditor.document.lineCount; i++) {
-            xRanges.push(new vscode.Range(new vscode.Position(i, 0), new vscode.Position(i, 1)));
+            let textStart = activeEditor.document.lineAt(i).firstNonWhitespaceCharacterIndex + 1;
+            xRanges.push(new vscode.Range(new vscode.Position(i, 0), new vscode.Position(i, textStart)));
         }
 
         // For each direction, the "opposite" decoration needs cleared
