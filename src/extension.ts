@@ -12,6 +12,7 @@ import { CursorExploder } from './cursor-exploder/cursor-exploder';
 import { ProgressBarTimer } from './progress-bar-timer';
 import { StatusBarItem } from './status-bar-item';
 import { ComboMeter } from './combo-meter';
+import { Ridiculous } from './config/ridiculous';
 
 const DEFAULT_THEME_ID = 'particles';
 const DEFAULT_THEME_CONFIG = Particles;
@@ -40,6 +41,7 @@ let themes: {[key: string]: ThemeConfig} = {
     clippy: Clippy,
     ["simple-rift"]: SimpleRift,
     ["exploding-rift"]: ExplodingRift,
+    ["ridiculous"]: Ridiculous,
 };
 
 // Current combo count

@@ -2,10 +2,13 @@ import * as vscode from 'vscode';
 import { Plugin } from '../plugin';
 import { ThemeConfig, getConfigValue, CSS_LEFT, CSS_TOP } from '../config/config';
 
+const alphabetIdxMap = {"A":0,"a":0,"B":1,"b":1,"C":2,"c":2,"D":3,"d":3,"E":4,"e":4,"F":5,"f":5,"G":6,"g":6,"H":7,"h":7,"I":8,"i":8,"J":9,"j":9,"K":10,"k":10,"L":11,"l":11,"M":12,"m":12,"N":13,"n":13,"O":14,"o":14,"P":15,"p":15,"Q":16,"q":16,"R":17,"r":17,"S":18,"s":18,"T":19,"t":19,"U":20,"u":20,"V":21,"v":21,"W":22,"w":22,"X":23,"x":23,"Y":24,"y":24,"Z":25,"z":25,"1":26,"2":27,"3":28,"4":29,"5":30,"6":31,"7":32,"8":33,"9":34,"0":35};
+
 export type ExplosionOrder = 'random' | 'sequential' | number;
 export type BackgroundMode = 'mask' | 'image';
 export type GifMode = 'continue' | 'restart';
 export interface ExplosionConfig {
+    enableRidiculous: boolean;
     enableExplosions: boolean;
     maxExplosions: number;
     explosionSize: number;
@@ -63,12 +66,13 @@ export class CursorExploder implements Plugin {
         // explosion before instead.
         const changes = event.contentChanges[0];
         const left = changes && changes.text.length === 0;
-        this.explode(left);
+        this.explode(left, changes.text);
     }
 
     public onDidChangeConfiguration = (config: vscode.WorkspaceConfiguration) => {
 
         const newConfig: ExplosionConfig = {
+            enableRidiculous: getConfigValue<boolean>('enableRidiculous', config, this.themeConfig),
             customExplosions: getConfigValue<string[]>('customExplosions', config, this.themeConfig),
             enableExplosions: getConfigValue<boolean>('enableExplosions', config, this.themeConfig),
             maxExplosions: getConfigValue<number>('maxExplosions', config, this.themeConfig),
@@ -109,15 +113,23 @@ export class CursorExploder implements Plugin {
         this.keystrokeCounter = -1;
     }
 
-    private getExplosionDecoration = (position: vscode.Position): vscode.TextEditorDecorationType => {
+    private getExplosionDecoration = (position: vscode.Position, changes: string): vscode.TextEditorDecorationType => {
         let explosions = this.config.customExplosions;
-        const explosion = this.pickExplosion(explosions);
+        let explosion: string = null;
+
+        if(this.config.enableRidiculous) {
+            if(changes.length == 1 && alphabetIdxMap[changes[0]]) {
+                explosion = explosions[alphabetIdxMap[changes[0]]];
+            }
+        } else {
+            explosion = this.pickExplosion(explosions);
+        }
 
         if (!explosion) {
             return null;
         }
 
-        return this.createExplosionDecorationType(explosion, position);
+        return this.createExplosionDecorationType(explosion, position, changes);
     }
 
     private pickExplosion(explosions: string[]): string {
@@ -148,7 +160,7 @@ export class CursorExploder implements Plugin {
     /**
      * @returns an decoration type with the configured background image
      */
-    private createExplosionDecorationType = (explosion: string, editorPosition: vscode.Position ): vscode.TextEditorDecorationType => {
+    private createExplosionDecorationType = (explosion: string, editorPosition: vscode.Position, changes: string): vscode.TextEditorDecorationType => {
         // subtract 1 ch to account for the character and divide by two to make it centered
         // Use Math.floor to skew to the right which especially helps when deleting chars
         const leftValue = Math.floor((this.config.explosionSize - 1) / 2);
@@ -183,7 +195,7 @@ export class CursorExploder implements Plugin {
 
         return vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
             before: {
-                contentText: '',
+                contentText: "",
                 textDecoration: `none; ${defaultCssString} ${backgroundCssString} ${customCssString}`,
             },
             textDecoration: `none; position: relative;`,
@@ -246,7 +258,7 @@ export class CursorExploder implements Plugin {
      * @param {boolean} [left=false] place the decoration to
      * the left or the right of the cursor
      */
-    private explode = (left = false) => {
+    private explode = (left = false, changes = "") => {
         // To give the explosions space, only explode every X strokes
         // Where X is the configured explosion frequency
         // This counter resets if the user does not type for 1 second.
@@ -277,7 +289,7 @@ export class CursorExploder implements Plugin {
         // A new decoration is used each time because otherwise adjacent
         // gifs will all be identical. This helps them be at least a little
         // offset.
-        const decoration = this.getExplosionDecoration(newRange.start);
+        const decoration = this.getExplosionDecoration(newRange.start, changes);
         if (!decoration) {
             return;
         }
