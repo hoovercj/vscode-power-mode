@@ -118,7 +118,7 @@ export class CursorExploder implements Plugin {
         let explosion: string = null;
 
         if(this.config.enableRidiculous) {
-            if(changes.length == 1 && alphabetIdxMap[changes[0]]) {
+            if(changes.length == 1 && changes[0] in alphabetIdxMap) {
                 explosion = explosions[alphabetIdxMap[changes[0]]];
             }
         } else {
@@ -217,7 +217,7 @@ export class CursorExploder implements Plugin {
     }
 
     private isUrl(value: string): boolean {
-        return value.indexOf('https') === 0;
+        return value.startsWith('https');
     }
 
     private getBackgroundCssSettings(explosion: string) {

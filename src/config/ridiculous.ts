@@ -7,7 +7,7 @@ export const Ridiculous: ThemeConfig = {
     enableRidiculous: true,
     enableShake: false,
     enableExplosions: true,
-    maxExplosions: 10,
+    maxExplosions: 25,
     explosionSize: 5,
     explosionFrequency: 1,
     explosionOrder: 'sequential',
