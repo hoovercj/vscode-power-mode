@@ -11,6 +11,7 @@ import { ScreenShaker } from './screen-shaker/screen-shaker';
 import { CursorExploder } from './cursor-exploder/cursor-exploder';
 import { ProgressBarTimer } from './progress-bar-timer';
 import { StatusBarItem } from './status-bar-item';
+import { ComboMeter } from './combo-meter';
 
 const DEFAULT_THEME_ID = 'particles';
 const DEFAULT_THEME_CONFIG = Particles;
@@ -25,6 +26,7 @@ let screenShaker: ScreenShaker;
 let cursorExploder: CursorExploder;
 let statusBarItem: StatusBarItem;
 let progressBarTimer: ProgressBarTimer;
+let comboMeter: ComboMeter;
 
 // PowerMode components
 let plugins: Plugin[] = [];
@@ -58,12 +60,14 @@ function init(config: vscode.WorkspaceConfiguration, activeTheme: ThemeConfig) {
     cursorExploder = new CursorExploder(activeTheme),
     statusBarItem = new StatusBarItem();
     progressBarTimer = new ProgressBarTimer(onProgressTimerExpired);
+    comboMeter = new ComboMeter();
 
     plugins.push(
         screenShaker,
         cursorExploder,
         statusBarItem,
         progressBarTimer,
+        comboMeter,
     );
 
 
