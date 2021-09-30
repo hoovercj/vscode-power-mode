@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { Plugin } from '../plugin';
 import { ThemeConfig, getConfigValue, CSS_LEFT, CSS_TOP } from '../config/config';
 
-const alphabetIdxMap = {"A":0,"a":0,"B":1,"b":1,"C":2,"c":2,"D":3,"d":3,"E":4,"e":4,"F":5,"f":5,"G":6,"g":6,"H":7,"h":7,"I":8,"i":8,"J":9,"j":9,"K":10,"k":10,"L":11,"l":11,"M":12,"m":12,"N":13,"n":13,"O":14,"o":14,"P":15,"p":15,"Q":16,"q":16,"R":17,"r":17,"S":18,"s":18,"T":19,"t":19,"U":20,"u":20,"V":21,"v":21,"W":22,"w":22,"X":23,"x":23,"Y":24,"y":24,"Z":25,"z":25,"1":26,"2":27,"3":28,"4":29,"5":30,"6":31,"7":32,"8":33,"9":34,"0":35,"`":36,"!":37,"$":38,"%":39,"^":40,"*":41,"(":42,")":43,"-":44,"=":45,"_":46,"+":47,"[":48,"]":49,"\\":50,"|":51,";":52,"'":53,":":54,"\"":55,",":56,".":57,"/":58,"<":59,">":60,"?":61,};
+const alphabetIdxMap = {"A":0,"a":0,"B":1,"b":1,"C":2,"c":2,"D":3,"d":3,"E":4,"e":4,"F":5,"f":5,"G":6,"g":6,"H":7,"h":7,"I":8,"i":8,"J":9,"j":9,"K":10,"k":10,"L":11,"l":11,"M":12,"m":12,"N":13,"n":13,"O":14,"o":14,"P":15,"p":15,"Q":16,"q":16,"R":17,"r":17,"S":18,"s":18,"T":19,"t":19,"U":20,"u":20,"V":21,"v":21,"W":22,"w":22,"X":23,"x":23,"Y":24,"y":24,"Z":25,"z":25,"1":26,"2":27,"3":28,"4":29,"5":30,"6":31,"7":32,"8":33,"9":34,"0":35,"`":36,"!":37,"$":38,"%":39,"^":40,"*":41,"(":42,")":43,"-":44,"=":45,"_":46,"+":47,"[":48,"]":49,"\\":50,"|":51,";":52,"'":53,":":54,"\"":55,",":56,".":57,"/":58,"<":59,">":60,"?":61,"DELETE":62,"SPACE":63,"NEWLINE":64,"CONTROL+V":65};
 
 export type ExplosionOrder = 'random' | 'sequential' | number;
 export type BackgroundMode = 'mask' | 'image';
@@ -120,6 +120,14 @@ export class CursorExploder implements Plugin {
         if(this.config.enableRidiculous) {
             if(changes.length == 1 && changes[0] in alphabetIdxMap) {
                 explosion = explosions[alphabetIdxMap[changes[0]]];
+            } else if(changes.length == 0) {
+                explosion = explosions[alphabetIdxMap["DELETE"]];
+            } else if(changes == " ") {
+                explosion = explosions[alphabetIdxMap["SPACE"]];
+            } else if(changes == "\n" || changes == "\r\n") {
+                explosion = explosions[alphabetIdxMap["NEWLINE"]];
+            } else {
+                explosion = explosions[alphabetIdxMap["CONTROL+V"]];
             }
         } else {
             explosion = this.pickExplosion(explosions);
@@ -161,16 +169,28 @@ export class CursorExploder implements Plugin {
      * @returns an decoration type with the configured background image
      */
     private createExplosionDecorationType = (explosion: string, editorPosition: vscode.Position, changes: string): vscode.TextEditorDecorationType => {
+
+        let explosionSize = this.config.explosionSize * (Math.random() * 0.7 + 0.5);
+        let explosionSizeHor = explosionSize;
+
+        if(this.config.enableRidiculous) {
+            if(changes.length == 1 && changes[0] in alphabetIdxMap) {
+                
+            } else {
+                explosionSizeHor = explosionSize * 6;
+            }
+        }
+
         // subtract 1 ch to account for the character and divide by two to make it centered
         // Use Math.floor to skew to the right which especially helps when deleting chars
-        const leftValue = Math.floor((this.config.explosionSize - 1) / 2);
+        const leftValue = Math.floor((explosionSizeHor - 1) / 2);
         // By default, the top of the gif will be at the top of the text.
         // Setting the top to a negative value will raise it up.
         // The default gifs are "tall" and the bottom halves are empty.
         // Lowering them makes them appear in a more natural position,
         // but limiting the top to the line number keeps it from going
         // off the top of the editor
-        const topValue = this.config.explosionSize * this.config.explosionOffset;
+        const topValue = explosionSize * this.config.explosionOffset;
 
         const explosionUrl = this.getExplosionUrl(explosion);
 
@@ -182,8 +202,8 @@ export class CursorExploder implements Plugin {
             position: 'absolute',
             [CSS_LEFT] : `-${leftValue}ch`,
             [CSS_TOP]: `-${topValue}rem`,
-            width: `${this.config.explosionSize}ch`,
-            height: `${this.config.explosionSize}rem`,
+            width: `${explosionSizeHor}ch`,
+            height: `${explosionSize}rem`,
             display: `inline-block`,
             ['z-index']: 1,
             ['pointer-events']: 'none',
@@ -192,6 +212,8 @@ export class CursorExploder implements Plugin {
         const backgroundCssString = this.objectToCssString(backgroundCss);
         const defaultCssString = this.objectToCssString(defaultCss);
         const customCssString = this.objectToCssString(this.config.customCss || {});
+
+        //let arr = ([...changes].map(x => x.charCodeAt(0))).join('-');
 
         return vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
             before: {
