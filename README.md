@@ -2,9 +2,11 @@
 
 OSU Mode is a fork of Power Mode, they said it shouldn't be done...
 
-However, after being bored and realizing that VS Code was not the only modern editor without it, I knew I didn't have to try, but I couldn't let VS Code live in the shadow of its big brother or Atom.
+However, after being bored and realizing that VSCode was not the only modern editor without it, I knew I didn't have to try, but I couldn't let VSCode live in the shadow of its big brother or Atom.
 
-I present you, VSCODE OSU MODE!!! (now with Genshin Impact Characters!)
+I present you, **VSCODE OSU MODE**!!! (now with Genshin Impact Characters!)
+
+![DEMO](https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/demo-osu.gif)
 
 To enable, add `"powermode.enabled": true` to your settings, and use like regular Power Mode.
 To enable OSU mode, add `"powermode.presets": "ridiculous"` and `"powermode.enableEditorComboCounter": true,` to your settings.
