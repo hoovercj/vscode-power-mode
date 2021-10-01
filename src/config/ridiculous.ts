@@ -12,7 +12,7 @@ export const Ridiculous: ThemeConfig = {
     explosionFrequency: 1,
     explosionOrder: 'sequential',
     gifMode: 'restart',
-    explosionDuration: 1350,
+    explosionDuration: 1350, 
     explosionOffset: 0.5,
     backgroundMode: 'image',
     customExplosions: alphabetGifMap,

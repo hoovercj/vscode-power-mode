@@ -117,17 +117,25 @@ export class CursorExploder implements Plugin {
         let explosions = this.config.customExplosions;
         let explosion: string = null;
 
+        let explosionSizeMultiplier: number = 1;
+
         if(this.config.enableRidiculous) {
+            let stripped_changes = changes.replace(/ +?/g, '');
             if(changes.length == 1 && changes[0] in alphabetIdxMap) {
                 explosion = explosions[alphabetIdxMap[changes[0]]];
             } else if(changes.length == 0) {
                 explosion = explosions[alphabetIdxMap["DELETE"]];
-            } else if(changes == " ") {
+                explosionSizeMultiplier = 1.5;
+            } else if(stripped_changes.length == 0) {
                 explosion = explosions[alphabetIdxMap["SPACE"]];
-            } else if(changes == "\n" || changes == "\r\n") {
-                explosion = explosions[alphabetIdxMap["NEWLINE"]];
             } else {
-                explosion = explosions[alphabetIdxMap["CONTROL+V"]];
+                if(stripped_changes == "\n" || stripped_changes == "\r\n") {
+                    explosion = explosions[alphabetIdxMap["NEWLINE"]];
+                    explosionSizeMultiplier = 1.5;
+                } else {
+                    explosion = explosions[alphabetIdxMap["CONTROL+V"]];
+                    explosionSizeMultiplier = 2;
+                }
             }
         } else {
             explosion = this.pickExplosion(explosions);
@@ -137,7 +145,7 @@ export class CursorExploder implements Plugin {
             return null;
         }
 
-        return this.createExplosionDecorationType(explosion, position, changes);
+        return this.createExplosionDecorationType(explosion, explosionSizeMultiplier, position, changes);
     }
 
     private pickExplosion(explosions: string[]): string {
@@ -168,7 +176,7 @@ export class CursorExploder implements Plugin {
     /**
      * @returns an decoration type with the configured background image
      */
-    private createExplosionDecorationType = (explosion: string, editorPosition: vscode.Position, changes: string): vscode.TextEditorDecorationType => {
+    private createExplosionDecorationType = (explosion: string, explosionSizeMultiplier: number, editorPosition: vscode.Position, changes: string): vscode.TextEditorDecorationType => {
 
         let explosionSize = this.config.explosionSize * (Math.random() * 0.7 + 0.5);
         let explosionSizeHor = explosionSize;
@@ -177,6 +185,7 @@ export class CursorExploder implements Plugin {
             if(changes.length == 1 && changes[0] in alphabetIdxMap) {
                 
             } else {
+                explosionSize *= 1.5;
                 explosionSizeHor = explosionSize * 6;
             }
         }
@@ -212,8 +221,6 @@ export class CursorExploder implements Plugin {
         const backgroundCssString = this.objectToCssString(backgroundCss);
         const defaultCssString = this.objectToCssString(defaultCss);
         const customCssString = this.objectToCssString(this.config.customCss || {});
-
-        //let arr = ([...changes].map(x => x.charCodeAt(0))).join('-');
 
         return vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
             before: {
@@ -311,7 +318,7 @@ export class CursorExploder implements Plugin {
         // A new decoration is used each time because otherwise adjacent
         // gifs will all be identical. This helps them be at least a little
         // offset.
-        const decoration = this.getExplosionDecoration(newRange.start, changes);
+        const decoration = this.getExplosionDecoration(newRange.end, changes);
         if (!decoration) {
             return;
         }

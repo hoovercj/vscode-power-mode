@@ -17,9 +17,20 @@ export class ComboMeter implements Plugin {
     private powermode: boolean = false;
     private enabled: boolean = false;
 
+    private disposeTimer = undefined;
+
+    private comboCountAnimationTimer = undefined;
+
+    private orange: vscode.OutputChannel = undefined;
+
     private static readonly DEFAULT_CSS = ComboMeter.objectToCssString({
         position: 'absolute',
         right: "5%",
+        top: "20px",
+
+        ['font-family']: "cursive",
+        ['font-weight']: "900",
+
         // width: "50px",
         ['z-index']: 1,
         ['pointer-events']: 'none',
@@ -38,6 +49,7 @@ export class ComboMeter implements Plugin {
 
     dispose = () => {
         if (this.comboCountDecoration) {
+            clearTimeout(this.comboCountAnimationTimer);
             this.comboCountDecoration.dispose();
             this.comboCountDecoration = null;
         }
@@ -89,59 +101,158 @@ export class ComboMeter implements Plugin {
         }
 
         const firstVisibleRange = editor.visibleRanges.sort()[0];
-        if (!firstVisibleRange) {
+        
+        if (!firstVisibleRange || this.combo < 2) { //^^^ hide title if combo less than..
             this.dispose();
             return;
         }
 
-        // The combo title doesn't ever change, so only create it once
-        !!this.comboTitleDecoration || this.createComboTitleDecoration();
-        // If the combo count changes, however, create a new decoration
-        if (this.combo !== this.renderedComboCount) {
-            this.createComboCountDecoration(this.combo);
-        }
+        clearTimeout(this.disposeTimer);
+        this.disposeTimer = setTimeout(()=>{
+            this.dispose();
+        },10000);
 
         const position = firstVisibleRange.start;
         const ranges = [new vscode.Range(position, position)];
+
+        // The combo title doesn't ever change, so only create it once
+        // !!this.comboTitleDecoration || this.createComboTitleDecoration();
+        // If the combo count changes, however, create a new decoration
+        if (this.combo !== this.renderedComboCount) {
+            this.renderedComboCount = this.combo;
+            this.createComboCountDecoration(this.combo, ranges, editor);
+            this.createComboTitleDecoration(this.combo); //^^^ add counter value for change title
+        }
+
         editor.setDecorations(this.comboTitleDecoration, ranges);
-        editor.setDecorations(this.comboCountDecoration, ranges);
+        //editor.setDecorations(this.comboCountDecoration, ranges);
     }
 
-    private createComboTitleDecoration() {
+    private createComboTitleDecoration(count: number) {
         this.comboTitleDecoration && this.comboTitleDecoration.dispose();
 
+        const styleCount = count > 100 ? 100 : count;
+        /*let styleSize = 2;
+        let styleColor = "#ffffff";
+        let styleShadows = "none";
+        let comboText = 'COMBO';
+        
+        if (styleCount > 20) {
+            comboText = 'DOUBLE KILL';
+            styleSize = 3;
+            styleColor = "#59F1EA";
+            styleShadows = "none";
+        }
+        if (styleCount > 40) {
+            comboText = 'KILLING SPREE';
+            styleSize = 2.4;
+            styleColor = "#E12E8A";
+            styleShadows = "2px 2px 0px #59F1EA";
+        }
+        if (styleCount > 60) {
+            comboText = 'RAMPAGE!';
+            styleSize = 3;
+            styleColor = "#5A46DE";
+            styleShadows = "-2px -2px 0px #59F1EA";
+        }
+        if (styleCount > 80) {
+            comboText = 'DOMINATING!!';
+            styleSize = 4;
+            styleColor = "#F66F00";
+            styleShadows = "5px 5px 0px #59F1EA";
+        }
+        if (styleCount > 90) {
+            comboText = 'UNSTOPPABLE!!!!';
+            styleSize = 5;
+            styleColor = "#ff003c";
+            styleShadows = "-5px -2px 0px #59F1EA";
+        }*/
+
+        let imgUrl;
+
+        if (styleCount < 20) {
+            imgUrl = "https://i.imgur.com/j1FbfK0.png";
+        } else if (styleCount < 40) {
+            imgUrl = "";
+        } else if (styleCount < 60) {
+            imgUrl = "";
+        } else if (styleCount < 80) {
+            imgUrl = "";
+        } else if (styleCount < 100) {
+            imgUrl = "";
+        } else {
+            imgUrl = "";
+        }
+
         const titleCss = ComboMeter.objectToCssString({
-            ["font-size"]: "2em"
+            ["width"]: `40vh`,
+            ["height"]: `80vh`,
+            ["background-repeat"]: 'no-repeat',
+            ["background-size"]: 'contain',
+            ['z-index']: -1,
+            ["background-color"]: `#ff000010`,
+            ["right"]: "0%",
+            ["background-image"]: `url("${imgUrl}")`,
         });
 
         this.comboTitleDecoration = vscode.window.createTextEditorDecorationType({
             // Title and Count cannot use the same pseudoelement
             before: {
-                contentText: "Combo:",
-                color: "white",
+                contentText: "",
+                color: "#fff",
                 textDecoration: `none; ${ComboMeter.DEFAULT_CSS} ${titleCss}`,
             },
             rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
         });
     }
 
-    private createComboCountDecoration(count: number) {
-        this.comboCountDecoration && this.comboCountDecoration.dispose();
+    private createComboCountDecoration(count: number, ranges: vscode.Range[], editor: vscode.TextEditor = vscode.window.activeTextEditor) {
 
-        const countCss = ComboMeter.objectToCssString({
-            ["font-size"]: "4em"
-        });
+        const thisObj = this;
 
-        this.comboCountDecoration = vscode.window.createTextEditorDecorationType({
-            // Title and Count cannot use the same pseudoelement
-            after: {
-                margin: ".6em 0 0 0",
-                contentText: count.toString(),
-                color: "#9cdcfe",
-                textDecoration: `none; ${ComboMeter.DEFAULT_CSS} ${countCss}`,
-            },
-            rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
-        });
+        let animateComboCountDecoration = function(frameCount: number) {
+            thisObj.comboCountDecoration && thisObj.comboCountDecoration.dispose();
+
+            const styleCount = count > 100 ? 100 : count;
+            const styleColor = 'hsl(' + (100 - count * 1.2) + ', 100%, 45%)';
+    
+            const countCss = ComboMeter.objectToCssString({
+                ["font-size"]: ((styleCount*6)/100*Math.pow(0.5,frameCount*0.2)+6) +"em",
+                ["text-align"]: "center",
+                ["text-shadow"]: `0px 0px 15px ${styleColor}`,
+            });
+    
+            thisObj.comboCountDecoration = vscode.window.createTextEditorDecorationType({
+                // Title and Count cannot use the same pseudoelement
+                after: {
+                    margin: ".8em 0 0 0",
+                    contentText: `${count}×`,
+                    color: "#ffffff",
+                    textDecoration: `none; ${ComboMeter.DEFAULT_CSS} ${countCss}`,
+                },
+                rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
+            });
+
+            thisObj.orange.appendLine(`FrameCount: ${frameCount}`);
+
+            editor.setDecorations(thisObj.comboCountDecoration, ranges);
+
+            if(frameCount < 100) {
+                thisObj.comboCountAnimationTimer = setTimeout(()=>{
+                    animateComboCountDecoration(frameCount+1);
+                }, 20 + 0.25 * frameCount*frameCount);
+            }
+        }
+
+        
+        if(thisObj.orange) {
+        } else {
+            thisObj.orange = vscode.window.createOutputChannel("Orange");
+        }
+        //thisObj.orange.appendLine(`I am a banana. ${count}`);
+        
+        clearTimeout(this.comboCountAnimationTimer);
+        animateComboCountDecoration(0);
     }
 
     private static objectToCssString(settings: any): string {
