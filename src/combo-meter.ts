@@ -13,7 +13,7 @@ export class ComboMeter implements Plugin {
     
     private renderedComboCount: number = undefined;
     private combo: number = 0;
-    private renderedImage: string = "";
+    private renderedImage: string = "f";
     // TODO: Currently unused. Use this to style the combo
     private powermode: boolean = false;
     private enabled: boolean = false;
@@ -127,47 +127,9 @@ export class ComboMeter implements Plugin {
             this.createComboTitleDecoration(this.combo, ranges, editor); //^^^ add counter value for change title
         }
 
-        //editor.setDecorations(this.comboTitleDecoration, ranges);
-        //editor.setDecorations(this.comboCountDecoration, ranges);
     }
 
     private createComboTitleDecoration(count: number, ranges: vscode.Range[], editor: vscode.TextEditor = vscode.window.activeTextEditor) {
-
-        /*let styleSize = 2;
-        let styleColor = "#ffffff";
-        let styleShadows = "none";
-        let comboText = 'COMBO';
-        
-        if (styleCount > 20) {
-            comboText = 'DOUBLE KILL';
-            styleSize = 3;
-            styleColor = "#59F1EA";
-            styleShadows = "none";
-        }
-        if (styleCount > 40) {
-            comboText = 'KILLING SPREE';
-            styleSize = 2.4;
-            styleColor = "#E12E8A";
-            styleShadows = "2px 2px 0px #59F1EA";
-        }
-        if (styleCount > 60) {
-            comboText = 'RAMPAGE!';
-            styleSize = 3;
-            styleColor = "#5A46DE";
-            styleShadows = "-2px -2px 0px #59F1EA";
-        }
-        if (styleCount > 80) {
-            comboText = 'DOMINATING!!';
-            styleSize = 4;
-            styleColor = "#F66F00";
-            styleShadows = "5px 5px 0px #59F1EA";
-        }
-        if (styleCount > 90) {
-            comboText = 'UNSTOPPABLE!!!!';
-            styleSize = 5;
-            styleColor = "#ff003c";
-            styleShadows = "-5px -2px 0px #59F1EA";
-        }*/
 
         let imgUrl = "";
 
@@ -175,7 +137,9 @@ export class ComboMeter implements Plugin {
         
         const styleCount = count % (styleCountCoefficient * 7);
 
-        if (styleCount < styleCountCoefficient && count > styleCountCoefficient) {
+        if (count < styleCountCoefficient) {
+            imgUrl = "";
+        } else if (styleCount < styleCountCoefficient) {
             imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Keqing_Portrait.png";
         } else if (styleCount < styleCountCoefficient * 2) {
             imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Diona_Portrait.png";
@@ -190,6 +154,14 @@ export class ComboMeter implements Plugin {
         } else {
             imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Ganyu_Portrait.png";
         }
+
+        /*if(this.orange) {
+        } else {
+            this.orange = vscode.window.createOutputChannel("Orange");
+        }
+        this.orange.appendLine(`imgUrl: ${imgUrl}`);
+        this.orange.appendLine(`count: ${count}`);
+        this.orange.appendLine(`styleCount: ${styleCount}`);*/
 
         if(this.renderedImage != imgUrl) {
             this.renderedImage = imgUrl;
@@ -264,20 +236,7 @@ export class ComboMeter implements Plugin {
             const styleCount = count > 100 ? 100 : count;
             const styleColor = 'hsl(' + (100 - count * 1.2) + ', 100%, 45%)';
 
-            let textSizeMultiplier = 1;
-            /*if(count%500 == 0) {
-                textSizeMultiplier = 1.7;
-            } else if(count%250 == 0) {
-                textSizeMultiplier = 1.6;
-            } else if(count%100 == 0) {
-                textSizeMultiplier = 1.5;
-            } else if(count%50 == 0) {
-                textSizeMultiplier = 1.4;
-            } else if(count%10 == 0) {
-                textSizeMultiplier = 1.2;
-            }*/
-
-            let textSize = textSizeMultiplier*((styleCount*6)/100*Math.pow(0.5,frameCount*0.2)+6);
+            let textSize = ((styleCount*6)/100*Math.pow(0.5,frameCount*0.2)+6);
 
             const countCss = ComboMeter.objectToCssString({
                 ["font-size"]: `${textSize}em`,
@@ -296,8 +255,6 @@ export class ComboMeter implements Plugin {
                 rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
             });
 
-            thisObj.orange.appendLine(`FrameCount: ${frameCount}`);
-
             editor.setDecorations(thisObj.comboCountDecoration, ranges);
 
             if(frameCount < 100) {
@@ -307,13 +264,6 @@ export class ComboMeter implements Plugin {
             }
         }
 
-        
-        if(thisObj.orange) {
-        } else {
-            thisObj.orange = vscode.window.createOutputChannel("Orange");
-        }
-        //thisObj.orange.appendLine(`I am a banana. ${count}`);
-        
         clearTimeout(this.comboCountAnimationTimer);
         animateComboCountDecoration(0);
     }

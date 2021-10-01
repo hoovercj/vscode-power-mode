@@ -1,8 +1,8 @@
 {
-    "name": "vscode-ridiculous-power-mode",
-    "displayName": "Ridiculous Power Mode",
-    "description": "Your code is powerful, unleash it!",
-    "version": "3.0.0",
+    "name": "vscode-osu",
+    "displayName": "OSU Mode",
+    "description": "Hit the code to the beat",
+    "version": "3.0.1",
     "publisher": "AlexShenVSCode",
     "icon": "images/icon-large.png",
     "author": {
