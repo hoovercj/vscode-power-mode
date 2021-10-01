@@ -131,7 +131,7 @@ export class ComboMeter implements Plugin {
     private createComboTitleDecoration(count: number) {
         this.comboTitleDecoration && this.comboTitleDecoration.dispose();
 
-        const styleCount = count > 100 ? 100 : count;
+        const styleCount = count > 200 ? 200 : count;
         /*let styleSize = 2;
         let styleColor = "#ffffff";
         let styleShadows = "none";
@@ -171,20 +171,23 @@ export class ComboMeter implements Plugin {
         let imgUrl;
 
         if (styleCount < 20) {
-            imgUrl = "https://i.imgur.com/j1FbfK0.png";
         } else if (styleCount < 40) {
-            imgUrl = "";
+            imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Diona_Portrait.png";
         } else if (styleCount < 60) {
-            imgUrl = "";
+            imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Qiqi_Portrait.png";
         } else if (styleCount < 80) {
-            imgUrl = "";
+            imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Klee_Portrait.png";
         } else if (styleCount < 100) {
-            imgUrl = "";
+            imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Fischl_Portrait.png";
+        } else if (styleCount < 120) {
+            imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Hu_Tao_Portrait.png";
+        } else if (styleCount < 140) {
+            imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Ganyu_Portrait.png";
         } else {
-            imgUrl = "";
+            imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Keqing_Portrait.png";
         }
 
-        const titleCss = ComboMeter.objectToCssString({
+        let backgroundImageCss = {
             ["width"]: `40vh`,
             ["height"]: `80vh`,
             ["background-repeat"]: 'no-repeat',
@@ -192,8 +195,13 @@ export class ComboMeter implements Plugin {
             ['z-index']: -1,
             ["background-color"]: `#ff000010`,
             ["right"]: "0%",
-            ["background-image"]: `url("${imgUrl}")`,
-        });
+        };
+
+        if(imgUrl) {
+            backgroundImageCss["background-image"] = `url("${imgUrl}")`;
+        }
+
+        const titleCss = ComboMeter.objectToCssString(backgroundImageCss);
 
         this.comboTitleDecoration = vscode.window.createTextEditorDecorationType({
             // Title and Count cannot use the same pseudoelement
