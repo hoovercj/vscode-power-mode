@@ -133,7 +133,6 @@ export class ComboMeter implements Plugin {
 
     private createComboTitleDecoration(count: number, ranges: vscode.Range[], editor: vscode.TextEditor = vscode.window.activeTextEditor) {
 
-        const styleCount = count > 200 ? 200 : count;
         /*let styleSize = 2;
         let styleColor = "#ffffff";
         let styleShadows = "none";
@@ -173,8 +172,11 @@ export class ComboMeter implements Plugin {
         let imgUrl = "";
 
         const styleCountCoefficient = 50;
+        
+        const styleCount = count % (styleCountCoefficient * 7);
 
-        if (styleCount < styleCountCoefficient) {
+        if (styleCount < styleCountCoefficient && count > styleCountCoefficient) {
+            imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Keqing_Portrait.png";
         } else if (styleCount < styleCountCoefficient * 2) {
             imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Diona_Portrait.png";
         } else if (styleCount < styleCountCoefficient * 3) {
@@ -185,10 +187,8 @@ export class ComboMeter implements Plugin {
             imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Fischl_Portrait.png";
         } else if (styleCount < styleCountCoefficient * 6) {
             imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Hu_Tao_Portrait.png";
-        } else if (styleCount < styleCountCoefficient * 7) {
-            imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Ganyu_Portrait.png";
         } else {
-            imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Keqing_Portrait.png";
+            imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Ganyu_Portrait.png";
         }
 
         if(this.renderedImage != imgUrl) {
