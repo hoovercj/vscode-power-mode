@@ -13,6 +13,7 @@ export class ComboMeter implements Plugin {
     
     private renderedComboCount: number = undefined;
     private combo: number = 0;
+    private renderedImage: string = "";
     // TODO: Currently unused. Use this to style the combo
     private powermode: boolean = false;
     private enabled: boolean = false;
@@ -20,6 +21,7 @@ export class ComboMeter implements Plugin {
     private disposeTimer = undefined;
 
     private comboCountAnimationTimer = undefined;
+    private comboImageAnimationTimer = undefined;
 
     private orange: vscode.OutputChannel = undefined;
 
@@ -28,7 +30,7 @@ export class ComboMeter implements Plugin {
         right: "5%",
         top: "20px",
 
-        ['font-family']: "cursive",
+        ['font-family']: "monospace",
         ['font-weight']: "900",
 
         // width: "50px",
@@ -55,6 +57,7 @@ export class ComboMeter implements Plugin {
         }
 
         if (this.comboTitleDecoration) {
+            clearTimeout(this.comboImageAnimationTimer);
             this.comboTitleDecoration.dispose();
             this.comboTitleDecoration = null;
         }
@@ -121,15 +124,14 @@ export class ComboMeter implements Plugin {
         if (this.combo !== this.renderedComboCount) {
             this.renderedComboCount = this.combo;
             this.createComboCountDecoration(this.combo, ranges, editor);
-            this.createComboTitleDecoration(this.combo); //^^^ add counter value for change title
+            this.createComboTitleDecoration(this.combo, ranges, editor); //^^^ add counter value for change title
         }
 
-        editor.setDecorations(this.comboTitleDecoration, ranges);
+        //editor.setDecorations(this.comboTitleDecoration, ranges);
         //editor.setDecorations(this.comboCountDecoration, ranges);
     }
 
-    private createComboTitleDecoration(count: number) {
-        this.comboTitleDecoration && this.comboTitleDecoration.dispose();
+    private createComboTitleDecoration(count: number, ranges: vscode.Range[], editor: vscode.TextEditor = vscode.window.activeTextEditor) {
 
         const styleCount = count > 200 ? 200 : count;
         /*let styleSize = 2;
@@ -168,50 +170,88 @@ export class ComboMeter implements Plugin {
             styleShadows = "-5px -2px 0px #59F1EA";
         }*/
 
-        let imgUrl;
+        let imgUrl = "";
 
-        if (styleCount < 20) {
-        } else if (styleCount < 40) {
+        const styleCountCoefficient = 50;
+
+        if (styleCount < styleCountCoefficient) {
+        } else if (styleCount < styleCountCoefficient * 2) {
             imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Diona_Portrait.png";
-        } else if (styleCount < 60) {
+        } else if (styleCount < styleCountCoefficient * 3) {
             imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Qiqi_Portrait.png";
-        } else if (styleCount < 80) {
+        } else if (styleCount < styleCountCoefficient * 4) {
             imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Klee_Portrait.png";
-        } else if (styleCount < 100) {
+        } else if (styleCount < styleCountCoefficient * 5) {
             imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Fischl_Portrait.png";
-        } else if (styleCount < 120) {
+        } else if (styleCount < styleCountCoefficient * 6) {
             imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Hu_Tao_Portrait.png";
-        } else if (styleCount < 140) {
+        } else if (styleCount < styleCountCoefficient * 7) {
             imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Ganyu_Portrait.png";
         } else {
             imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Keqing_Portrait.png";
         }
 
-        let backgroundImageCss = {
-            ["width"]: `40vh`,
-            ["height"]: `80vh`,
-            ["background-repeat"]: 'no-repeat',
-            ["background-size"]: 'contain',
-            ['z-index']: -1,
-            ["background-color"]: `#ff000010`,
-            ["right"]: "0%",
-        };
+        if(this.renderedImage != imgUrl) {
+            this.renderedImage = imgUrl;
 
-        if(imgUrl) {
-            backgroundImageCss["background-image"] = `url("${imgUrl}")`;
+            const thisObj = this;
+
+            let animateComboImageDecoration = function(frameCount: number) {
+                thisObj.comboTitleDecoration && thisObj.comboTitleDecoration.dispose();
+
+                let posX = 0;
+                let delay = 10;
+
+                if(frameCount < 15) {
+                    posX = 15 - frameCount;
+                    delay = 10;
+                } else if(frameCount < 16) {
+                    posX = 0;
+                    delay = 1000;
+                } else {
+                    posX = 0.005*Math.pow(frameCount-16,2);
+                    delay = 20;
+                }
+
+                let backgroundImageCss = {
+                    ["width"]: `60vh`,
+                    ["height"]: `80vh`,
+                    ["background-repeat"]: 'no-repeat',
+                    ["background-size"]: 'contain',
+                    ["background-position"]: 'right',
+                    ['z-index']: -1,
+                    //["background-color"]: `#ff000010`,
+                    ["right"]: `${-posX}vh`,
+                };
+        
+                if(imgUrl.length !== 0) {
+                    backgroundImageCss["background-image"] = `url("${imgUrl}")`;
+                }
+        
+                const titleCss = ComboMeter.objectToCssString(backgroundImageCss);
+        
+                thisObj.comboTitleDecoration = vscode.window.createTextEditorDecorationType({
+                    // Title and Count cannot use the same pseudoelement
+                    before: {
+                        contentText: "",
+                        color: "#fff",
+                        textDecoration: `none; ${ComboMeter.DEFAULT_CSS} ${titleCss}`,
+                    },
+                    rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
+                });
+                
+                editor.setDecorations(thisObj.comboTitleDecoration, ranges);
+
+                if(frameCount < 150) {
+                    thisObj.comboImageAnimationTimer = setTimeout(()=>{
+                        animateComboImageDecoration(frameCount+1);
+                    }, delay);
+                }
+            }
+
+            clearTimeout(this.comboImageAnimationTimer);
+            animateComboImageDecoration(0);
         }
-
-        const titleCss = ComboMeter.objectToCssString(backgroundImageCss);
-
-        this.comboTitleDecoration = vscode.window.createTextEditorDecorationType({
-            // Title and Count cannot use the same pseudoelement
-            before: {
-                contentText: "",
-                color: "#fff",
-                textDecoration: `none; ${ComboMeter.DEFAULT_CSS} ${titleCss}`,
-            },
-            rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
-        });
     }
 
     private createComboCountDecoration(count: number, ranges: vscode.Range[], editor: vscode.TextEditor = vscode.window.activeTextEditor) {
@@ -223,9 +263,24 @@ export class ComboMeter implements Plugin {
 
             const styleCount = count > 100 ? 100 : count;
             const styleColor = 'hsl(' + (100 - count * 1.2) + ', 100%, 45%)';
-    
+
+            let textSizeMultiplier = 1;
+            /*if(count%500 == 0) {
+                textSizeMultiplier = 1.7;
+            } else if(count%250 == 0) {
+                textSizeMultiplier = 1.6;
+            } else if(count%100 == 0) {
+                textSizeMultiplier = 1.5;
+            } else if(count%50 == 0) {
+                textSizeMultiplier = 1.4;
+            } else if(count%10 == 0) {
+                textSizeMultiplier = 1.2;
+            }*/
+
+            let textSize = textSizeMultiplier*((styleCount*6)/100*Math.pow(0.5,frameCount*0.2)+6);
+
             const countCss = ComboMeter.objectToCssString({
-                ["font-size"]: ((styleCount*6)/100*Math.pow(0.5,frameCount*0.2)+6) +"em",
+                ["font-size"]: `${textSize}em`,
                 ["text-align"]: "center",
                 ["text-shadow"]: `0px 0px 15px ${styleColor}`,
             });
@@ -248,7 +303,7 @@ export class ComboMeter implements Plugin {
             if(frameCount < 100) {
                 thisObj.comboCountAnimationTimer = setTimeout(()=>{
                     animateComboCountDecoration(frameCount+1);
-                }, 20 + 0.25 * frameCount*frameCount);
+                }, 20 + 0.5 * frameCount);
             }
         }
 

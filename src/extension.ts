@@ -156,7 +156,14 @@ function isPowerMode() {
 }
 
 function onDidChangeTextDocument(event: vscode.TextDocumentChangeEvent) {
-    combo++;
+
+    const changes = event.contentChanges[0].text;
+    if(changes.length == 0) {
+        onProgressTimerExpired();
+    } else {
+        combo++;
+    }
+
     const powermode = isPowerMode();
     plugins.forEach(plugin => plugin.onDidChangeTextDocument(combo, powermode, event));
 }
