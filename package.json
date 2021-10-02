@@ -2,7 +2,7 @@
     "name": "vscode-osu",
     "displayName": "OSU Mode",
     "description": "Hit the code to the beat",
-    "version": "3.0.1",
+    "version": "3.1.0",
     "publisher": "AlexShenVSCode",
     "icon": "images/icon-large.png",
     "author": {
@@ -45,141 +45,40 @@
     },
     "contributes": {
         "configuration": {
-            "title": "Power Mode",
+            "title": "OSU Mode",
             "properties": {
-                "powermode.enabled": {
+                "osumode.enabled": {
                     "default": false,
                     "type": "boolean",
-                    "description": "Enable to activate POWER MODE!!!"
+                    "description": "Enable to activate OSU MODE!!!"
                 },
-                "powermode.presets": {
+                "osumode.presets": {
                     "type": "string",
                     "enum": [
-                        "ridiculous",
-                        "particles",
-                        "fireworks",
-                        "flames",
-                        "magic",
-                        "clippy",
-                        "simple-rift",
-                        "exploding-rift"
+                        "ridiculous"
                     ],
-                    "default": "particles",
-                    "description": "Choose between different preset gifs to use when powermode is activated"
+                    "default": "ridiculous",
+                    "description": "Choose between different presets to use when osumode is activated"
                 },
-                "powermode.comboThreshold": {
-                    "default": 0,
-                    "type": "number",
-                    "description": "The combo number needed to activate POWER MODE!!!"
-                },
-                "powermode.comboTimeout": {
-                    "default": 10,
-                    "type": "number",
-                    "description": "The number of seconds before the combo resets"
-                },
-                "powermode.enableExplosions": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Set to false to disable explosions while typing"
-                },
-                "powermode.enableRidiculous": {
+                "osumode.enableCursorExplosions": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Set to true to enable per character animations"
+                    "description": "Set to true to enable letter explosions at the cursor while typing"
                 },
-                "powermode.enableEditorComboCounter": {
+                "osumode.enableComboCounter": {
                     "type": "boolean",
                     "default": false,
                     "description": "Set to true to enable showing the combo in the editor"
                 },
-                "powermode.enableStatusBarComboCounter": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Set to false to disable showing the combo in the statusbar"
-                },
-                "powermode.enableStatusBarComboTimer": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Set to false to disable showing the timer in the statusbar"
-                },
-                "powermode.enableShake": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Set to false to disable shaking while typing"
-                },
-                "powermode.shakeIntensity": {
-                    "type": "number",
-                    "default": 5,
-                    "description": "The intensity with which the screen shakes"
-                },
-                "powermode.maxExplosions": {
+                "osumode.maxExplosions": {
                     "type": "number",
                     "default": 1,
                     "description": "The maximum number of simultaneous explosions"
                 },
-                "powermode.explosionSize": {
+                "osumode.explosionSize": {
                     "type": "number",
                     "default": 6,
                     "description": "The size of the explosions. For value X, the height is set to X rem and the width to X ch"
-                },
-                "powermode.explosionFrequency": {
-                    "type": "number",
-                    "default": 2,
-                    "description": "The number of key strokes needed to trigger an explosion. 2 means every second keystroke will explode, 1 means every key stroke."
-                },
-                "powermode.explosionOffset": {
-                    "type": "number",
-                    "default": 0.35,
-                    "description": "The vertical offset of the explosions. Increasing it will move the explosions up, decreasing it will move them down."
-                },
-                "powermode.customExplosions": {
-                    "type": "array",
-                    "items": "string",
-                    "default": [],
-                    "description": "Use anything that can go in the 'url()' part of a background image such as a base64 encoded gif or absolute file path WITHOUT quotes. Urls must be https."
-                },
-                "powermode.backgroundMode": {
-                    "type": "string",
-                    "enum": [
-                        "mask",
-                        "image"
-                    ],
-                    "default": "mask",
-                    "description": "Affects the css properties used to display the gif. `mask` uses the gifs as a mask to let the background come through (similar to atom power mode) and `image` will display the actual gif."
-                },
-                "powermode.gifMode": {
-                    "type": "string",
-                    "enum": [
-                        "continue",
-                        "restart"
-                    ],
-                    "default": "continue",
-                    "description": "`restart` will restart the gif each time it is shown, `continue` will resume playing it from its previous point"
-                },
-                "powermode.explosionOrder": {
-                    "description": "Determines how the explosions are cycled. 'random' (default) picks from the list randomly. 'sequential' goes through the list in order, and a number will select the explosion at that (zero based)index in the list",
-                    "oneOf": [{
-                            "type": "string",
-                            "enum": [
-                                "random",
-                                "sequential"
-                            ]
-                        },
-                        {
-                            "type": "number"
-                        }
-                    ],
-                    "default": "random"
-                },
-                "powermode.explosionDuration": {
-                    "description": "Determines how long an explosion lasts (in milliseconds). Set to 0 for it to last forever.",
-                    "type": "number",
-                    "default": 1000
-                },
-                "powermode.customCss": {
-                    "description": "Set custom CSS that will apply to the explosion element.",
-                    "type": "object",
-                    "default": {}
                 }
             }
         }

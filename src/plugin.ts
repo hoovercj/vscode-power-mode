@@ -2,8 +2,8 @@ import { TextDocumentChangeEvent, WorkspaceConfiguration } from 'vscode';
 
 export interface Plugin {
     dispose(): void;
-    onPowermodeStart(combo: number): void;
-    onPowermodeStop(combo: number): void;
-    onDidChangeTextDocument(combo: number, powermode: boolean, event: TextDocumentChangeEvent): void;
-    onDidChangeConfiguration(powermodeConfig: WorkspaceConfiguration): void;
+    onOsumodeStart(combo: number): void;
+    onOsumodeStop(combo: number): void;
+    onDidChangeTextDocument(combo: number, osumode: boolean, event: TextDocumentChangeEvent): void;
+    onDidChangeConfiguration(osumodeConfig: WorkspaceConfiguration): void;
 }

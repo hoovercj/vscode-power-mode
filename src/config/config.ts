@@ -1,11 +1,10 @@
 import { WorkspaceConfiguration} from 'vscode';
 import { ExplosionConfig } from '../cursor-exploder/cursor-exploder'
-import { ScreenShakerConfig } from '../screen-shaker/screen-shaker'
 
 export const CSS_LEFT = "margin-left";
 export const CSS_TOP = "top";
 
-export interface ThemeConfig extends ExplosionConfig, ScreenShakerConfig { }
+export interface ThemeConfig extends ExplosionConfig { }
 
 export interface ExtensionConfig extends ThemeConfig {
     enabled?: boolean;

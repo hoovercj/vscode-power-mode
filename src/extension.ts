@@ -1,21 +1,12 @@
 import * as vscode from 'vscode';
 import { Plugin } from './plugin';
 import { ThemeConfig, getConfigValue } from './config/config';
-import { Particles } from './config/particles';
-import { Fireworks } from './config/fireworks';
-import { Flames } from './config/flames';
-import { Magic } from './config/magic';
-import { Clippy } from './config/clippy';
-import { SimpleRift, ExplodingRift } from './config/rift';
-import { ScreenShaker } from './screen-shaker/screen-shaker';
 import { CursorExploder } from './cursor-exploder/cursor-exploder';
-import { ProgressBarTimer } from './progress-bar-timer';
-import { StatusBarItem } from './status-bar-item';
 import { ComboMeter } from './combo-meter';
 import { Ridiculous } from './config/ridiculous';
 
 const DEFAULT_THEME_ID = 'particles';
-const DEFAULT_THEME_CONFIG = Particles;
+const DEFAULT_THEME_CONFIG = Ridiculous;
 
 // Config values
 let documentChangeListenerDisposer: vscode.Disposable = null;
@@ -23,24 +14,14 @@ let enabled = false;
 let comboThreshold: number;
 
 // Native plugins
-let screenShaker: ScreenShaker;
 let cursorExploder: CursorExploder;
-let statusBarItem: StatusBarItem;
-let progressBarTimer: ProgressBarTimer;
 let comboMeter: ComboMeter;
 
-// PowerMode components
+// OsuMode components
 let plugins: Plugin[] = [];
 
 // Themes
 let themes: {[key: string]: ThemeConfig} = {
-    fireworks: Fireworks,
-    particles: Particles,
-    flames: Flames,
-    magic: Magic,
-    clippy: Clippy,
-    ["simple-rift"]: SimpleRift,
-    ["exploding-rift"]: ExplodingRift,
     ["ridiculous"]: Ridiculous,
 };
 
@@ -58,23 +39,15 @@ function init(config: vscode.WorkspaceConfiguration, activeTheme: ThemeConfig) {
     combo = 0;
 
     // The native plugins need this special theme, a subset of the config
-    screenShaker = new ScreenShaker(activeTheme),
     cursorExploder = new CursorExploder(activeTheme),
-    statusBarItem = new StatusBarItem();
-    progressBarTimer = new ProgressBarTimer(onProgressTimerExpired);
     comboMeter = new ComboMeter();
 
     plugins.push(
-        screenShaker,
         cursorExploder,
-        statusBarItem,
-        progressBarTimer,
         comboMeter,
     );
 
-
     plugins.forEach(plugin => plugin.onDidChangeConfiguration(config));
-
 
     documentChangeListenerDisposer = vscode.workspace.onDidChangeTextDocument(onDidChangeTextDocument);
 }
@@ -98,7 +71,7 @@ export function deactivate() {
 }
 
 function onDidChangeConfiguration() {
-    const config = vscode.workspace.getConfiguration('powermode');
+    const config = vscode.workspace.getConfiguration('osumode');
     const themeId = config.get<string>('presets');
     const theme = getThemeConfig(themeId)
 
@@ -127,7 +100,6 @@ function onDidChangeConfiguration() {
     }
 
     // The theme needs set BEFORE onDidChangeConfiguration is called
-    screenShaker.themeConfig = theme;
     cursorExploder.themeConfig = theme;
 
     plugins.forEach(plugin => plugin.onDidChangeConfiguration(config));
@@ -142,8 +114,8 @@ function getThemeConfig(themeId: string): ThemeConfig {
     return themes[themeId];
 }
 
-const onProgressTimerExpired = () => {
-    plugins.forEach(plugin => plugin.onPowermodeStop(combo));
+const onComboEnd = () => {
+    plugins.forEach(plugin => plugin.onOsumodeStop(combo));
 
     // TODO: Evaluate if this event is needed
     // plugins.forEach(plugin => plugin.onComboReset(combo));
@@ -151,7 +123,7 @@ const onProgressTimerExpired = () => {
     combo = 0;
 }
 
-function isPowerMode() {
+function isOsumode() {
     return enabled && combo >= comboThreshold;
 }
 
@@ -159,13 +131,13 @@ function onDidChangeTextDocument(event: vscode.TextDocumentChangeEvent) {
 
     const changes = event.contentChanges[0].text;
     if(changes.length == 0) {
-        onProgressTimerExpired();
+        onComboEnd();
     } else {
         combo++;
     }
 
-    const powermode = isPowerMode();
-    plugins.forEach(plugin => plugin.onDidChangeTextDocument(combo, powermode, event));
+    const osumode = isOsumode();
+    plugins.forEach(plugin => plugin.onDidChangeTextDocument(combo, osumode, event));
 }
 
 

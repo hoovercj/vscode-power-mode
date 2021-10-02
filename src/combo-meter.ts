@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { Plugin } from './plugin';
 
 export interface ComboMeterConfig {
-    enableEditorComboCounter?: boolean;
+    enableComboCounter?: boolean;
 }
 
 export class ComboMeter implements Plugin {
@@ -15,7 +15,7 @@ export class ComboMeter implements Plugin {
     private combo: number = 0;
     private renderedImage: string = "f";
     // TODO: Currently unused. Use this to style the combo
-    private powermode: boolean = false;
+    private osumode: boolean = false;
     private enabled: boolean = false;
 
     private disposeTimer = undefined;
@@ -63,12 +63,12 @@ export class ComboMeter implements Plugin {
         }
     }
 
-    public onPowermodeStart = (combo: number) => {
-        this.powermode = true;
+    public onOsumodeStart = (combo: number) => {
+        this.osumode = true;
     }
 
-    public onPowermodeStop = (combo: number) => {
-        this.powermode = false;
+    public onOsumodeStop = (combo: number) => {
+        this.osumode = false;
     }
 
     public onComboStart = (combo: number) => {
@@ -81,15 +81,15 @@ export class ComboMeter implements Plugin {
         this.updateDecorations();
     }
 
-    public onDidChangeTextDocument = (combo: number, powermode: boolean, event: vscode.TextDocumentChangeEvent) => {
+    public onDidChangeTextDocument = (combo: number, osumode: boolean, event: vscode.TextDocumentChangeEvent) => {
         this.combo = combo;
-        this.powermode = powermode;
+        this.osumode = osumode;
         this.updateDecorations();
     }
 
     public onDidChangeConfiguration = (config: vscode.WorkspaceConfiguration) => {
-        this.config.enableEditorComboCounter = config.get<boolean>('enableEditorComboCounter', false);
-        if (this.config.enableEditorComboCounter) {
+        this.config.enableComboCounter = config.get<boolean>('enableComboCounter', false);
+        if (this.config.enableComboCounter) {
             this.enabled = true;
             this.activate();
         } else {

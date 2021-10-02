@@ -8,8 +8,7 @@ export type ExplosionOrder = 'random' | 'sequential' | number;
 export type BackgroundMode = 'mask' | 'image';
 export type GifMode = 'continue' | 'restart';
 export interface ExplosionConfig {
-    enableRidiculous: boolean;
-    enableExplosions: boolean;
+    enableCursorExplosions: boolean;
     maxExplosions: number;
     explosionSize: number;
     explosionFrequency: number;
@@ -42,22 +41,22 @@ export class CursorExploder implements Plugin {
     }
 
     dispose = () => {
-        this.onPowermodeStop();
+        this.onOsumodeStop();
     }
 
-    public onPowermodeStart = (combo?: number) => {
+    public onOsumodeStart = (combo?: number) => {
         // Do nothing
     }
 
-    public onPowermodeStop = (combo?: number) => {
+    public onOsumodeStop = (combo?: number) => {
         // Dispose all explosions
         while(this.activeDecorations.length > 0) {
             this.activeDecorations.shift().dispose();
         }
     }
 
-    public onDidChangeTextDocument = (combo: number, powermode: boolean, event: vscode.TextDocumentChangeEvent) => {
-        if (!this.config.enableExplosions || !powermode) {
+    public onDidChangeTextDocument = (combo: number, osumode: boolean, event: vscode.TextDocumentChangeEvent) => {
+        if (!this.config.enableCursorExplosions || !osumode) {
             return;
         }
 
@@ -72,9 +71,8 @@ export class CursorExploder implements Plugin {
     public onDidChangeConfiguration = (config: vscode.WorkspaceConfiguration) => {
 
         const newConfig: ExplosionConfig = {
-            enableRidiculous: getConfigValue<boolean>('enableRidiculous', config, this.themeConfig),
             customExplosions: getConfigValue<string[]>('customExplosions', config, this.themeConfig),
-            enableExplosions: getConfigValue<boolean>('enableExplosions', config, this.themeConfig),
+            enableCursorExplosions: getConfigValue<boolean>('enableCursorExplosions', config, this.themeConfig),
             maxExplosions: getConfigValue<number>('maxExplosions', config, this.themeConfig),
             explosionSize: getConfigValue<number>('explosionSize', config, this.themeConfig),
             explosionFrequency: getConfigValue<number>('explosionFrequency', config, this.themeConfig),
@@ -105,7 +103,7 @@ export class CursorExploder implements Plugin {
     public initialize = () => {
         this.dispose();
 
-        if (!this.config.enableExplosions) {
+        if (!this.config.enableCursorExplosions) {
             return;
         }
 
@@ -119,26 +117,22 @@ export class CursorExploder implements Plugin {
 
         let explosionSizeMultiplier: number = 1;
 
-        if(this.config.enableRidiculous) {
-            let stripped_changes = changes.replace(/ +?/g, '');
-            if(changes.length == 1 && changes[0] in alphabetIdxMap) {
-                explosion = explosions[alphabetIdxMap[changes[0]]];
-            } else if(changes.length == 0) {
-                explosion = explosions[alphabetIdxMap["DELETE"]];
-                explosionSizeMultiplier = 1.5;
-            } else if(stripped_changes.length == 0) {
-                explosion = explosions[alphabetIdxMap["SPACE"]];
-            } else {
-                if(stripped_changes == "\n" || stripped_changes == "\r\n") {
-                    explosion = explosions[alphabetIdxMap["NEWLINE"]];
-                    explosionSizeMultiplier = 1.5;
-                } else {
-                    explosion = explosions[alphabetIdxMap["CONTROL+V"]];
-                    explosionSizeMultiplier = 2;
-                }
-            }
+        let stripped_changes = changes.replace(/ +?/g, '');
+        if(changes.length == 1 && changes[0] in alphabetIdxMap) {
+            explosion = explosions[alphabetIdxMap[changes[0]]];
+        } else if(changes.length == 0) {
+            explosion = explosions[alphabetIdxMap["DELETE"]];
+            explosionSizeMultiplier = 1.5;
+        } else if(stripped_changes.length == 0) {
+            explosion = explosions[alphabetIdxMap["SPACE"]];
         } else {
-            explosion = this.pickExplosion(explosions);
+            if(stripped_changes == "\n" || stripped_changes == "\r\n") {
+                explosion = explosions[alphabetIdxMap["NEWLINE"]];
+                explosionSizeMultiplier = 1.5;
+            } else {
+                explosion = explosions[alphabetIdxMap["CONTROL+V"]];
+                explosionSizeMultiplier = 2;
+            }
         }
 
         if (!explosion) {
@@ -181,13 +175,11 @@ export class CursorExploder implements Plugin {
         let explosionSize = this.config.explosionSize * (Math.random() * 0.7 + 0.5);
         let explosionSizeHor = explosionSize;
 
-        if(this.config.enableRidiculous) {
-            if(changes.length == 1 && changes[0] in alphabetIdxMap) {
-                
-            } else {
-                explosionSize *= 1.5;
-                explosionSizeHor = explosionSize * 6;
-            }
+        if(changes.length == 1 && changes[0] in alphabetIdxMap) {
+            
+        } else {
+            explosionSize *= 1.5;
+            explosionSizeHor = explosionSize * 6;
         }
 
         // subtract 1 ch to account for the character and divide by two to make it centered

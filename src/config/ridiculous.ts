@@ -1,12 +1,9 @@
 import { ThemeConfig } from './config';
-import { verticalRift } from './rift';
 import { alphabetGifMap } from './alphabet_map';
 
 export const Ridiculous: ThemeConfig = {
    
-    enableRidiculous: true,
-    enableShake: false,
-    enableExplosions: true,
+    enableCursorExplosions: false,
     maxExplosions: 25,
     explosionSize: 10,
     explosionFrequency: 1,
