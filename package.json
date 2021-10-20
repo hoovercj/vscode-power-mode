@@ -2,7 +2,7 @@
     "name": "vscode-osu",
     "displayName": "OSU Mode",
     "description": "Hit the code to the beat",
-    "version": "3.1.0",
+    "version": "3.2.0",
     "publisher": "AlexShenVSCode",
     "icon": "images/icon-large.png",
     "author": {
@@ -48,27 +48,34 @@
             "title": "OSU Mode",
             "properties": {
                 "osumode.enabled": {
-                    "default": false,
+                    "default": true,
                     "type": "boolean",
-                    "description": "Enable to activate OSU MODE!!!"
-                },
-                "osumode.presets": {
-                    "type": "string",
-                    "enum": [
-                        "ridiculous"
-                    ],
-                    "default": "ridiculous",
-                    "description": "Choose between different presets to use when osumode is activated"
+                    "description": "Set to false to disable OSU MODE!!!"
                 },
                 "osumode.enableCursorExplosions": {
                     "type": "boolean",
-                    "default": false,
-                    "description": "Set to true to enable letter explosions at the cursor while typing"
+                    "default": true,
+                    "description": "Set to false to disable letter explosions at the cursor while typing"
                 },
                 "osumode.enableComboCounter": {
                     "type": "boolean",
-                    "default": false,
-                    "description": "Set to true to enable showing the combo in the editor"
+                    "default": true,
+                    "description": "Set to false to disable showing the combo counter in the editor"
+                },
+                "osumode.enableComboImage": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Set to false to disable showing the combo image in the editor"
+                },
+                "osumode.comboImageInterval": {
+                    "type": "number",
+                    "default": 50,
+                    "description": "The number of combo between displaying a combo image"
+                },
+                "osumode.customComboImages": {
+                    "type": "array",
+                    "default": [],
+                    "description": "A list of URLs of your custom images. LOCAL IMAGES WILL NOT WORK"
                 },
                 "osumode.maxExplosions": {
                     "type": "number",

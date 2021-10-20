@@ -3,7 +3,7 @@ import { alphabetGifMap } from './alphabet_map';
 
 export const Ridiculous: ThemeConfig = {
    
-    enableCursorExplosions: false,
+    enableCursorExplosions: true,
     maxExplosions: 25,
     explosionSize: 10,
     explosionFrequency: 1,

@@ -72,8 +72,7 @@ export function deactivate() {
 
 function onDidChangeConfiguration() {
     const config = vscode.workspace.getConfiguration('osumode');
-    const themeId = config.get<string>('presets');
-    const theme = getThemeConfig(themeId)
+    const theme = Ridiculous;
 
     const oldEnabled = enabled;
 

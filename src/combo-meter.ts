@@ -3,6 +3,9 @@ import { Plugin } from './plugin';
 
 export interface ComboMeterConfig {
     enableComboCounter?: boolean;
+    enableComboImage?: boolean;
+    comboImageInterval?: number;
+    customComboImages?: string[];
 }
 
 export class ComboMeter implements Plugin {
@@ -13,7 +16,7 @@ export class ComboMeter implements Plugin {
     
     private renderedComboCount: number = undefined;
     private combo: number = 0;
-    private renderedImage: string = "f";
+    private renderedImageCount: number = -1;
     // TODO: Currently unused. Use this to style the combo
     private osumode: boolean = false;
     private enabled: boolean = false;
@@ -88,7 +91,10 @@ export class ComboMeter implements Plugin {
     }
 
     public onDidChangeConfiguration = (config: vscode.WorkspaceConfiguration) => {
-        this.config.enableComboCounter = config.get<boolean>('enableComboCounter', false);
+        this.config.enableComboCounter = config.get<boolean>('enableComboCounter', true);
+        this.config.enableComboImage = config.get<boolean>('enableComboImage', true);
+        this.config.comboImageInterval = config.get<number>('comboImageInterval', 50);
+        this.config.customComboImages = config.get<string[]>('customComboImages', []);
         if (this.config.enableComboCounter) {
             this.enabled = true;
             this.activate();
@@ -131,29 +137,27 @@ export class ComboMeter implements Plugin {
 
     private createComboTitleDecoration(count: number, ranges: vscode.Range[], editor: vscode.TextEditor = vscode.window.activeTextEditor) {
 
-        let imgUrl = "";
+        const comboImageInterval = this.config.comboImageInterval;
 
-        const styleCountCoefficient = 50;
-        
-        const styleCount = count % (styleCountCoefficient * 7);
+        let comboImages = [
+            "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Diona_Portrait.png",
+            "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Qiqi_Portrait.png",
+            "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Klee_Portrait.png",
+            "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Fischl_Portrait.png",
+            "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Hu_Tao_Portrait.png",
+            "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Ganyu_Portrait.png",
+            "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Keqing_Portrait.png",
+        ];
 
-        if (count < styleCountCoefficient) {
-            imgUrl = "";
-        } else if (styleCount < styleCountCoefficient) {
-            imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Keqing_Portrait.png";
-        } else if (styleCount < styleCountCoefficient * 2) {
-            imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Diona_Portrait.png";
-        } else if (styleCount < styleCountCoefficient * 3) {
-            imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Qiqi_Portrait.png";
-        } else if (styleCount < styleCountCoefficient * 4) {
-            imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Klee_Portrait.png";
-        } else if (styleCount < styleCountCoefficient * 5) {
-            imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Fischl_Portrait.png";
-        } else if (styleCount < styleCountCoefficient * 6) {
-            imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Hu_Tao_Portrait.png";
-        } else {
-            imgUrl = "https://raw.githubusercontent.com/ao-shen/vscode-power-mode/master/images/Character_Ganyu_Portrait.png";
+        if(this.config.customComboImages.length !== 0) {
+            comboImages = this.config.customComboImages;
         }
+
+        const imageCount = (Math.floor( count / comboImageInterval ) - 1);
+        
+        const imgIdx = imageCount % comboImages.length;
+
+        const imgUrl = imgIdx === -1 ? "" : comboImages[imgIdx];
 
         /*if(this.orange) {
         } else {
@@ -163,8 +167,8 @@ export class ComboMeter implements Plugin {
         this.orange.appendLine(`count: ${count}`);
         this.orange.appendLine(`styleCount: ${styleCount}`);*/
 
-        if(this.renderedImage != imgUrl) {
-            this.renderedImage = imgUrl;
+        if(this.renderedImageCount != imageCount) {
+            this.renderedImageCount = imageCount;
 
             const thisObj = this;
 
