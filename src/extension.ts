@@ -21,7 +21,7 @@ let comboMeter: ComboMeter;
 let plugins: Plugin[] = [];
 
 // Themes
-let themes: {[key: string]: ThemeConfig} = {
+let themes: { [key: string]: ThemeConfig } = {
     ["ridiculous"]: Ridiculous,
 };
 
@@ -40,7 +40,7 @@ function init(config: vscode.WorkspaceConfiguration, activeTheme: ThemeConfig) {
 
     // The native plugins need this special theme, a subset of the config
     cursorExploder = new CursorExploder(activeTheme),
-    comboMeter = new ComboMeter();
+        comboMeter = new ComboMeter();
 
     plugins.push(
         cursorExploder,
@@ -126,12 +126,16 @@ function isOsumode() {
     return enabled && combo >= comboThreshold;
 }
 
-function onDidChangeTextDocument(event: vscode.TextDocumentChangeEvent) {
 
+let timer: NodeJS.Timeout;
+function onDidChangeTextDocument(event: vscode.TextDocumentChangeEvent) {
+    timer = setTimeout(() => {
+        onComboEnd()
+    }, 8000)
     const changes = event.contentChanges[0].text;
-    if(changes.length == 0) {
-        onComboEnd();
-    } else {
+    if (changes.length != 0) {
+        //if input backspace it will not do onComboEnd()
+        clearTimeout(timer)
         combo++;
     }
 
