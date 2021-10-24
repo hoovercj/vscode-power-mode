@@ -117,13 +117,9 @@ export class CursorExploder implements Plugin {
 
         let explosionSizeMultiplier: number = 1;
         let stripped_changes = changes.replace(/ +?/g, '');
+        vscode.window.showInformationMessage(changes);
         if (changes.length == 1 && changes[0] in alphabetIdxMap) {
             explosion = explosions[alphabetIdxMap[changes[0]]];
-        }
-        // Code completion judge in vscode
-        else if (changes.length > 0) {
-            explosion = explosions[alphabetIdxMap["ENTER"]];// something else
-            explosionSizeMultiplier = 1.5;
         }
         else if (changes.length == 0) {
             explosion = explosions[alphabetIdxMap["DELETE"]];
@@ -135,7 +131,12 @@ export class CursorExploder implements Plugin {
             if (stripped_changes == "\n" || stripped_changes == "\r\n") {
                 explosion = explosions[alphabetIdxMap["NEWLINE"]];
                 explosionSizeMultiplier = 1.5;
-            } else {
+            }  // Code completion judge in vscode
+            else if (changes.length > 0) {
+                explosion = explosions[alphabetIdxMap["a"]];// something else
+                explosionSizeMultiplier = 1.5;
+            }
+            else {
                 explosion = explosions[alphabetIdxMap["CONTROL+V"]];
                 explosionSizeMultiplier = 2;
             }
