@@ -2,7 +2,7 @@
     "name": "vscode-osu",
     "displayName": "OSU Mode",
     "description": "Hit the code to the beat",
-    "version": "3.2.0",
+    "version": "3.2.1",
     "publisher": "AlexShenVSCode",
     "icon": "images/icon-large.png",
     "author": {
