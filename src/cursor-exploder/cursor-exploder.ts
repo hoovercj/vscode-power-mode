@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { Plugin } from '../plugin';
 import { ThemeConfig, getConfigValue, CSS_LEFT, CSS_TOP } from '../config/config';
 
-const alphabetIdxMap = {"A":0,"a":0,"B":1,"b":1,"C":2,"c":2,"D":3,"d":3,"E":4,"e":4,"F":5,"f":5,"G":6,"g":6,"H":7,"h":7,"I":8,"i":8,"J":9,"j":9,"K":10,"k":10,"L":11,"l":11,"M":12,"m":12,"N":13,"n":13,"O":14,"o":14,"P":15,"p":15,"Q":16,"q":16,"R":17,"r":17,"S":18,"s":18,"T":19,"t":19,"U":20,"u":20,"V":21,"v":21,"W":22,"w":22,"X":23,"x":23,"Y":24,"y":24,"Z":25,"z":25,"1":26,"2":27,"3":28,"4":29,"5":30,"6":31,"7":32,"8":33,"9":34,"0":35,"`":36,"!":37,"$":38,"%":39,"^":40,"*":41,"(":42,")":43,"-":44,"=":45,"_":46,"+":47,"[":48,"]":49,"\\":50,"|":51,";":52,"'":53,":":54,"\"":55,",":56,".":57,"/":58,"<":59,">":60,"?":61,"DELETE":62,"SPACE":63,"NEWLINE":64,"CONTROL+V":65};
+const alphabetIdxMap = { "A": 0, "a": 0, "B": 1, "b": 1, "C": 2, "c": 2, "D": 3, "d": 3, "E": 4, "e": 4, "F": 5, "f": 5, "G": 6, "g": 6, "H": 7, "h": 7, "I": 8, "i": 8, "J": 9, "j": 9, "K": 10, "k": 10, "L": 11, "l": 11, "M": 12, "m": 12, "N": 13, "n": 13, "O": 14, "o": 14, "P": 15, "p": 15, "Q": 16, "q": 16, "R": 17, "r": 17, "S": 18, "s": 18, "T": 19, "t": 19, "U": 20, "u": 20, "V": 21, "v": 21, "W": 22, "w": 22, "X": 23, "x": 23, "Y": 24, "y": 24, "Z": 25, "z": 25, "1": 26, "2": 27, "3": 28, "4": 29, "5": 30, "6": 31, "7": 32, "8": 33, "9": 34, "0": 35, "`": 36, "!": 37, "$": 38, "%": 39, "^": 40, "*": 41, "(": 42, ")": 43, "-": 44, "=": 45, "_": 46, "+": 47, "[": 48, "]": 49, "\\": 50, "|": 51, ";": 52, "'": 53, ":": 54, "\"": 55, ",": 56, ".": 57, "/": 58, "<": 59, ">": 60, "?": 61, "DELETE": 62, "SPACE": 63, "NEWLINE": 64, "CONTROL+V": 65, "ENTER": 66 };
 
 export type ExplosionOrder = 'random' | 'sequential' | number;
 export type BackgroundMode = 'mask' | 'image';
@@ -18,7 +18,7 @@ export interface ExplosionConfig {
     explosionOrder: ExplosionOrder;
     backgroundMode: BackgroundMode;
     gifMode: GifMode
-    customCss?: {[key: string]: string};
+    customCss?: { [key: string]: string };
 }
 
 export class CursorExploder implements Plugin {
@@ -29,7 +29,7 @@ export class CursorExploder implements Plugin {
     private explosionIndex = -1;
     private counterTimeout: NodeJS.Timer;
 
-    constructor(public themeConfig: ThemeConfig) {}
+    constructor(public themeConfig: ThemeConfig) { }
 
     onThemeChanged = (theme: ThemeConfig) => {
         this.themeConfig = theme;
@@ -50,7 +50,7 @@ export class CursorExploder implements Plugin {
 
     public onOsumodeStop = (combo?: number) => {
         // Dispose all explosions
-        while(this.activeDecorations.length > 0) {
+        while (this.activeDecorations.length > 0) {
             this.activeDecorations.shift().dispose();
         }
     }
@@ -116,20 +116,27 @@ export class CursorExploder implements Plugin {
         let explosion: string = null;
 
         let explosionSizeMultiplier: number = 1;
-
         let stripped_changes = changes.replace(/ +?/g, '');
-        if(changes.length == 1 && changes[0] in alphabetIdxMap) {
+        // vscode.window.showInformationMessage(changes);
+        if (changes.length == 1 && changes[0] in alphabetIdxMap) {
             explosion = explosions[alphabetIdxMap[changes[0]]];
-        } else if(changes.length == 0) {
+        }
+        else if (changes.length == 0) {
             explosion = explosions[alphabetIdxMap["DELETE"]];
             explosionSizeMultiplier = 1.5;
-        } else if(stripped_changes.length == 0) {
+        } else if (stripped_changes.length == 0) {
             explosion = explosions[alphabetIdxMap["SPACE"]];
-        } else {
-            if(stripped_changes == "\n" || stripped_changes == "\r\n") {
+        }
+        else {
+            if (stripped_changes == "\n" || stripped_changes == "\r\n") {
                 explosion = explosions[alphabetIdxMap["NEWLINE"]];
                 explosionSizeMultiplier = 1.5;
-            } else {
+            }  // Code completion judge in vscode
+            else if (changes.length > 0) {
+                explosion = explosions[alphabetIdxMap["a"]];// something else
+                explosionSizeMultiplier = 1.5;
+            }
+            else {
                 explosion = explosions[alphabetIdxMap["CONTROL+V"]];
                 explosionSizeMultiplier = 2;
             }
@@ -175,8 +182,8 @@ export class CursorExploder implements Plugin {
         let explosionSize = this.config.explosionSize * (Math.random() * 0.7 + 0.5);
         let explosionSizeHor = explosionSize;
 
-        if(changes.length == 1 && changes[0] in alphabetIdxMap) {
-            
+        if (changes.length == 1 && changes[0] in alphabetIdxMap) {
+
         } else {
             explosionSize *= 1.5;
             explosionSizeHor = explosionSize * 6;
@@ -201,7 +208,7 @@ export class CursorExploder implements Plugin {
 
         const defaultCss = {
             position: 'absolute',
-            [CSS_LEFT] : `-${leftValue}ch`,
+            [CSS_LEFT]: `-${leftValue}ch`,
             [CSS_TOP]: `-${topValue}rem`,
             width: `${explosionSizeHor}ch`,
             height: `${explosionSize}rem`,
@@ -303,7 +310,7 @@ export class CursorExploder implements Plugin {
         );
 
         // Dispose excess explosions
-        while(this.activeDecorations.length >= this.config.maxExplosions) {
+        while (this.activeDecorations.length >= this.config.maxExplosions) {
             this.activeDecorations.shift().dispose();
         }
 
