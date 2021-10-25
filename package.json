@@ -2,7 +2,7 @@
     "name": "vscode-osu",
     "displayName": "OSU Mode",
     "description": "Hit the code to the beat",
-    "version": "3.2.1",
+    "version": "3.2.2",
     "publisher": "AlexShenVSCode",
     "icon": "images/icon-large.png",
     "author": {
@@ -61,6 +61,11 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Set to false to disable showing the combo counter in the editor"
+                },
+                "osumode.deleteResetsCombo": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Set to true to make delete reset the combo, and also add a timer to reset the combo after 8 seconds of inactivity"
                 },
                 "osumode.enableComboImage": {
                     "type": "boolean",

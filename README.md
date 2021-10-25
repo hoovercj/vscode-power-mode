@@ -17,6 +17,8 @@ To disable combo image, add `"osumode.enableComboImage": false,` to your setting
 
 To disable letter explosions at the cursor when you type, add `"osumode.enableCursorExplosions": false,` to your settings.
 
+To make delete reset the combo, and also add a timer to reset the combo after 8 seconds of inactivity, add `"osumode.deleteResetsCombo": true,` to your settings.
+
 #### Customize Images
 To change the number of combo between every image, change `"osumode.comboImageInterval"` in your settings.
 
@@ -40,6 +42,10 @@ You can also specify custom images to use instead of default ones. Change `"osum
 * Thanks to [@hoovercj](https://github.com/hoovercj) for [Powermode](https://github.com/hoovercj/vscode-power-mode)
 
 ## Changelog:
+- v3.2.2
+  - Changed "CONTROL+V" explosion to say "MULTI-CHAR", since idk of a way to detect the difference between a paste and a code completion!
+  - Changed so that combo doesn't reset from delete (Thanks to [@盐焗乳鸽还要砂锅](https://github.com/1360151219) for the suggestion)!
+  - Added config that enables the old behavior of delete resets combo!
 - v3.2.1
   - Fixed readme error!
 - v3.2.0

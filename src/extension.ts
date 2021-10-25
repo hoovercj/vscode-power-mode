@@ -12,6 +12,7 @@ const DEFAULT_THEME_CONFIG = Ridiculous;
 let documentChangeListenerDisposer: vscode.Disposable = null;
 let enabled = false;
 let comboThreshold: number;
+let deleteResetsCombo = false;
 
 // Native plugins
 let cursorExploder: CursorExploder;
@@ -78,6 +79,7 @@ function onDidChangeConfiguration() {
 
     enabled = config.get<boolean>('enabled', false);
     comboThreshold = config.get<number>('comboThreshold', 0);
+    deleteResetsCombo = config.get<boolean>('deleteResetsCombo', false);
 
     // Switching from disabled to enabled
     if (!oldEnabled && enabled) {
@@ -129,13 +131,16 @@ function isOsumode() {
 
 let timer: NodeJS.Timeout;
 function onDidChangeTextDocument(event: vscode.TextDocumentChangeEvent) {
-    timer = setTimeout(() => {
-        onComboEnd()
-    }, 8000)
+    if(deleteResetsCombo) {
+        timer = setTimeout(() => {
+            onComboEnd()
+        }, 8000);
+    }
     const changes = event.contentChanges[0].text;
-    if (changes.length != 0) {
-        //if input backspace it will not do onComboEnd()
-        clearTimeout(timer)
+
+    if(deleteResetsCombo && changes.length == 0) {
+        onComboEnd();
+    } else {
         combo++;
     }
 
