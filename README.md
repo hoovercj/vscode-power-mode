@@ -42,6 +42,9 @@ You can also specify custom images to use instead of default ones. Change `"osum
 * Thanks to [@hoovercj](https://github.com/hoovercj) for [Powermode](https://github.com/hoovercj/vscode-power-mode)
 
 ## Changelog:
+- v3.2.3
+  - Updated name to OSU MODE 3!
+  - Did I actually change anything? No. So why? You know, 3 is such a cool number. In fact, I would even say it's greater than 2.
 - v3.2.2
   - Changed "CONTROL+V" explosion to say "MULTI-CHAR", since idk of a way to detect the difference between a paste and a code completion!
   - Changed so that combo doesn't reset from delete (Thanks to [@盐焗乳鸽还要砂锅](https://github.com/1360151219) for the suggestion)!
