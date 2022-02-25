@@ -37,11 +37,11 @@ export class ScreenShaker implements Plugin {
         });
 
         this.negativeY = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
-            textDecoration: `none; margin-top: 0px;`
+            textDecoration: `none; line-height:inherit`
         });
 
         this.positiveY = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
-            textDecoration: `none; margin-top: ${this.config.shakeIntensity}px;`
+            textDecoration: `none; line-height:${(this.config.shakeIntensity/2)+1};`,
         });
 
         this.shakeDecorations = [
