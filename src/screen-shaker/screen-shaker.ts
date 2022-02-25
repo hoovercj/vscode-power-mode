@@ -74,7 +74,6 @@ export class ScreenShaker implements Plugin {
     }
 
     public onDidChangeConfiguration = (config: vscode.WorkspaceConfiguration) => {
-
         const newConfig: ScreenShakerConfig = {
             enableShake: getConfigValue<boolean>('enableShake', config, this.themeConfig),
             shakeIntensity: getConfigValue<number>('shakeIntensity', config, this.themeConfig),

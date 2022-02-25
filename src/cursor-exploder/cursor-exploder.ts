@@ -35,7 +35,6 @@ export class CursorExploder implements Plugin {
     }
 
     activate = () => {
-        // Do nothing
         this.initialize();
     }
 

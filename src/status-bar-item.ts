@@ -1,8 +1,6 @@
 import * as vscode from 'vscode';
 import { Plugin } from './plugin';
 
-const ENABLED = false;
-
 export interface StatusBarItemConfig {
     enableStatusBarComboCounter?: boolean;
 }
