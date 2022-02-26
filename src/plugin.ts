@@ -1,4 +1,4 @@
-import { TextDocumentChangeEvent, WorkspaceConfiguration } from 'vscode';
+import { TextDocumentChangeEvent, WorkspaceConfiguration, TextEditor } from 'vscode';
 
 export interface PowermodeChangeTextDocumentEventData {
     /**
@@ -15,6 +15,11 @@ export interface PowermodeChangeTextDocumentEventData {
      * Whether the user has reached "Power Mode" or not
      */
     isPowermodeActive: boolean;
+
+    /**
+     * The active editor at the time of the event
+     */
+    activeEditor: TextEditor;
 }
 
 export interface Plugin {

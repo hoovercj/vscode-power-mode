@@ -8,7 +8,6 @@ export class ScreenShakerConfig {
 }
 
 export class ScreenShaker implements Plugin {
-
     private negativeX: vscode.TextEditorDecorationType;
     private positiveX: vscode.TextEditorDecorationType;
     private negativeY: vscode.TextEditorDecorationType;
@@ -16,6 +15,7 @@ export class ScreenShaker implements Plugin {
     private shakeDecorations: vscode.TextEditorDecorationType[] = [];
     private shakeTimeout: NodeJS.Timer;
     private config: ScreenShakerConfig = {} as ScreenShakerConfig;
+    private unshake: () => void;
 
     // A range that represents the full document. A top margin is applied
     // to this range which will push every line down the desired amount
@@ -59,7 +59,7 @@ export class ScreenShaker implements Plugin {
     }
 
     public onPowermodeStop = (combo: number) => {
-        this.unshake();
+        this.unshake?.();
     }
 
     public onComboStop = (finalCombo: number) => {
@@ -71,7 +71,7 @@ export class ScreenShaker implements Plugin {
             return;
         }
 
-        this.shake();
+        this.shake(data.activeEditor);
     }
 
     public onDidChangeConfiguration = (config: vscode.WorkspaceConfiguration) => {
@@ -117,18 +117,16 @@ export class ScreenShaker implements Plugin {
      * "Shake" the screen by applying decorations that set margins
      * to move them horizontally or vertically
      */
-    private shake = () => {
+    private shake = (editor: vscode.TextEditor) => {
         if (!this.config.enableShake) {
             return;
         }
 
-        const activeEditor = vscode.window.activeTextEditor;
-
         // A range is created for each line in the document that only applies to the first character
         // This pushes each line to the right by the desired amount without adding spacing between characters
         const xRanges = [];
-        for (let i = 0; i < activeEditor.document.lineCount; i++) {
-            let textStart = activeEditor.document.lineAt(i).firstNonWhitespaceCharacterIndex;
+        for (let i = 0; i < editor.document.lineCount; i++) {
+            let textStart = editor.document.lineAt(i).firstNonWhitespaceCharacterIndex;
             xRanges.push(new vscode.Range(new vscode.Position(i, textStart), new vscode.Position(i, textStart + 1)));
         }
 
@@ -138,34 +136,36 @@ export class ScreenShaker implements Plugin {
         // be reused. My assumption is that this is more performant than
         // disposing and creating a new decoration each time.
         if (Math.random() > 0.5) {
-            activeEditor.setDecorations(this.negativeX, []);
-            activeEditor.setDecorations(this.positiveX, xRanges);
+            editor.setDecorations(this.negativeX, []);
+            editor.setDecorations(this.positiveX, xRanges);
         } else {
-            activeEditor.setDecorations(this.positiveX, []);
-            activeEditor.setDecorations(this.negativeX, xRanges);
+            editor.setDecorations(this.positiveX, []);
+            editor.setDecorations(this.negativeX, xRanges);
         }
 
         if (Math.random() > 0.5) {
-            activeEditor.setDecorations(this.negativeY, []);
-            activeEditor.setDecorations(this.positiveY, this.fullRange);
+            editor.setDecorations(this.negativeY, []);
+            editor.setDecorations(this.positiveY, this.fullRange);
         } else {
-            activeEditor.setDecorations(this.positiveY, []);
-            activeEditor.setDecorations(this.negativeY, this.fullRange);
+            editor.setDecorations(this.positiveY, []);
+            editor.setDecorations(this.negativeY, this.fullRange);
+        }
+
+        this.unshake = () => {
+            this.shakeDecorations.forEach(decoration => {
+                // Decorations are set to an empty array insetad of being disposed
+                // because it is cheaper to reuse the same decoration later than recreate it
+                try {
+                    editor.setDecorations(decoration, []);
+                } catch {
+                    // This might fail if the editor is no longer available.
+                    // But at that point, there's no need to set decorations on it,
+                    // so that's fine!
+                }
+            });
         }
 
         clearTimeout(this.shakeTimeout);
-        this.shakeTimeout = setTimeout(() => {
-            this.unshake();
-        }, 1000);
-    }
-
-    /**
-     * Unset all shake decorations
-     */
-    private unshake = () => {
-        this.shakeDecorations.forEach(decoration => {
-            vscode.window.activeTextEditor.setDecorations(decoration, []);
-        });
+        this.shakeTimeout = setTimeout(this.unshake, 1000);
     }
 }
-

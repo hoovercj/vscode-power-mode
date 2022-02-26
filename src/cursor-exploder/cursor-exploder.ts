@@ -67,7 +67,7 @@ export class CursorExploder implements Plugin {
         // explosion before instead.
         const changes = event.contentChanges[0];
         const left = changes && changes.text.length === 0;
-        this.explode(left);
+        this.explode(data.activeEditor, left);
     }
 
     public onDidChangeConfiguration = (config: vscode.WorkspaceConfiguration) => {
@@ -250,7 +250,7 @@ export class CursorExploder implements Plugin {
      * @param {boolean} [left=false] place the decoration to
      * the left or the right of the cursor
      */
-    private explode = (left = false) => {
+    private explode = (editor: vscode.TextEditor, left = false) => {
         // To give the explosions space, only explode every X strokes
         // Where X is the configured explosion frequency
         // This counter resets if the user does not type for 1 second.
@@ -263,8 +263,7 @@ export class CursorExploder implements Plugin {
             return;
         }
 
-        const activeEditor = vscode.window.activeTextEditor;
-        const cursorPosition = vscode.window.activeTextEditor.selection.active;
+        const cursorPosition = editor.selection.active;
         // The delta is greater to the left than to the right because otherwise the gif doesn't appear
         const delta = left ? -2 : 1;
         const newRange = new vscode.Range(
@@ -293,7 +292,7 @@ export class CursorExploder implements Plugin {
                 decoration.dispose();
             }, this.config.explosionDuration);
         }
-        activeEditor.setDecorations(decoration, [newRange]);
+        editor.setDecorations(decoration, [newRange]);
     }
 }
 

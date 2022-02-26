@@ -86,7 +86,7 @@ export class ComboMeter implements Plugin {
         this.timerDurationInMilliseconds = data.comboTimeout * 1000;
         this.timerExpirationTimestampInMilliseconds = new Date().getTime() + this.timerDurationInMilliseconds;
         this.isPowermodeActive = data.isPowermodeActive;
-        this.updateDecorations();
+        this.updateDecorations(data.activeEditor);
     }
 
     public onDidChangeConfiguration = (config: vscode.WorkspaceConfiguration) => {
@@ -122,7 +122,7 @@ export class ComboMeter implements Plugin {
         }
     }
 
-    private updateDecorations = (editor: vscode.TextEditor = vscode.window.activeTextEditor) => {
+    private updateDecorations = (editor: vscode.TextEditor) => {
         if (!this.enabled) {
             return;
         }

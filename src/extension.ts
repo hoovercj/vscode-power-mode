@@ -159,6 +159,13 @@ function isPowerMode() {
 }
 
 function onDidChangeTextDocument(event: vscode.TextDocumentChangeEvent) {
+
+    const activeEditor = vscode.window.activeTextEditor;
+
+    if (!activeEditor) {
+        return;
+    }
+
     combo++;
     const powermode = isPowerMode();
 
@@ -176,6 +183,7 @@ function onDidChangeTextDocument(event: vscode.TextDocumentChangeEvent) {
         isPowermodeActive,
         comboTimeout,
         currentCombo: combo,
+        activeEditor,
     }, event));
 }
 
