@@ -1,5 +1,22 @@
 import { TextDocumentChangeEvent, WorkspaceConfiguration } from 'vscode';
 
+export interface PowermodeChangeTextDocumentEventData {
+    /**
+     * The current value of the user's combo
+     */
+    currentCombo: number;
+
+    /**
+     * The number of seconds until the combo times out
+     */
+    comboTimeout: number;
+
+    /**
+     * Whether the user has reached "Power Mode" or not
+     */
+    isPowermodeActive: boolean;
+}
+
 export interface Plugin {
     /**
      * Called when the extension is disposed and the plugin should cleanup. Remove all decorations, clear all timers, unsubscribe from all vscode api events, etc.
@@ -32,7 +49,7 @@ export interface Plugin {
      * @param isPowermode Whether Power Mode has started or not
      * @param event The underlying vscode.TextDocumentChangeEvent
      */
-    onDidChangeTextDocument(currentCombo: number, isPowermode: boolean, event: TextDocumentChangeEvent): void;
+    onDidChangeTextDocument(data: PowermodeChangeTextDocumentEventData, event: TextDocumentChangeEvent): void;
 
     /**
      * Called when the configuration changes. Plugins are expected to respect user configuration, and can provide their own configuration options.

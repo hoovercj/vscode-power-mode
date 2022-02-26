@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { Plugin } from './plugin';
+import { Plugin, PowermodeChangeTextDocumentEventData } from './plugin';
 
 export interface ComboMeterConfig {
     enableEditorComboCounter?: boolean;
@@ -8,34 +8,39 @@ export interface ComboMeterConfig {
 export class ComboMeter implements Plugin {
 
     private config: ComboMeterConfig = {};
-    // private comboTitleDecoration: vscode.TextEditorDecorationType;
+    private comboTimerDecoration: vscode.TextEditorDecorationType;
     private comboCountDecoration: vscode.TextEditorDecorationType;
 
     private renderedComboCount: number = undefined;
     private combo: number = 0;
-    private powermodeActive: boolean = false;
+    private isPowermodeActive: boolean = false;
     private initialPowermodeCombo: number = 0;
     private enabled: boolean = false;
 
-    private disposeTimer = undefined;
+    private timerDurationInMilliseconds = 0;
+    private timerExpirationTimestampInMilliseconds = 0;
+    private readonly TIMER_UPDATE_INTERVAL = 50;
+    private readonly TIMER_DECORATION_HEIGHT = 10;
 
-    private comboCountAnimationTimer = undefined;
+    private comboTimerDecorationTimer: NodeJS.Timer;
+    private comboCountAnimationTimer: NodeJS.Timer;
 
     private static readonly DEFAULT_CSS = ComboMeter.objectToCssString({
         position: 'absolute',
         // NOTE: This positions the element off the screen when there is horizontal scroll
         // so this feature works best when "word wrap" is enabled.
-        // Using "5vw" instead did not help.
+        // Using "5vw" instead did not limit the position to the viewable width.
         right: "5%",
         top: "20px",
 
         ['font-family']: "monospace",
         ['font-weight']: "900",
 
-        // NOTE: Suggestion UI will still appear on top of the combo which is probaly a good thing
+        // NOTE: Suggestion UI will still appear on top of the combo, but that is probaly a good thing
+        // so the extension doesn't interfere with actual usage of the product
         ['z-index']: 1,
         ['pointer-events']: 'none',
-        ["text-align"]: "right",
+        ["text-align"]: "center",
     });
 
     constructor() {
@@ -48,37 +53,39 @@ export class ComboMeter implements Plugin {
         });
     }
 
-    dispose = () => {
+    public dispose = () => {
         if (this.comboCountDecoration) {
             clearTimeout(this.comboCountAnimationTimer);
             this.comboCountDecoration.dispose();
             this.comboCountDecoration = null;
         }
 
-        // if (this.comboTitleDecoration) {
-        //     this.comboTitleDecoration.dispose();
-        //     this.comboTitleDecoration = null;
-        // }
+        if (this.comboTimerDecoration) {
+            this.comboTimerDecoration.dispose();
+            this.comboTimerDecoration = null;
+        }
     }
 
     public onPowermodeStart = (combo: number) => {
-        this.powermodeActive = true;
+        this.isPowermodeActive = true;
         this.initialPowermodeCombo = combo;
     }
 
     public onPowermodeStop = (finalCombo: number) => {
-        this.powermodeActive = false;
+        this.isPowermodeActive = false;
         this.initialPowermodeCombo = 0;
     }
 
     public onComboStop = (finalCombo: number) => {
         this.combo = 0;
-        this.updateDecorations();
+        this.removeDecorations();
     }
 
-    public onDidChangeTextDocument = (currentCombo: number, powermode: boolean, event: vscode.TextDocumentChangeEvent) => {
-        this.combo = currentCombo;
-        this.powermodeActive = powermode;
+    public onDidChangeTextDocument = (data: PowermodeChangeTextDocumentEventData, event: vscode.TextDocumentChangeEvent) => {
+        this.combo = data.currentCombo;
+        this.timerDurationInMilliseconds = data.comboTimeout * 1000;
+        this.timerExpirationTimestampInMilliseconds = new Date().getTime() + this.timerDurationInMilliseconds;
+        this.isPowermodeActive = data.isPowermodeActive;
         this.updateDecorations();
     }
 
@@ -93,22 +100,39 @@ export class ComboMeter implements Plugin {
         }
     }
 
+    private removeDecorations = () => {
+        if (this.comboCountDecoration) {
+            this.comboCountDecoration.dispose();
+            this.comboCountDecoration = null;
+        }
+
+        if (this.comboCountAnimationTimer) {
+            clearTimeout(this.comboCountAnimationTimer);
+            this.comboCountAnimationTimer = null;
+        }
+
+        if (this.comboTimerDecoration) {
+            this.comboTimerDecoration.dispose();
+            this.comboTimerDecoration = null;
+        }
+
+        if (this.comboTimerDecorationTimer) {
+            clearInterval(this.comboTimerDecorationTimer);
+            this.comboTimerDecorationTimer = null;
+        }
+    }
+
     private updateDecorations = (editor: vscode.TextEditor = vscode.window.activeTextEditor) => {
         if (!this.enabled) {
             return;
         }
 
-        const firstVisibleRange = editor.visibleRanges.sort()[0];
+        const firstVisibleRange = editor.visibleRanges.sort().find(range => !range.isEmpty);
 
         if (!firstVisibleRange || this.combo <= 1) {
             this.dispose();
             return;
         }
-
-        // clearTimeout(this.disposeTimer);
-        // this.disposeTimer = setTimeout(() => {
-        //     this.dispose();
-        // }, 10000);
 
         const position = firstVisibleRange.start;
         const ranges = [new vscode.Range(position, position)];
@@ -116,49 +140,104 @@ export class ComboMeter implements Plugin {
         if (this.combo !== this.renderedComboCount) {
             this.renderedComboCount = this.combo;
             this.createComboCountDecoration(this.combo, ranges, editor);
-            // this.createComboTimerDecoration(this.combo, ranges, editor);
+            this.createComboTimerDecoration(ranges, editor);
         }
 
     }
 
-    // private createComboTimerDecoration(count: number, ranges: vscode.Range[], editor: vscode.TextEditor = vscode.window.activeTextEditor) {
-    //     // TODO: Create "timer" decoration
-    // }
+    private getSharedStyles = (comboCount: number, frameCount = 0): { textSize: string, color: string } => {
+        // Because the size and color do not start to change until Power Mode starts, we cannot use the raw "count" to calculate those values
+        // or else there will be a large jump when powermode activates, so instead use the value relative to the combo at which Power Mode started.
+        const powerModeCombo = this.isPowermodeActive ? comboCount - this.initialPowermodeCombo : 0;
 
-    private createComboCountDecoration = (count: number, ranges: vscode.Range[], editor: vscode.TextEditor = vscode.window.activeTextEditor) => {
-        const animateComboCountDecoration = (frameCount: number) => {
-            this.comboCountDecoration?.dispose();
+        const baseTextSize = 6;
+        const styleCount = Math.min(powerModeCombo, 50);
+        // TODO: Explain how this formula works
+        const textSize = this.isPowermodeActive ? ((styleCount * baseTextSize) / 100 * Math.pow(0.5, frameCount * 0.2) + baseTextSize) : baseTextSize;
+        // Only change color in power mode
+        const color = `hsl(${(100 - (this.isPowermodeActive ? powerModeCombo : 0) * 1.2)}, 100%, 45%)`;
 
-            // Because the size and color do not start to change until Power Mode starts, we cannot use the raw "count" to calculate those values
-            // or else there will be a large jump when powermode activates, so instead use the value relative to the combo at which Power Mode started.
-            const powerModeCombo = this.powermodeActive ? count - this.initialPowermodeCombo : 0;
+        return { textSize: `${textSize}em`, color};
+    }
 
-            const baseTextSize = 6;
-            const styleCount = Math.min(powerModeCombo, 50);
-            // TODO: Explain how this formula works
-            let textSize = this.powermodeActive ? ((styleCount * baseTextSize) / 100 * Math.pow(0.5, frameCount * 0.2) + baseTextSize) : baseTextSize;
-            // Only change color in power mode
-            const styleColor = `hsl(${(100 - (this.powermodeActive ? powerModeCombo : 0) * 1.2)}, 100%, 45%)`;
+    private createComboTimerDecoration(ranges: vscode.Range[], editor: vscode.TextEditor = vscode.window.activeTextEditor) {
+        clearTimeout(this.comboTimerDecorationTimer);
 
-            const countCss = ComboMeter.objectToCssString({
-                ["font-size"]: `${textSize}em`,
-                ["text-align"]: "center",
-                ["text-shadow"]: `0px 0px 15px ${styleColor}`,
+        const updateComboTimerDecoration = () => {
+            const timeLeft = this.timerExpirationTimestampInMilliseconds - new Date().getTime();
+
+            if (timeLeft <= 0) {
+                clearTimeout(this.comboTimerDecorationTimer);
+                this.comboTimerDecoration.dispose();
+                return;
+            }
+
+            const timerWidth = (timeLeft / this.timerDurationInMilliseconds) * 1.5;
+
+            const { textSize, color } = this.getSharedStyles(this.combo);
+
+            const baseCss = ComboMeter.objectToCssString({
+                ["font-size"]: textSize,
+                ["box-shadow"]: `0px 0px 15px ${color}`,
             });
 
             const lightThemeCss = ComboMeter.objectToCssString({
                 // Because the text is a very light color, a colored stroke is needed
                 // to make it stand out sufficiently on a light theme
-                ["-webkit-text-stroke"]: `2px ${styleColor}`,
-            })
+                ["border"]: `2px solid ${color}`,
+            });
+
+            const createComboTimerBeforeDecoration = (lightTheme?: boolean): vscode.DecorationRenderOptions => {
+                return {
+                    before: {
+                        contentText: "",
+                        backgroundColor: "white",
+                        width: `${timerWidth}em`,
+                        color: "white",
+                        height: "8px",
+                        textDecoration: `none; ${ComboMeter.DEFAULT_CSS} ${baseCss} ${lightTheme ? lightThemeCss : ""}`,
+                    }
+                }
+            };
+
+            this.comboTimerDecoration?.dispose();
+            this.comboTimerDecoration = vscode.window.createTextEditorDecorationType({
+                // Decorations cannot use the same pseudoelement
+                ...createComboTimerBeforeDecoration(),
+                rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
+                light: createComboTimerBeforeDecoration(true),
+            });
+
+            editor.setDecorations(this.comboTimerDecoration, ranges);
+        }
+
+        this.comboTimerDecorationTimer = setInterval(updateComboTimerDecoration, this.TIMER_UPDATE_INTERVAL);
+    }
+
+    private createComboCountDecoration = (count: number, ranges: vscode.Range[], editor: vscode.TextEditor = vscode.window.activeTextEditor) => {
+        const animateComboCountDecoration = (frameCount: number) => {
+            this.comboCountDecoration?.dispose();
+
+            const { textSize, color } = this.getSharedStyles(count, frameCount);
+
+            const baseCss = ComboMeter.objectToCssString({
+                ["font-size"]: textSize,
+                ["text-shadow"]: `0px 0px 15px ${color}`,
+            });
+
+            const lightThemeCss = ComboMeter.objectToCssString({
+                // Because the text is a very light color, a colored stroke is needed
+                // to make it stand out sufficiently on a light theme
+                ["-webkit-text-stroke"]: `2px ${color}`,
+            });
 
             const createComboCountAfterDecoration = (lightTheme?: boolean): vscode.DecorationRenderOptions => {
                 return {
                     after: {
-                        margin: ".8em 0 0 0",
+                        margin: "0.5em 0 0 0",
                         contentText: `${count}×`,
                         color: "#FFFFFF",
-                        textDecoration: `none; ${ComboMeter.DEFAULT_CSS} ${countCss} ${lightTheme ? lightThemeCss : ""}`,
+                        textDecoration: `none; ${ComboMeter.DEFAULT_CSS} ${baseCss} ${lightTheme ? lightThemeCss : ""}`,
                     }
                 };
             }
@@ -173,7 +252,7 @@ export class ComboMeter implements Plugin {
             editor.setDecorations(this.comboCountDecoration, ranges);
 
             // Only animate in power mode
-            if (this.powermodeActive && frameCount < 100) {
+            if (this.isPowermodeActive && frameCount < 100) {
                 this.comboCountAnimationTimer = setTimeout(() => {
                     animateComboCountDecoration(frameCount + 1);
                 },

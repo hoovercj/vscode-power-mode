@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/hoovercj/vscode-power-mode",
   "engines": {
-    "vscode": "^1.13.0"
+    "vscode": "^1.22.0"
   },
   "categories": [
     "Themes",

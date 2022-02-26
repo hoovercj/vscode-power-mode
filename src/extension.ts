@@ -13,13 +13,15 @@ import { ProgressBarTimer } from './progress-bar-timer';
 import { StatusBarItem } from './status-bar-item';
 import { ComboMeter } from './combo-meter';
 
-const DEFAULT_THEME_ID = 'particles';
-const DEFAULT_THEME_CONFIG = Particles;
+const DEFAULT_TIMEOUT = 10;
+
 
 // Config values
 let documentChangeListenerDisposer: vscode.Disposable = null;
 let enabled = false;
 let comboThreshold: number;
+let comboTimeout: number;
+let comboTimeoutHandle: NodeJS.Timer;
 
 // Native plugins
 let screenShaker: ScreenShaker;
@@ -60,7 +62,7 @@ function init(config: vscode.WorkspaceConfiguration, activeTheme: ThemeConfig) {
     screenShaker = new ScreenShaker(activeTheme),
     cursorExploder = new CursorExploder(activeTheme),
     statusBarItem = new StatusBarItem();
-    progressBarTimer = new ProgressBarTimer(onProgressTimerExpired);
+    progressBarTimer = new ProgressBarTimer();
     comboMeter = new ComboMeter();
 
     plugins.push(
@@ -91,6 +93,8 @@ export function deactivate() {
         documentChangeListenerDisposer = null;
     }
 
+    stopTimer();
+
     while (plugins.length > 0) {
         plugins.shift().dispose();
     }
@@ -105,6 +109,7 @@ function onDidChangeConfiguration() {
 
     enabled = config.get<boolean>('enabled', false);
     comboThreshold = config.get<number>('comboThreshold', 0);
+    comboTimeout = config.get<number>('comboTimeout', DEFAULT_TIMEOUT);
 
     // Switching from disabled to enabled
     if (!oldEnabled && enabled) {
@@ -141,7 +146,7 @@ function getThemeConfig(themeId: string): ThemeConfig {
     return themes[themeId];
 }
 
-const onProgressTimerExpired = () => {
+const onComboTimerExpired = () => {
     plugins.forEach(plugin => plugin.onPowermodeStop(combo));
 
     plugins.forEach(plugin => plugin.onComboStop(combo));
@@ -157,6 +162,8 @@ function onDidChangeTextDocument(event: vscode.TextDocumentChangeEvent) {
     combo++;
     const powermode = isPowerMode();
 
+    startTimer();
+
     if (powermode != isPowermodeActive) {
         isPowermodeActive = powermode;
 
@@ -165,7 +172,29 @@ function onDidChangeTextDocument(event: vscode.TextDocumentChangeEvent) {
             plugins.forEach(plugin => plugin.onPowermodeStop(combo));
     }
 
-    plugins.forEach(plugin => plugin.onDidChangeTextDocument(combo, powermode, event));
+    plugins.forEach(plugin => plugin.onDidChangeTextDocument({
+        isPowermodeActive,
+        comboTimeout,
+        currentCombo: combo,
+    }, event));
 }
 
 
+/**
+ * Starts a "progress" in the bottom of the vscode window
+ * which displays the time remaining for the current combo
+ */
+function startTimer() {
+    stopTimer();
+
+    if (comboTimeout === 0) {
+        return;
+    }
+
+    comboTimeoutHandle = setTimeout(onComboTimerExpired, comboTimeout * 1000)
+}
+
+function stopTimer() {
+    clearInterval(comboTimeoutHandle);
+    comboTimeoutHandle = null;
+}

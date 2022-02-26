@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { Plugin } from '../plugin';
+import { Plugin, PowermodeChangeTextDocumentEventData } from '../plugin';
 import { ThemeConfig, getConfigValue } from '../config/config';
 
 const ENABLED = true;
@@ -69,8 +69,8 @@ export class ScreenShaker implements Plugin {
         // Do nothing
     }
 
-    public onDidChangeTextDocument = (combo: number, powermode: boolean, event: vscode.TextDocumentChangeEvent) => {
-        if (!this.config.enableShake || !powermode) {
+    public onDidChangeTextDocument = (data: PowermodeChangeTextDocumentEventData, event: vscode.TextDocumentChangeEvent) => {
+        if (!this.config.enableShake || !data.isPowermodeActive) {
             return;
         }
 

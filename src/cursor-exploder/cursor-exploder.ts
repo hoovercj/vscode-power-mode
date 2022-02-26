@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { Plugin } from '../plugin';
+import { Plugin, PowermodeChangeTextDocumentEventData } from '../plugin';
 import { ThemeConfig, getConfigValue, CSS_LEFT, CSS_TOP } from '../config/config';
 
 export type ExplosionOrder = 'random' | 'sequential' | number;
@@ -57,8 +57,8 @@ export class CursorExploder implements Plugin {
         // Handled by onPowermodeStop
     }
 
-    public onDidChangeTextDocument = (combo: number, powermode: boolean, event: vscode.TextDocumentChangeEvent) => {
-        if (!this.config.enableExplosions || !powermode) {
+    public onDidChangeTextDocument = (data: PowermodeChangeTextDocumentEventData, event: vscode.TextDocumentChangeEvent) => {
+        if (!this.config.enableExplosions || !data.isPowermodeActive) {
             return;
         }
 

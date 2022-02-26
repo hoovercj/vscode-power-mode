@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { Plugin } from './plugin';
+import { Plugin, PowermodeChangeTextDocumentEventData } from './plugin';
 
 export interface StatusBarItemConfig {
     enableStatusBarComboCounter?: boolean;
@@ -42,8 +42,8 @@ export class StatusBarItem implements Plugin {
         this.updateStatusBar(combo);
     }
 
-    public onDidChangeTextDocument = (combo: number, powermode: boolean, event: vscode.TextDocumentChangeEvent) => {
-        this.updateStatusBar(combo, powermode);
+    public onDidChangeTextDocument = (data: PowermodeChangeTextDocumentEventData, event: vscode.TextDocumentChangeEvent) => {
+        this.updateStatusBar(data.currentCombo, data.isPowermodeActive);
     }
 
     public onDidChangeConfiguration = (config: vscode.WorkspaceConfiguration) => {

@@ -89,7 +89,7 @@ If you can provide some lightweight, attractive gifs that improve how power mode
 ## Changelog:
 - v2.3.0
   - Added an improved combo meter! Controled via `powermode.enableEditorComboCounter`
-  - Bug fixes
+  - Bug fixes, with thanks to [@Thertzlor](https://github.com/Thertzlor) and [@hyprhare](https://github.com/hyprhare) for their contributions
 - v2.2.0
   - Added `powermode.enableStatusBarComboCounter` and `powermode.enableStatusBarComboTimer` to toggle status bar items
   - Added new presets
