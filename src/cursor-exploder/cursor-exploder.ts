@@ -53,6 +53,10 @@ export class CursorExploder implements Plugin {
         }
     }
 
+    public onComboStop = (finalCombo: number) => {
+        // Handled by onPowermodeStop
+    }
+
     public onDidChangeTextDocument = (combo: number, powermode: boolean, event: vscode.TextDocumentChangeEvent) => {
         if (!this.config.enableExplosions || !powermode) {
             return;

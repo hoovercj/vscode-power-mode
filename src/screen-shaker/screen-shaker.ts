@@ -65,6 +65,10 @@ export class ScreenShaker implements Plugin {
         this.unshake();
     }
 
+    public onComboStop = (finalCombo: number) => {
+        // Do nothing
+    }
+
     public onDidChangeTextDocument = (combo: number, powermode: boolean, event: vscode.TextDocumentChangeEvent) => {
         if (!this.config.enableShake || !powermode) {
             return;

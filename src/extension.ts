@@ -44,6 +44,7 @@ let themes: {[key: string]: ThemeConfig} = {
 
 // Current combo count
 let combo = 0;
+let isPowermodeActive = false;
 
 export function activate(context: vscode.ExtensionContext) {
     vscode.workspace.onDidChangeConfiguration(onDidChangeConfiguration);
@@ -143,8 +144,7 @@ function getThemeConfig(themeId: string): ThemeConfig {
 const onProgressTimerExpired = () => {
     plugins.forEach(plugin => plugin.onPowermodeStop(combo));
 
-    // TODO: Evaluate if this event is needed
-    // plugins.forEach(plugin => plugin.onComboReset(combo));
+    plugins.forEach(plugin => plugin.onComboStop(combo));
 
     combo = 0;
 }
@@ -156,6 +156,15 @@ function isPowerMode() {
 function onDidChangeTextDocument(event: vscode.TextDocumentChangeEvent) {
     combo++;
     const powermode = isPowerMode();
+
+    if (powermode != isPowermodeActive) {
+        isPowermodeActive = powermode;
+
+        isPowermodeActive ?
+            plugins.forEach(plugin => plugin.onPowermodeStart(combo)) :
+            plugins.forEach(plugin => plugin.onPowermodeStop(combo));
+    }
+
     plugins.forEach(plugin => plugin.onDidChangeTextDocument(combo, powermode, event));
 }
 

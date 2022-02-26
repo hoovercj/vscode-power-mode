@@ -46,6 +46,10 @@ export class ProgressBarTimer implements Plugin {
         // Do nothing
     }
 
+    public onComboStop(finalCombo: number): void {
+        // Do nothing
+    }
+
     public onDidChangeTextDocument(combo: number, powermode: boolean, event: vscode.TextDocumentChangeEvent): void {
         if (!this.config.enableStatusBarComboTimer) {
             return;

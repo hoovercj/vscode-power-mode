@@ -13,8 +13,9 @@ I present you, VSCODE POWER MODE!!! (now with atom-like explosions!)
 To enable, add `"powermode.enabled": true` to your settings.
 
 ## Features:
-* NEW: Atom-like explosions!
-* NEW: Multiple explosion sets to choose from
+* NEW: Visual Combo Meter!
+* Atom-like explosions!
+* Multiple explosion sets to choose from
 * Status bar indicator for combo count and timer
 * Explosions and screen shake effect when power mode is reached
 * Extremely Customizable
@@ -73,26 +74,22 @@ Hopefully power mode will work great for you out of the box, but if it doesn't I
 
 They were right when they said it can't be done. At least not properly. VS Code does not expose the DOM as part of the API. Instead this extension relies on using TextEditorDecorations to set css properties for ranges in the editor. This has a few limitations:
 * The cursor doesn't move with the text as it shakes
-* When deleting characters, the explosion will briefly move to the beginning of the line. This is because I am using an "after" pseudoclass to apply the decorations, and when you delete the letter that it is anchored to it repositions to the next anchor which is the entire line.
+* The new combo meter moves off the screen when the editor has long lines unless "word wrap" is enabled
 * I have to use gifs instead of CSS animations for the particles/explosions
-* "Vertical Shake" only works if `editor.renderWhitespace` is turned on. I don't know why, but if you want vertical shake without seeing the whitespace being rendered, you can use these settings:
-
-```
-"editor.renderWhitespace": "all",
-"workbench.colorCustomizations": {
-    "editorWhitespace.foreground": "#FFFFFF00"
-},
-```
 
 ## Help Wanted:
 If you can provide some lightweight, attractive gifs that improve how power mode looks and performs, I would be happy to include them! Share them [here](https://github.com/hoovercj/vscode-power-mode/issues/1).
 
 ## Acknowledgements:
-* Thanks to [@RPuffer](https://github.com/RPuffer) for providing the incredible gifs added in version 2.1 
+* Thanks to [@ao-shen](https://github.com/ao-shen) for insight into animating size and colors for the combo-meter
+* Thanks to [@RPuffer](https://github.com/RPuffer) for providing the incredible gifs added in version 2.1
 * Thanks to [@darkvertex](https://github.com/darkvertex) for providing the awesome gifs added in version 2.0
 * Thanks to [@horvay](https://github.com/horvay) for giving me ideas to get around the limitations I had in v0.0.1
 
 ## Changelog:
+- v2.3.0
+  - Added an improved combo meter! Controled via `powermode.enableEditorComboCounter`
+  - Bug fixes
 - v2.2.0
   - Added `powermode.enableStatusBarComboCounter` and `powermode.enableStatusBarComboTimer` to toggle status bar items
   - Added new presets
