@@ -9,8 +9,8 @@ import { Clippy } from './config/clippy';
 import { SimpleRift, ExplodingRift } from './config/rift';
 import { ScreenShaker } from './screen-shaker/screen-shaker';
 import { CursorExploder } from './cursor-exploder/cursor-exploder';
-import { ProgressBarTimer } from './progress-bar-timer';
-import { StatusBarItem } from './status-bar-item';
+import { ProgressBarTimer } from './status-bar-timer';
+import { StatusBarComboMeter } from './status-bar-combo-meter';
 import { ComboMeter } from './combo-meter';
 
 const DEFAULT_TIMEOUT = 10;
@@ -26,7 +26,7 @@ let comboTimeoutHandle: NodeJS.Timer;
 // Native plugins
 let screenShaker: ScreenShaker;
 let cursorExploder: CursorExploder;
-let statusBarItem: StatusBarItem;
+let statusBarItem: StatusBarComboMeter;
 let progressBarTimer: ProgressBarTimer;
 let comboMeter: ComboMeter;
 
@@ -61,7 +61,7 @@ function init(config: vscode.WorkspaceConfiguration, activeTheme: ThemeConfig) {
     // The native plugins need this special theme, a subset of the config
     screenShaker = new ScreenShaker(activeTheme),
     cursorExploder = new CursorExploder(activeTheme),
-    statusBarItem = new StatusBarItem();
+    statusBarItem = new StatusBarComboMeter();
     progressBarTimer = new ProgressBarTimer();
     comboMeter = new ComboMeter();
 

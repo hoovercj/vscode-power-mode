@@ -2,9 +2,6 @@ import * as vscode from 'vscode';
 import { Plugin, PowermodeChangeTextDocumentEventData } from '../plugin';
 import { ThemeConfig, getConfigValue } from '../config/config';
 
-const ENABLED = true;
-const SHAKE_INTENSITY = 5;
-
 export class ScreenShakerConfig {
     enableShake: boolean;
     shakeIntensity?: number;
