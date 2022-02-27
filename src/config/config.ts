@@ -1,6 +1,7 @@
-import { WorkspaceConfiguration} from 'vscode';
+import { ConfigurationTarget, WorkspaceConfiguration } from 'vscode';
 import { ExplosionConfig } from '../cursor-exploder/cursor-exploder'
 import { ScreenShakerConfig } from '../screen-shaker/screen-shaker'
+import { ConfigurationKeys, DeprecatedConfigurationKeys } from './configuration-keys';
 
 export const CSS_LEFT = "margin-left";
 export const CSS_TOP = "top";
@@ -13,10 +14,18 @@ export interface ExtensionConfig extends ThemeConfig {
     comboTimeout?: number;
 }
 
-export function getConfigValue<T>(key: string, vscodeConfig: WorkspaceConfiguration, themeConfig: any): T {
+export function getConfigValue<V>(key: ConfigurationKeys, vscodeConfig: WorkspaceConfiguration, themeConfig: any = {}): V {
+    return getConfigValueCore(key, vscodeConfig, themeConfig);
+}
+
+export function getDeprecatedConfigValue<V>(key: DeprecatedConfigurationKeys, vscodeConfig: WorkspaceConfiguration, themeConfig: any = {}): V {
+    return getConfigValueCore(key, vscodeConfig, themeConfig);
+}
+
+function getConfigValueCore<V>(key: ConfigurationKeys | DeprecatedConfigurationKeys, vscodeConfig: WorkspaceConfiguration, themeConfig: any = {}): V {
     // If the config is explicitly set, use that value
     if (isConfigSet(key, vscodeConfig)) {
-        return vscodeConfig.get<T>(key);
+        return vscodeConfig.get<V>(key);
     }
 
     // Use the themeConfig value if set,
@@ -27,15 +36,24 @@ export function getConfigValue<T>(key: string, vscodeConfig: WorkspaceConfigurat
 
     // Fall back to the package.json default value
     // as a last resort
-    return vscodeConfig.get<T>(key);
+    return vscodeConfig.get<V>(key);
+}
+
+export type InspectConfigData = ConfigurationTarget | false;
+
+export function isConfigSet(key: ConfigurationKeys | DeprecatedConfigurationKeys, config: WorkspaceConfiguration): ConfigurationTarget | false {
+    const inspectionResults = config.inspect(key);
+    if (!isNullOrUndefined(inspectionResults.workspaceFolderValue)) {
+        return ConfigurationTarget.WorkspaceFolder;
+    } else if (!isNullOrUndefined(inspectionResults.workspaceValue)) {
+        return ConfigurationTarget.Workspace;
+    } else if (!isNullOrUndefined(inspectionResults.globalValue)) {
+        return ConfigurationTarget.Global;
+    } else {
+        return false;
+    }
 }
 
 function isNullOrUndefined(value: any) {
     return value === null || value === undefined;
-}
-
-function isConfigSet(key: string, config: WorkspaceConfiguration): boolean {
-    const inspectionResults = config.inspect(key);
-    return !isNullOrUndefined(inspectionResults.globalValue) ||
-           !isNullOrUndefined(inspectionResults.workspaceValue);
 }

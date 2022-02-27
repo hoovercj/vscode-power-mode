@@ -1,22 +1,22 @@
 import * as vscode from 'vscode';
-import { Plugin } from '../plugin';
+import { Plugin, PowermodeChangeTextDocumentEventData } from '../plugin';
 import { ThemeConfig, getConfigValue, CSS_LEFT, CSS_TOP } from '../config/config';
 
 export type ExplosionOrder = 'random' | 'sequential' | number;
 export type BackgroundMode = 'mask' | 'image';
 export type GifMode = 'continue' | 'restart';
 export interface ExplosionConfig {
-    enableExplosions: boolean;
-    maxExplosions: number;
-    explosionSize: number;
-    explosionFrequency: number;
-    explosionOffset: number;
-    explosionDuration: number;
-    customExplosions: string[];
-    explosionOrder: ExplosionOrder;
-    backgroundMode: BackgroundMode;
-    gifMode: GifMode
-    customCss?: {[key: string]: string};
+    "explosions.enable": boolean;
+    "explosions.maxExplosions": number;
+    "explosions.size": number;
+    "explosions.frequency": number;
+    "explosions.offset": number;
+    "explosions.duration": number;
+    "explosions.customExplosions": string[];
+    "explosions.explosionOrder": ExplosionOrder;
+    "explosions.backgroundMode": BackgroundMode;
+    "explosions.gifMode": GifMode
+    "explosions.customCss"?: {[key: string]: string};
 }
 
 export class CursorExploder implements Plugin {
@@ -35,7 +35,6 @@ export class CursorExploder implements Plugin {
     }
 
     activate = () => {
-        // Do nothing
         this.initialize();
     }
 
@@ -54,8 +53,12 @@ export class CursorExploder implements Plugin {
         }
     }
 
-    public onDidChangeTextDocument = (combo: number, powermode: boolean, event: vscode.TextDocumentChangeEvent) => {
-        if (!this.config.enableExplosions || !powermode) {
+    public onComboStop = (finalCombo: number) => {
+        // Handled by onPowermodeStop
+    }
+
+    public onDidChangeTextDocument = (data: PowermodeChangeTextDocumentEventData, event: vscode.TextDocumentChangeEvent) => {
+        if (!this.config["explosions.enable"] || !data.isPowermodeActive) {
             return;
         }
 
@@ -64,23 +67,23 @@ export class CursorExploder implements Plugin {
         // explosion before instead.
         const changes = event.contentChanges[0];
         const left = changes && changes.text.length === 0;
-        this.explode(left);
+        this.explode(data.activeEditor, left);
     }
 
     public onDidChangeConfiguration = (config: vscode.WorkspaceConfiguration) => {
 
         const newConfig: ExplosionConfig = {
-            customExplosions: getConfigValue<string[]>('customExplosions', config, this.themeConfig),
-            enableExplosions: getConfigValue<boolean>('enableExplosions', config, this.themeConfig),
-            maxExplosions: getConfigValue<number>('maxExplosions', config, this.themeConfig),
-            explosionSize: getConfigValue<number>('explosionSize', config, this.themeConfig),
-            explosionFrequency: getConfigValue<number>('explosionFrequency', config, this.themeConfig),
-            explosionOffset: getConfigValue<number>('explosionOffset', config, this.themeConfig),
-            explosionOrder: getConfigValue<ExplosionOrder>('explosionOrder', config, this.themeConfig),
-            explosionDuration: getConfigValue<number>('explosionDuration', config, this.themeConfig),
-            backgroundMode: getConfigValue<BackgroundMode>('backgroundMode', config, this.themeConfig),
-            gifMode: getConfigValue<GifMode>('gifMode', config, this.themeConfig),
-            customCss: getConfigValue<any>('customCss', config, this.themeConfig),
+            "explosions.customExplosions": getConfigValue<string[]>('explosions.customExplosions', config, this.themeConfig),
+            "explosions.enable": getConfigValue<boolean>('explosions.enabled', config, this.themeConfig),
+            "explosions.maxExplosions": getConfigValue<number>('explosions.maxExplosions', config, this.themeConfig),
+            "explosions.size": getConfigValue<number>('explosions.size', config, this.themeConfig),
+            "explosions.frequency": getConfigValue<number>('explosions.frequency', config, this.themeConfig),
+            "explosions.offset": getConfigValue<number>('explosions.offset', config, this.themeConfig),
+            "explosions.explosionOrder": getConfigValue<ExplosionOrder>('explosions.explosionOrder', config, this.themeConfig),
+            "explosions.duration": getConfigValue<number>('explosions.duration', config, this.themeConfig),
+            "explosions.backgroundMode": getConfigValue<BackgroundMode>('explosions.backgroundMode', config, this.themeConfig),
+            "explosions.gifMode": getConfigValue<GifMode>('explosions.gifMode', config, this.themeConfig),
+            "explosions.customCss": getConfigValue<any>('explosions.customCss', config, this.themeConfig),
         }
 
         let changed = false;
@@ -102,7 +105,7 @@ export class CursorExploder implements Plugin {
     public initialize = () => {
         this.dispose();
 
-        if (!this.config.enableExplosions) {
+        if (!this.config["explosions.enable"]) {
             return;
         }
 
@@ -111,7 +114,7 @@ export class CursorExploder implements Plugin {
     }
 
     private getExplosionDecoration = (position: vscode.Position): vscode.TextEditorDecorationType => {
-        let explosions = this.config.customExplosions;
+        let explosions = this.config["explosions.customExplosions"];
         const explosion = this.pickExplosion(explosions);
 
         if (!explosion) {
@@ -125,9 +128,9 @@ export class CursorExploder implements Plugin {
         if (!explosions) {
             return null;
         }
-        switch (typeof this.config.explosionOrder) {
+        switch (typeof this.config["explosions.explosionOrder"]) {
             case 'string':
-                switch (this.config.explosionOrder) {
+                switch (this.config["explosions.explosionOrder"]) {
                     case 'random':
                         this.explosionIndex = getRandomInt(0, explosions.length);
                         break;
@@ -139,7 +142,7 @@ export class CursorExploder implements Plugin {
                 }
                 break;
             case 'number':
-                this.explosionIndex = Math.min(explosions.length - 1, Math.floor(Math.abs(this.config.explosionOrder as number)));
+                this.explosionIndex = Math.min(explosions.length - 1, Math.floor(Math.abs(this.config["explosions.explosionOrder"] as number)));
             default:
                 break;
         }
@@ -152,18 +155,18 @@ export class CursorExploder implements Plugin {
     private createExplosionDecorationType = (explosion: string, editorPosition: vscode.Position ): vscode.TextEditorDecorationType => {
         // subtract 1 ch to account for the character and divide by two to make it centered
         // Use Math.floor to skew to the right which especially helps when deleting chars
-        const leftValue = Math.floor((this.config.explosionSize - 1) / 2);
+        const leftValue = Math.floor((this.config["explosions.size"] - 1) / 2);
         // By default, the top of the gif will be at the top of the text.
         // Setting the top to a negative value will raise it up.
         // The default gifs are "tall" and the bottom halves are empty.
         // Lowering them makes them appear in a more natural position,
         // but limiting the top to the line number keeps it from going
         // off the top of the editor
-        const topValue = this.config.explosionSize * this.config.explosionOffset;
+        const topValue = this.config["explosions.size"] * this.config["explosions.offset"];
 
         const explosionUrl = this.getExplosionUrl(explosion);
 
-        const backgroundCss = this.config.backgroundMode === 'mask' ?
+        const backgroundCss = this.config["explosions.backgroundMode"] === 'mask' ?
             this.getMaskCssSettings(explosionUrl) :
             this.getBackgroundCssSettings(explosionUrl);
 
@@ -171,8 +174,8 @@ export class CursorExploder implements Plugin {
             position: 'absolute',
             [CSS_LEFT] : `-${leftValue}ch`,
             [CSS_TOP]: `-${topValue}rem`,
-            width: `${this.config.explosionSize}ch`,
-            height: `${this.config.explosionSize}rem`,
+            width: `${this.config["explosions.size"]}ch`,
+            height: `${this.config["explosions.size"]}rem`,
             display: `inline-block`,
             ['z-index']: 1,
             ['pointer-events']: 'none',
@@ -180,7 +183,7 @@ export class CursorExploder implements Plugin {
 
         const backgroundCssString = this.objectToCssString(backgroundCss);
         const defaultCssString = this.objectToCssString(defaultCss);
-        const customCssString = this.objectToCssString(this.config.customCss || {});
+        const customCssString = this.objectToCssString(this.config["explosions.customCss"] || {});
 
         return vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
             before: {
@@ -193,7 +196,7 @@ export class CursorExploder implements Plugin {
     }
 
     private getExplosionUrl(explosion: string): string {
-        if (this.config.gifMode !== 'restart') {
+        if (this.config["explosions.gifMode"] !== 'restart') {
             return explosion;
         }
 
@@ -247,7 +250,7 @@ export class CursorExploder implements Plugin {
      * @param {boolean} [left=false] place the decoration to
      * the left or the right of the cursor
      */
-    private explode = (left = false) => {
+    private explode = (editor: vscode.TextEditor, left = false) => {
         // To give the explosions space, only explode every X strokes
         // Where X is the configured explosion frequency
         // This counter resets if the user does not type for 1 second.
@@ -256,12 +259,11 @@ export class CursorExploder implements Plugin {
             this.keystrokeCounter = -1;
         }, 1000);
 
-        if (++this.keystrokeCounter % this.config.explosionFrequency !== 0) {
+        if (++this.keystrokeCounter % this.config["explosions.frequency"] !== 0) {
             return;
         }
 
-        const activeEditor = vscode.window.activeTextEditor;
-        const cursorPosition = vscode.window.activeTextEditor.selection.active;
+        const cursorPosition = editor.selection.active;
         // The delta is greater to the left than to the right because otherwise the gif doesn't appear
         const delta = left ? -2 : 1;
         const newRange = new vscode.Range(
@@ -271,7 +273,7 @@ export class CursorExploder implements Plugin {
         );
 
         // Dispose excess explosions
-        while(this.activeDecorations.length >= this.config.maxExplosions) {
+        while(this.activeDecorations.length >= this.config["explosions.maxExplosions"]) {
             this.activeDecorations.shift().dispose();
         }
 
@@ -285,12 +287,12 @@ export class CursorExploder implements Plugin {
 
         this.activeDecorations.push(decoration);
 
-        if (this.config.explosionDuration !== 0) {
+        if (this.config["explosions.duration"] !== 0) {
             setTimeout(() => {
                 decoration.dispose();
-            }, this.config.explosionDuration);
+            }, this.config["explosions.duration"]);
         }
-        activeEditor.setDecorations(decoration, [newRange]);
+        editor.setDecorations(decoration, [newRange]);
     }
 }
 

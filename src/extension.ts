@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { Plugin } from './plugin';
-import { ThemeConfig, getConfigValue } from './config/config';
+import { getConfigValue, ThemeConfig } from './config/config';
 import { Particles } from './config/particles';
 import { Fireworks } from './config/fireworks';
 import { Flames } from './config/flames';
@@ -9,25 +9,25 @@ import { Clippy } from './config/clippy';
 import { SimpleRift, ExplodingRift } from './config/rift';
 import { ScreenShaker } from './screen-shaker/screen-shaker';
 import { CursorExploder } from './cursor-exploder/cursor-exploder';
-import { ProgressBarTimer } from './progress-bar-timer';
-import { StatusBarItem } from './status-bar-item';
-
-const DEFAULT_THEME_ID = 'particles';
-const DEFAULT_THEME_CONFIG = Particles;
+import { ComboPlugin } from './combo/combo-plugin';
+import { migrateConfiguration } from './config/configuration-migrator';
 
 // Config values
-let documentChangeListenerDisposer: vscode.Disposable = null;
 let enabled = false;
 let comboThreshold: number;
+let comboTimeout: number;
+let comboTimeoutHandle: NodeJS.Timer;
 
 // Native plugins
 let screenShaker: ScreenShaker;
 let cursorExploder: CursorExploder;
-let statusBarItem: StatusBarItem;
-let progressBarTimer: ProgressBarTimer;
+let comboPlugin: ComboPlugin;
 
 // PowerMode components
 let plugins: Plugin[] = [];
+
+let configurationChangeListenerDisposer: vscode.Disposable;
+let documentChangeListenerDisposer: vscode.Disposable;
 
 // Themes
 let themes: {[key: string]: ThemeConfig} = {
@@ -42,28 +42,32 @@ let themes: {[key: string]: ThemeConfig} = {
 
 // Current combo count
 let combo = 0;
+let isPowermodeActive = false;
 
 export function activate(context: vscode.ExtensionContext) {
-    vscode.workspace.onDidChangeConfiguration(onDidChangeConfiguration);
+    // Try to migrate any existing configuration files
+    migrateConfiguration();
+
+    // Subscribe to configuration changes
+    configurationChangeListenerDisposer = vscode.workspace.onDidChangeConfiguration(onDidChangeConfiguration);
+
+    // Initialize from the current configuration
     onDidChangeConfiguration();
 }
 
 function init(config: vscode.WorkspaceConfiguration, activeTheme: ThemeConfig) {
     // Just in case something was left behind, clean it up
-    deactivate();
-    combo = 0;
+    resetState();
 
     // The native plugins need this special theme, a subset of the config
     screenShaker = new ScreenShaker(activeTheme),
     cursorExploder = new CursorExploder(activeTheme),
-    statusBarItem = new StatusBarItem();
-    progressBarTimer = new ProgressBarTimer(onProgressTimerExpired);
+    comboPlugin = new ComboPlugin();
 
     plugins.push(
         screenShaker,
         cursorExploder,
-        statusBarItem,
-        progressBarTimer,
+        comboPlugin,
     );
 
 
@@ -78,13 +82,17 @@ function init(config: vscode.WorkspaceConfiguration, activeTheme: ThemeConfig) {
  * when the extension is deactivated
  */
 export function deactivate() {
+    configurationChangeListenerDisposer.dispose();
 
+    resetState();
+}
+
+function resetState() {
     combo = 0;
 
-    if (documentChangeListenerDisposer) {
-        documentChangeListenerDisposer.dispose();
-        documentChangeListenerDisposer = null;
-    }
+    stopTimer();
+
+    documentChangeListenerDisposer?.dispose();
 
     while (plugins.length > 0) {
         plugins.shift().dispose();
@@ -93,13 +101,14 @@ export function deactivate() {
 
 function onDidChangeConfiguration() {
     const config = vscode.workspace.getConfiguration('powermode');
-    const themeId = config.get<string>('presets');
+    const themeId = getConfigValue<string>("presets", config);
     const theme = getThemeConfig(themeId)
 
     const oldEnabled = enabled;
 
-    enabled = config.get<boolean>('enabled', false);
-    comboThreshold = config.get<number>('comboThreshold', 0);
+    enabled = getConfigValue<boolean>('enabled', config);
+    comboThreshold = getConfigValue<number>('combo.threshold', config);
+    comboTimeout = getConfigValue<number>('combo.timeout', config);
 
     // Switching from disabled to enabled
     if (!oldEnabled && enabled) {
@@ -136,11 +145,10 @@ function getThemeConfig(themeId: string): ThemeConfig {
     return themes[themeId];
 }
 
-const onProgressTimerExpired = () => {
+const onComboTimerExpired = () => {
     plugins.forEach(plugin => plugin.onPowermodeStop(combo));
 
-    // TODO: Evaluate if this event is needed
-    // plugins.forEach(plugin => plugin.onComboReset(combo));
+    plugins.forEach(plugin => plugin.onComboStop(combo));
 
     combo = 0;
 }
@@ -150,9 +158,50 @@ function isPowerMode() {
 }
 
 function onDidChangeTextDocument(event: vscode.TextDocumentChangeEvent) {
+
+    const activeEditor = vscode.window.activeTextEditor;
+
+    if (!activeEditor) {
+        return;
+    }
+
     combo++;
     const powermode = isPowerMode();
-    plugins.forEach(plugin => plugin.onDidChangeTextDocument(combo, powermode, event));
+
+    startTimer();
+
+    if (powermode != isPowermodeActive) {
+        isPowermodeActive = powermode;
+
+        isPowermodeActive ?
+            plugins.forEach(plugin => plugin.onPowermodeStart(combo)) :
+            plugins.forEach(plugin => plugin.onPowermodeStop(combo));
+    }
+
+    plugins.forEach(plugin => plugin.onDidChangeTextDocument({
+        isPowermodeActive,
+        comboTimeout,
+        currentCombo: combo,
+        activeEditor,
+    }, event));
 }
 
 
+/**
+ * Starts a "progress" in the bottom of the vscode window
+ * which displays the time remaining for the current combo
+ */
+function startTimer() {
+    stopTimer();
+
+    if (comboTimeout === 0) {
+        return;
+    }
+
+    comboTimeoutHandle = setTimeout(onComboTimerExpired, comboTimeout * 1000)
+}
+
+function stopTimer() {
+    clearInterval(comboTimeoutHandle);
+    comboTimeoutHandle = null;
+}
