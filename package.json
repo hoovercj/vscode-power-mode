@@ -27,7 +27,7 @@
     "Other"
   ],
   "activationEvents": [
-    "*"
+    "onStartupFinished"
   ],
   "main": "./out/src/extension",
   "scripts": {
@@ -44,159 +44,281 @@
     "@types/mocha": "2.2.32"
   },
   "contributes": {
-    "configuration": {
-      "title": "Power Mode",
-      "properties": {
-        "powermode.enabled": {
-          "default": false,
-          "type": "boolean",
-          "description": "Enable to activate POWER MODE!!!"
-        },
-        "powermode.presets": {
-          "type": "string",
-          "enum": [
-            "particles",
-            "fireworks",
-            "flames",
-            "magic",
-            "clippy",
-            "simple-rift",
-            "exploding-rift"
-          ],
-          "default": "particles",
-          "description": "Choose between different preset gifs to use when powermode is activated"
-        },
-        "powermode.comboThreshold": {
-          "default": 0,
-          "type": "number",
-          "description": "The combo number needed to activate POWER MODE!!!"
-        },
-        "powermode.comboTimeout": {
-          "default": 10,
-          "type": "number",
-          "description": "The number of seconds before the combo resets"
-        },
-        "powermode.enableExplosions": {
-          "type": "boolean",
-          "default": true,
-          "description": "Set to false to disable explosions while typing"
-        },
-        "powermode.enableComboCounter": {
-          "type": "string",
-          "default": "default",
-          "enum": ["show", "hide", "default"],
-          "enumDescriptions": ["Show the combo counter", "Hide the combo counter", "Use the default value. May be overridden by other settings."],
-          "description": "Control whether the combo counter is visible."
-        },
-        "powermode.enableComboTimer": {
-          "type": "string",
-          "default": "default",
-          "enum": ["show", "hide", "default"],
-          "enumDescriptions": ["Show the combo timer", "Hide the combo timer", "Use the default value. May be overridden by other settings."],
-          "description": "Control whether the combo timer is visible."
-        },
-        "powermode.comboLocation": {
-          "type": "string",
-          "default": "default",
-          "enum": ["editor", "statusbar", "default", "off"],
-          "enumDescriptions": ["Show the combo in the editor. The true 'Power Mode' experience", "Use the status bar. A more subdued experience.", "Use the default value. May be overiddent by other settings.", "Turn off the combo entirely."],
-          "description": "Control where all the combo information is visible."
-        },
-        "powermode.enableStatusBarComboCounter": {
-          "type": "boolean",
-          "default": null,
-          "description": "Set to false to disable showing the combo in the statusbar",
-          "markdownDeprecationMessage": "Use `powermode.comboLocation` and `powermode.enableComboCounter` instead. This will be removed in a future version."
-        },
-        "powermode.enableStatusBarComboTimer": {
-          "type": "boolean",
-          "default": null,
-          "description": "Set to false to disable showing the timer in the statusbar",
-          "markdownDeprecationMessage": "Use `powermode.comboLocation` and `powermode.enableComboTimer` instead. This will be removed in a future version."
-        },
-        "powermode.enableShake": {
-          "type": "boolean",
-          "default": true,
-          "description": "Set to false to disable shaking while typing"
-        },
-        "powermode.shakeIntensity": {
-          "type": "number",
-          "default": 5,
-          "description": "The intensity with which the screen shakes"
-        },
-        "powermode.maxExplosions": {
-          "type": "number",
-          "default": 1,
-          "description": "The maximum number of simultaneous explosions"
-        },
-        "powermode.explosionSize": {
-          "type": "number",
-          "default": 6,
-          "description": "The size of the explosions. For value X, the height is set to X rem and the width to X ch"
-        },
-        "powermode.explosionFrequency": {
-          "type": "number",
-          "default": 2,
-          "description": "The number of key strokes needed to trigger an explosion. 2 means every second keystroke will explode, 1 means every key stroke."
-        },
-        "powermode.explosionOffset": {
-          "type": "number",
-          "default": 0.35,
-          "description": "The vertical offset of the explosions. Increasing it will move the explosions up, decreasing it will move them down."
-        },
-        "powermode.customExplosions": {
-          "type": "array",
-          "items": "string",
-          "default": [],
-          "markdownDescription": "This value will go into the 'url()' part of a background image. It should be a base64 encoded gif or **https** URL _without_ quotes."
-        },
-        "powermode.backgroundMode": {
-          "type": "string",
-          "default": "mask",
-          "enum": [
-            "mask",
-            "image"
-          ],
-          "enumDescriptions": ["Uses the gifs as a mask to let the background color come through (similar to atom power mode)", "Display the actual gif."],
-          "description": "Affects the css properties used to display the gif."
-        },
-        "powermode.gifMode": {
-          "type": "string",
-          "default": "continue",
-          "enum": [
-            "continue",
-            "restart"
-          ],
-          "enumDescriptions": ["Restart the gif each time it is shown. This is useful when you have multiple visible gifs, but may reduce performance", "Resume playing it from its previous point"],
-          "description": "Control the 'playback' mode of the gifs."
-        },
-        "powermode.explosionOrder": {
-          "description": "Determines how the explosions are cycled. 'random' (default) picks from the list randomly. 'sequential' goes through the list in order, and a number will select the explosion at that (zero based)index in the list",
-          "oneOf": [
-            {
-              "type": "string",
-              "enum": [
-                "random",
-                "sequential"
-              ]
-            },
-            {
-              "type": "number"
-            }
-          ],
-          "default": "random"
-        },
-        "powermode.explosionDuration": {
-          "description": "Determines how long an explosion lasts (in milliseconds). Set to 0 for it to last forever.",
-          "type": "number",
-          "default": 1000
-        },
-        "powermode.customCss": {
-          "description": "Set custom CSS that will apply to the explosion element.",
-          "type": "object",
-          "default": {}
+    "configuration": [
+      {
+        "title": "General",
+        "order": 0,
+        "properties": {
+          "powermode.enabled": {
+            "order": 0,
+            "default": false,
+            "type": "boolean",
+            "description": "Enable to activate POWER MODE!!!"
+          },
+          "powermode.presets": {
+            "order": 1,
+            "type": "string",
+            "enum": [
+              "particles",
+              "fireworks",
+              "flames",
+              "magic",
+              "clippy",
+              "simple-rift",
+              "exploding-rift"
+            ],
+            "default": "particles",
+            "description": "Choose between different preset gifs to use when powermode is activated"
+          }
+        }
+      },
+      {
+        "title": "Combo",
+        "order": 1,
+        "properties": {
+          "powermode.combo.location": {
+            "order": 0,
+            "type": "string",
+            "default": "default",
+            "enum": [
+              "editor",
+              "statusbar",
+              "default",
+              "off"
+            ],
+            "enumDescriptions": [
+              "Show the combo in the editor. The true 'Power Mode' experience",
+              "Use the status bar. A more subdued experience.",
+              "Use the default value. May be overiddent by other settings.",
+              "Turn off the combo entirely."
+            ],
+            "description": "Control where all the combo information is visible."
+          },
+          "powermode.combo.threshold": {
+            "default": 0,
+            "type": "number",
+            "description": "The combo number needed to activate POWER MODE!!! and start shaking and exploding the screen! If the value is 0, POWER MODE will always be active."
+          },
+          "powermode.combo.timeout": {
+            "default": 10,
+            "type": "number",
+            "description": "The number of seconds before the combo resets. If the value is 0, the timer will never reset."
+          },
+          "powermode.combo.counterEnabled": {
+            "type": "string",
+            "default": "default",
+            "enum": [
+              "show",
+              "hide",
+              "default"
+            ],
+            "enumDescriptions": [
+              "Show the combo counter",
+              "Hide the combo counter",
+              "Use the default value. May be overridden by other settings."
+            ],
+            "description": "Control whether the combo counter is visible."
+          },
+          "powermode.combo.timerEnabled": {
+            "type": "string",
+            "default": "default",
+            "enum": [
+              "show",
+              "hide",
+              "default"
+            ],
+            "enumDescriptions": [
+              "Show the combo timer",
+              "Hide the combo timer",
+              "Use the default value. May be overridden by other settings."
+            ],
+            "description": "Control whether the combo timer is visible."
+          }
+        }
+      },
+      {
+        "title": "Shake",
+        "order": 2,
+        "properties": {
+          "powermode.shake.enabled": {
+            "order": 0,
+            "type": "boolean",
+            "default": true,
+            "description": "Set to false to disable shaking while typing"
+          },
+          "powermode.shake.intensity": {
+            "type": "number",
+            "default": 5,
+            "description": "The intensity with which the screen shakes"
+          }
+        }
+      },
+      {
+        "title": "Explosions",
+        "order": 3,
+        "properties": {
+          "powermode.explosions.enabled": {
+            "order": 0,
+            "type": "boolean",
+            "default": true,
+            "description": "Set to false to disable explosions while typing"
+          },
+          "powermode.explosions.maxExplosions": {
+            "type": "number",
+            "default": 1,
+            "description": "The maximum number of simultaneous explosions"
+          },
+          "powermode.explosions.size": {
+            "type": "number",
+            "default": 6,
+            "description": "The size of the explosions. For value X, the height is set to X rem and the width to X ch"
+          },
+          "powermode.explosions.frequency": {
+            "type": "number",
+            "default": 2,
+            "description": "The number of key strokes needed to trigger an explosion. 2 means every second keystroke will explode, 1 means every key stroke."
+          },
+          "powermode.explosions.offset": {
+            "type": "number",
+            "default": 0.35,
+            "description": "The vertical offset of the explosions. Increasing it will move the explosions up, decreasing it will move them down."
+          },
+          "powermode.explosions.customExplosions": {
+            "order": 16,
+            "type": "array",
+            "items": "string",
+            "default": [],
+            "markdownDescription": "This value will go into the 'url()' part of a background image. It should be a base64 encoded gif or **https** URL _without_ quotes."
+          },
+          "powermode.explosions.backgroundMode": {
+            "type": "string",
+            "default": "mask",
+            "enum": [
+              "mask",
+              "image"
+            ],
+            "enumDescriptions": [
+              "Uses the gifs as a mask to let the background color come through (similar to atom power mode)",
+              "Display the actual gif."
+            ],
+            "description": "Affects the css properties used to display the gif."
+          },
+          "powermode.explosions.gifMode": {
+            "type": "string",
+            "default": "continue",
+            "enum": [
+              "continue",
+              "restart"
+            ],
+            "enumDescriptions": [
+              "Restart the gif each time it is shown. This is useful when you have multiple visible gifs, but may reduce performance",
+              "Resume playing it from its previous point"
+            ],
+            "description": "Control the 'playback' mode of the gifs."
+          },
+          "powermode.explosions.explosionOrder": {
+            "description": "Determines how the explosions are cycled. 'random' (default) picks from the list randomly. 'sequential' goes through the list in order, and a number will select the explosion at that (zero based)index in the list",
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "random",
+                  "sequential"
+                ]
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "default": "random"
+          },
+          "powermode.explosions.duration": {
+            "description": "Determines how long an explosion lasts (in milliseconds). Set to 0 for it to last forever.",
+            "type": "number",
+            "default": 1000
+          },
+          "powermode.explosions.customCss": {
+            "description": "Set custom CSS that will apply to the explosion element.",
+            "type": "object",
+            "default": {}
+          }
+        }
+      },
+      {
+        "title": "Deprecated",
+        "properties": {
+          "powermode.comboThreshold": {
+            "default": null,
+            "markdownDeprecationMessage": "Deprecated. Use `powermode.combo.threshold` instead."
+          },
+          "powermode.comboTimeout": {
+            "default": null,
+            "markdownDeprecationMessage": "Deprecated. Use `powermode.combo.timeout` instead."
+          },
+          "powermode.enableComboCounter": {
+            "default": null,
+            "markdownDeprecationMessage": "Deprecated. Use `powermode.combo.counterEnabled` instead."
+          },
+          "powermode.enableComboTimer": {
+            "default": null,
+            "markdownDeprecationMessage": "Deprecated. Use `powermode.combo.timerEnabled` instead."
+          },
+          "powermode.enableStatusBarComboCounter": {
+            "default": null,
+            "description": "Set to false to disable showing the combo in the statusbar",
+            "markdownDeprecationMessage": "Use `powermode.combo.location` and `powermode.combo.counterEnabled` instead. This will be removed in a future version."
+          },
+          "powermode.enableStatusBarComboTimer": {
+            "default": null,
+            "description": "Set to false to disable showing the timer in the statusbar",
+            "markdownDeprecationMessage": "Use `powermode.combo.location` and `powermode.combo.timerEnabled` instead. This will be removed in a future version."
+          },
+          "powermode.enableShake": {
+            "default": null,
+            "markdownDeprecationMessage": "Deprecated. Use `powermode.shake.enabled` instead."
+          },
+          "powermode.shakeIntensity": {
+            "default": null,
+            "markdownDeprecationMessage": "Deprecated. Use `powermode.shake.intensity` instead."
+          },
+          "powermode.explosionSize": {
+            "default": null,
+            "markdownDeprecationMessage": "Deprecated. Use `powermode.explosions.size` instead."
+          },
+          "powermode.explosionFrequency": {
+            "default": null,
+            "markdownDeprecationMessage": "Deprecated. Use `powermode.explosions.frequency` instead."
+          },
+          "powermode.explosionOffset": {
+            "default": null,
+            "markdownDeprecationMessage": "Deprecated. Use `powermode.explosions.offset` instead."
+          },
+          "powermode.customExplosions": {
+            "default": null,
+            "markdownDeprecationMessage": "Deprecated. Use `powermode.explosions.customExplosions` instead."
+          },
+          "powermode.backgroundMode": {
+            "default": null,
+            "markdownDeprecationMessage": "Deprecated. Use `powermode.explosions.backgroundMode` instead."
+          },
+          "powermode.gifMode": {
+            "default": null,
+            "markdownDeprecationMessage": "Deprecated. Use `powermode.explosions.gifMode` instead."
+          },
+          "powermode.explosionOrder": {
+            "default": null,
+            "markdownDeprecationMessage": "Deprecated. Use `powermode.explosions.explosionOrder` instead."
+          },
+          "powermode.explosionDuration": {
+            "default": null,
+            "markdownDeprecationMessage": "Deprecated. Use `powermode.explosions.duration` instead."
+          },
+          "powermode.customCss": {
+            "default": null,
+            "markdownDeprecationMessage": "Deprecated. Use `powermode.explosions.customCss` instead."
+          }
         }
       }
-    }
+    ]
   }
 }

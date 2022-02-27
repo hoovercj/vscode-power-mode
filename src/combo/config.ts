@@ -9,10 +9,3 @@ export interface ComboPluginConfig {
     enableComboTimer: boolean;
     enableComboCounter: boolean;
 }
-
-export const COMBO_LOCATION_CONFIG_KEY = "comboLocation";
-export const COMBO_COUNTER_CONFIG_KEY = "enableComboCounter";
-export const COMBO_TIMER_CONFIG_KEY = "enableComboTimer";
-
-export const LEGACY_COMBO_COUNTER_CONFIG_KEY = "enableStatusBarComboCounter";
-export const LEGACY_COMBO_TIMER_CONFIG_KEY = "enableStatusBarComboTimer";

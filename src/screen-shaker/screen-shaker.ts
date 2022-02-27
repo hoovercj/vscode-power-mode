@@ -2,9 +2,9 @@ import * as vscode from 'vscode';
 import { Plugin, PowermodeChangeTextDocumentEventData } from '../plugin';
 import { ThemeConfig, getConfigValue } from '../config/config';
 
-export class ScreenShakerConfig {
-    enableShake: boolean;
-    shakeIntensity?: number;
+export interface ScreenShakerConfig {
+    "shake.enable": boolean;
+    "shake.intensity"?: number;
 }
 
 export class ScreenShaker implements Plugin {
@@ -41,7 +41,7 @@ export class ScreenShaker implements Plugin {
     }
 
     public onDidChangeTextDocument = (data: PowermodeChangeTextDocumentEventData, event: vscode.TextDocumentChangeEvent) => {
-        if (!this.config.enableShake || !data.isPowermodeActive) {
+        if (!this.config["snake.enable"] || !data.isPowermodeActive) {
             return;
         }
 
@@ -50,8 +50,8 @@ export class ScreenShaker implements Plugin {
 
     public onDidChangeConfiguration = (config: vscode.WorkspaceConfiguration) => {
         const newConfig: ScreenShakerConfig = {
-            enableShake: getConfigValue<boolean>('enableShake', config, this.themeConfig),
-            shakeIntensity: getConfigValue<number>('shakeIntensity', config, this.themeConfig),
+            "shake.enable": getConfigValue<boolean>('shake.enabled', config, this.themeConfig),
+            "shake.intensity": getConfigValue<number>('shake.intensity', config, this.themeConfig),
         };
 
         let changed = false;
@@ -69,19 +69,19 @@ export class ScreenShaker implements Plugin {
         this.config = newConfig;
 
         // If it is enabled but was not before, activate
-        if (this.config.enableShake && !oldConfig.enableShake) {
+        if (this.config["snake.enable"] && !oldConfig["snake.enable"]) {
             this.activate();
             return;
         }
 
         // If the shake intensity changed recreate the screen shaker
-        if (this.config.shakeIntensity !== oldConfig.shakeIntensity) {
+        if (this.config["snake.intensity"] !== oldConfig["snake.intensity"]) {
             this.activate();
             return;
         }
 
         // If it is now disabled, unshake the screen
-        if (!this.config.enableShake) {
+        if (!this.config["snake.enable"]) {
             this.dispose();
             return;
         }
@@ -94,7 +94,7 @@ export class ScreenShaker implements Plugin {
         });
 
         this.positiveX = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
-            textDecoration: `none; margin-left: ${this.config.shakeIntensity}px;`
+            textDecoration: `none; margin-left: ${this.config["snake.intensity"]}px;`
         });
 
         this.negativeY = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
@@ -102,7 +102,7 @@ export class ScreenShaker implements Plugin {
         });
 
         this.positiveY = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
-            textDecoration: `none; line-height:${(this.config.shakeIntensity/2)+1};`,
+            textDecoration: `none; line-height:${(this.config["snake.intensity"]/2)+1};`,
         });
 
         this.shakeDecorations = [
@@ -118,7 +118,7 @@ export class ScreenShaker implements Plugin {
      * to move them horizontally or vertically
      */
     private shake = (editor: vscode.TextEditor) => {
-        if (!this.config.enableShake) {
+        if (!this.config["snake.enable"]) {
             return;
         }
 

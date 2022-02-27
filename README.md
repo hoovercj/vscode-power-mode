@@ -6,19 +6,26 @@ Power Mode is one of the most requested extensions for VS Code. Unfortunately, t
 
 However, after seeing [this list](https://github.com/codeinthedark/awesome-power-mode) and realizing that VS Code was the only modern editor without it, I knew I had to try. I couldn't let VS Code live in the shadow of its big brother or Atom.
 
-I present you, VSCODE POWER MODE!!! (now with atom-like explosions!)
+I present you, VSCODE POWER MODE!!! (now with atom-like explosions and an improved combo meter!)
 
 ![demo](images/demo-presets-particles.gif)
 
-To enable, add `"powermode.enabled": true` to your settings.
-
 ## Features:
-* NEW: Visual Combo Meter!
+* NEW: POWERFUL Combo Meter!
 * Atom-like explosions!
 * Multiple explosion sets to choose from
 * Status bar indicator for combo count and timer
 * Explosions and screen shake effect when power mode is reached
 * Extremely Customizable
+
+## Get started
+
+* Enable in the settngs UI, or edit the JSON file directly to add `"powermode.enabled": true`
+* Enjoy the default experience, or choose from a set of built-in
+
+// TODO: Finish
+
+
 
 ## Choose Your Explosions:
 You can now choose explosions with a single setting: `powermode.presets`. Check out the options below (note: it looks better IRL than in these gifs):

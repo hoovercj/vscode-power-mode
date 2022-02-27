@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { Plugin } from './plugin';
-import { ThemeConfig } from './config/config';
+import { getConfigValue, ThemeConfig } from './config/config';
 import { Particles } from './config/particles';
 import { Fireworks } from './config/fireworks';
 import { Flames } from './config/flames';
@@ -10,12 +10,9 @@ import { SimpleRift, ExplodingRift } from './config/rift';
 import { ScreenShaker } from './screen-shaker/screen-shaker';
 import { CursorExploder } from './cursor-exploder/cursor-exploder';
 import { ComboPlugin } from './combo/combo-plugin';
-
-const DEFAULT_TIMEOUT = 10;
-
+import { migrateConfiguration } from './config/configuration-migrator';
 
 // Config values
-let documentChangeListenerDisposer: vscode.Disposable = null;
 let enabled = false;
 let comboThreshold: number;
 let comboTimeout: number;
@@ -28,6 +25,9 @@ let comboPlugin: ComboPlugin;
 
 // PowerMode components
 let plugins: Plugin[] = [];
+
+let configurationChangeListenerDisposer: vscode.Disposable;
+let documentChangeListenerDisposer: vscode.Disposable;
 
 // Themes
 let themes: {[key: string]: ThemeConfig} = {
@@ -45,14 +45,19 @@ let combo = 0;
 let isPowermodeActive = false;
 
 export function activate(context: vscode.ExtensionContext) {
-    vscode.workspace.onDidChangeConfiguration(onDidChangeConfiguration);
+    // Try to migrate any existing configuration files
+    migrateConfiguration();
+
+    // Subscribe to configuration changes
+    configurationChangeListenerDisposer = vscode.workspace.onDidChangeConfiguration(onDidChangeConfiguration);
+
+    // Initialize from the current configuration
     onDidChangeConfiguration();
 }
 
 function init(config: vscode.WorkspaceConfiguration, activeTheme: ThemeConfig) {
     // Just in case something was left behind, clean it up
-    deactivate();
-    combo = 0;
+    resetState();
 
     // The native plugins need this special theme, a subset of the config
     screenShaker = new ScreenShaker(activeTheme),
@@ -77,15 +82,17 @@ function init(config: vscode.WorkspaceConfiguration, activeTheme: ThemeConfig) {
  * when the extension is deactivated
  */
 export function deactivate() {
+    configurationChangeListenerDisposer.dispose();
 
+    resetState();
+}
+
+function resetState() {
     combo = 0;
 
-    if (documentChangeListenerDisposer) {
-        documentChangeListenerDisposer.dispose();
-        documentChangeListenerDisposer = null;
-    }
-
     stopTimer();
+
+    documentChangeListenerDisposer?.dispose();
 
     while (plugins.length > 0) {
         plugins.shift().dispose();
@@ -94,14 +101,14 @@ export function deactivate() {
 
 function onDidChangeConfiguration() {
     const config = vscode.workspace.getConfiguration('powermode');
-    const themeId = config.get<string>('presets');
+    const themeId = getConfigValue<string>("presets", config);
     const theme = getThemeConfig(themeId)
 
     const oldEnabled = enabled;
 
-    enabled = config.get<boolean>('enabled', false);
-    comboThreshold = config.get<number>('comboThreshold', 0);
-    comboTimeout = config.get<number>('comboTimeout', DEFAULT_TIMEOUT);
+    enabled = getConfigValue<boolean>('enabled', config);
+    comboThreshold = getConfigValue<number>('combo.threshold', config);
+    comboTimeout = getConfigValue<number>('combo.timeout', config);
 
     // Switching from disabled to enabled
     if (!oldEnabled && enabled) {

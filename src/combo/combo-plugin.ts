@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { getConfigValue, isConfigSet } from '../config/config';
 import { Plugin, PowermodeChangeTextDocumentEventData } from '../plugin';
-import { ComboFeatureConfig, ComboLocation, ComboLocationConfig, ComboPluginConfig, COMBO_COUNTER_CONFIG_KEY, COMBO_LOCATION_CONFIG_KEY, COMBO_TIMER_CONFIG_KEY, LEGACY_COMBO_COUNTER_CONFIG_KEY, LEGACY_COMBO_TIMER_CONFIG_KEY } from './config';
+import { ComboFeatureConfig, ComboLocation, ComboLocationConfig, ComboPluginConfig } from './config';
 import { EditorComboMeter } from './editor-combo-meter';
 import { StatusBarComboMeter } from './status-bar/status-bar-combo-meter';
 import { StatusBarTimer } from './status-bar/status-bar-timer';
@@ -14,27 +14,10 @@ export class ComboPlugin implements Plugin {
     public onDidChangeConfiguration = (config: vscode.WorkspaceConfiguration) => {
         const oldLocation = this.config?.comboLocation ?? "off";
 
-        const isComboLocationSet = isConfigSet(COMBO_LOCATION_CONFIG_KEY, config);
-        const isLegacyEnableStatusBarComboCounterSet = isConfigSet("enableStatusBarComboCounter", config);
-        const isLegacyEnableStatusBarComboTimerSet = isConfigSet("enableStatusBarComboTimer", config);
-        const isLegacyConfigSet = isLegacyEnableStatusBarComboCounterSet || isLegacyEnableStatusBarComboTimerSet;
-
-        // If a legacy setting is present and the new setting is not explicitly set to override it,
-        // calculate the new settings from the legacy settings
-        if (isLegacyConfigSet && !isComboLocationSet) {
-            this.config = {
-                comboLocation: "statusbar",
-                enableComboCounter: getConfigValue<boolean | null>(LEGACY_COMBO_COUNTER_CONFIG_KEY, config) ?? true,
-                enableComboTimer: getConfigValue<boolean | null>(LEGACY_COMBO_TIMER_CONFIG_KEY, config) ?? true,
-            }
-        }
-        // Otherwise, use new explicitly set values or their defaults
-        else {
-            this.config = {
-                comboLocation: comboLocationConfigToComboLocation(getConfigValue<ComboLocationConfig>(COMBO_LOCATION_CONFIG_KEY, config)),
-                enableComboTimer: comboFeatureConfigToBoolean(getConfigValue<ComboFeatureConfig>(COMBO_TIMER_CONFIG_KEY, config)),
-                enableComboCounter: comboFeatureConfigToBoolean(getConfigValue<ComboFeatureConfig>(COMBO_COUNTER_CONFIG_KEY, config)),
-            }
+        this.config = {
+            comboLocation: comboLocationConfigToComboLocation(getConfigValue<ComboLocationConfig>("combo.location", config)),
+            enableComboTimer: comboFeatureConfigToBoolean(getConfigValue<ComboFeatureConfig>("combo.timerEnabled", config)),
+            enableComboCounter: comboFeatureConfigToBoolean(getConfigValue<ComboFeatureConfig>("combo.counterEnabled", config)),
         }
 
         if (this.config.comboLocation !== oldLocation) {
