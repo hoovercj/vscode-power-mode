@@ -8,4 +8,5 @@ export interface ComboPluginConfig {
     comboLocation: ComboLocation;
     enableComboTimer: boolean;
     enableComboCounter: boolean;
+    comboCounterSize: number;
 }

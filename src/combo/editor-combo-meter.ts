@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { Plugin, PowermodeChangeTextDocumentEventData } from '../plugin';
 import { ComboPluginConfig } from './config';
 
-export type EditorComboMeterConfig = Pick<ComboPluginConfig, "enableComboCounter" | "enableComboTimer">;
+export type EditorComboMeterConfig = Pick<ComboPluginConfig, "enableComboCounter" | "enableComboTimer" | "comboCounterSize">;
 
 export class EditorComboMeter implements Plugin<EditorComboMeterConfig> {
 
@@ -82,10 +82,15 @@ export class EditorComboMeter implements Plugin<EditorComboMeterConfig> {
     public onDidChangeConfiguration = (config: ComboPluginConfig) => {
         const oldEnableComboCounter = this.config?.enableComboCounter;
         const oldEnableComboTimer = this.config?.enableComboTimer;
+        const oldComboCounterSize = this.config?.comboCounterSize;
 
         this.config = config;
 
-        if (this.config.enableComboCounter === oldEnableComboCounter && this.config.enableComboTimer === oldEnableComboTimer) {
+        if (
+            this.config.enableComboCounter === oldEnableComboCounter &&
+            this.config.enableComboTimer === oldEnableComboTimer &&
+            this.config.comboCounterSize === oldComboCounterSize
+        ) {
             return;
         }
 
@@ -148,8 +153,8 @@ export class EditorComboMeter implements Plugin<EditorComboMeterConfig> {
         // or else there will be a large jump when powermode activates, so instead use the value relative to the combo at which Power Mode started.
         const powerModeCombo = this.isPowermodeActive ? comboCount - this.initialPowermodeCombo : 0;
 
-        const baseTextSize = 6;
-        const styleCount = Math.min(powerModeCombo, 50);
+        const baseTextSize = this.config.comboCounterSize;
+        const styleCount = Math.min(powerModeCombo, 25);
         // TODO: Explain how this formula works
         const textSize = this.isPowermodeActive ? ((styleCount * baseTextSize) / 100 * Math.pow(0.5, frameCount * 0.2) + baseTextSize) : baseTextSize;
         // Only change color in power mode

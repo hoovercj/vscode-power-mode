@@ -119,6 +119,12 @@
             ],
             "description": "Control whether the combo counter is visible."
           },
+          "powermode.combo.counterSize": {
+            "type": "number",
+            "default": 3,
+            "minimum": 0,
+            "description": "Control the size of the Combo Meter text"
+          },
           "powermode.combo.timerEnabled": {
             "type": "string",
             "default": "default",

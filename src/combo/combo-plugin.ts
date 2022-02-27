@@ -18,6 +18,7 @@ export class ComboPlugin implements Plugin {
             comboLocation: comboLocationConfigToComboLocation(getConfigValue<ComboLocationConfig>("combo.location", config)),
             enableComboTimer: comboFeatureConfigToBoolean(getConfigValue<ComboFeatureConfig>("combo.timerEnabled", config)),
             enableComboCounter: comboFeatureConfigToBoolean(getConfigValue<ComboFeatureConfig>("combo.counterEnabled", config)),
+            comboCounterSize: getConfigValue<number>("combo.counterSize", config),
         }
 
         if (this.config.comboLocation !== oldLocation) {
