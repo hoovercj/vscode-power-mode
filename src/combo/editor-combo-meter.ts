@@ -127,7 +127,7 @@ export class EditorComboMeter implements Plugin<EditorComboMeterConfig> {
 
         const firstVisibleRange = editor.visibleRanges.sort().find(range => !range.isEmpty);
 
-        if (!firstVisibleRange || this.combo <= 1) {
+        if (!firstVisibleRange || this.combo < 1) {
             this.removeDecorations();
             return;
         }

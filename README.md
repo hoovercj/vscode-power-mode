@@ -8,7 +8,7 @@ However, after seeing [this list](https://github.com/codeinthedark/awesome-power
 
 I present you, VSCODE POWER MODE!!! (now with atom-like explosions and an improved combo meter!)
 
-![demo](images/demo-presets-particles.gif)
+![demo](images/demo-v3.gif)
 
 ## Features:
 * NEW: POWERFUL Combo Meter!
@@ -97,6 +97,7 @@ If you can provide some lightweight, attractive gifs that improve how power mode
 - v3.0.0
   - Added an improved combo meter!
   - Reorganized and renamed the settings to make it much easier to configure from the settings UI. Old settings will be automatically migrated after updating
+  - Effects now work without "render whitespace" enabled
   - Bug fixes, with thanks to [@Thertzlor](https://github.com/Thertzlor) and [@hyprhare](https://github.com/hyprhare) for their contributions
 - v2.2.0
   - Added `powermode.enableStatusBarComboCounter` and `powermode.enableStatusBarComboTimer` to toggle status bar items

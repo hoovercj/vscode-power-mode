@@ -41,7 +41,7 @@ export class ScreenShaker implements Plugin {
     }
 
     public onDidChangeTextDocument = (data: PowermodeChangeTextDocumentEventData, event: vscode.TextDocumentChangeEvent) => {
-        if (!this.config["snake.enable"] || !data.isPowermodeActive) {
+        if (!this.config["shake.enable"] || !data.isPowermodeActive) {
             return;
         }
 
@@ -69,19 +69,19 @@ export class ScreenShaker implements Plugin {
         this.config = newConfig;
 
         // If it is enabled but was not before, activate
-        if (this.config["snake.enable"] && !oldConfig["snake.enable"]) {
+        if (this.config["shake.enable"] && !oldConfig["shake.enable"]) {
             this.activate();
             return;
         }
 
         // If the shake intensity changed recreate the screen shaker
-        if (this.config["snake.intensity"] !== oldConfig["snake.intensity"]) {
+        if (this.config["shake.intensity"] !== oldConfig["shake.intensity"]) {
             this.activate();
             return;
         }
 
         // If it is now disabled, unshake the screen
-        if (!this.config["snake.enable"]) {
+        if (!this.config["shake.enable"]) {
             this.dispose();
             return;
         }
@@ -94,7 +94,7 @@ export class ScreenShaker implements Plugin {
         });
 
         this.positiveX = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
-            textDecoration: `none; margin-left: ${this.config["snake.intensity"]}px;`
+            textDecoration: `none; margin-left: ${this.config["shake.intensity"]}px;`
         });
 
         this.negativeY = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
@@ -102,7 +102,7 @@ export class ScreenShaker implements Plugin {
         });
 
         this.positiveY = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
-            textDecoration: `none; line-height:${(this.config["snake.intensity"]/2)+1};`,
+            textDecoration: `none; line-height:${(this.config["shake.intensity"]/2)+1};`,
         });
 
         this.shakeDecorations = [
@@ -118,7 +118,7 @@ export class ScreenShaker implements Plugin {
      * to move them horizontally or vertically
      */
     private shake = (editor: vscode.TextEditor) => {
-        if (!this.config["snake.enable"]) {
+        if (!this.config["shake.enable"]) {
             return;
         }
 
