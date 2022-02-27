@@ -60,7 +60,7 @@ You can now choose explosions with a single setting: `powermode.presets`. Check 
 ## Configuration:
 Hopefully power mode will work great for you out of the box, but if it doesn't I've tried to make power mode as configurable as possible. Tweak the settings for performance or for fun. From doge to clippy, the only limit is your imagination. Some of the options are explained below:
 
-* `powermode.customExplosions`: Choose your own explosions with base64 encoded gifs or full URIs (i.e. "data:image/gif;base64,1337GIF", "C:/my/cat/gif", "https://coolgif.io")
+* `powermode.customExplosions`: Choose your own explosions with base64 encoded gifs or full web URLs (i.e. "data:image/gif;base64,1337GIF", "https://coolgif.io"). **NOTE:** Security precautions in the browser engine prevent referencing local files, so for offline-support, please base64 encode the gif.
 * `powermode.backgroundMode`: `mask` will use the gif as a mask, letting the shape of the gif through with the color of the text. `image` will use the gif itself as the background.
 ![mask](images/demo-mask-fireworks.gif)
 * `powermode.gifMode`: `restart` will restart a gif each time it is displayed, `continue` will play the gif from the place it stopped. `continue` is particularly useful when you only have 1 visible gif, `restart` is useful when you have multiple, but may reduce performance.

@@ -168,7 +168,7 @@ export class ComboMeter implements Plugin {
 
             if (timeLeft <= 0) {
                 clearTimeout(this.comboTimerDecorationTimer);
-                this.comboTimerDecoration.dispose();
+                this.comboTimerDecoration?.dispose();
                 return;
             }
 
