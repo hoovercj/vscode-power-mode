@@ -16,6 +16,8 @@ I present you, VSCODE POWER MODE!!! (now with atom-like explosions and an improv
 * Easily choose from a variety of [built-in effects](#choose-your-explosions) including explosions, interdeminsional portals, and clippy. Or quickly edd your own!
 * Extremely Customizable -- 20+ settings to get exactly the experience you want
 
+![demo](images/settings.png)
+
 ## Get started
 
 * Enable in the settngs UI, or edit the JSON file directly to add `"powermode.enabled": true`
