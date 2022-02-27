@@ -54,6 +54,11 @@ export function isConfigSet(key: ConfigurationKeys | DeprecatedConfigurationKeys
     }
 }
 
+export function updateConfig(key: ConfigurationKeys, value: any, config: WorkspaceConfiguration) {
+    const target = isConfigSet(key, config) || ConfigurationTarget.Global;
+    config.update(key, value, target);
+}
+
 function isNullOrUndefined(value: any) {
     return value === null || value === undefined;
 }

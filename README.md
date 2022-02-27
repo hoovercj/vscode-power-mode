@@ -16,12 +16,13 @@ I present you, VSCODE POWER MODE!!! (now with atom-like explosions and an improv
 * Easily choose from a variety of [built-in effects](#choose-your-explosions) including explosions, interdeminsional portals, and clippy. Or quickly edd your own!
 * Extremely Customizable -- 20+ settings to get exactly the experience you want
 
-![demo](images/settings.png)
+![settings](images/settings.png)
 
 ## Get started
 
 * Enable in the settngs UI, or edit the JSON file directly to add `"powermode.enabled": true`
 * Enjoy the default experience, or choose from a set of built-in effects
+* Enable/Disable via a command
 * Customize the experience using the [advanced settings](#advanced-settings)
 * Find more effects or share your own on [here](https://github.com/hoovercj/vscode-power-mode/issues/1).
 
@@ -98,6 +99,7 @@ If you can provide some lightweight, attractive gifs that improve how power mode
 ## Changelog:
 - v3.0.0
   - Added an improved combo meter!
+  - Added commands to enable/disable Power Mode
   - Reorganized and renamed the settings to make it much easier to configure from the settings UI. Old settings will be automatically migrated after updating
   - Effects now work without "render whitespace" enabled
   - Bug fixes, with thanks to [@Thertzlor](https://github.com/Thertzlor) and [@hyprhare](https://github.com/hyprhare) for their contributions
