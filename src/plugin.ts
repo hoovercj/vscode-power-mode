@@ -22,7 +22,7 @@ export interface PowermodeChangeTextDocumentEventData {
     activeEditor: TextEditor;
 }
 
-export interface Plugin {
+export interface Plugin<T = WorkspaceConfiguration> {
     /**
      * Called when the extension is disposed and the plugin should cleanup. Remove all decorations, clear all timers, unsubscribe from all vscode api events, etc.
      */
@@ -60,5 +60,5 @@ export interface Plugin {
      * Called when the configuration changes. Plugins are expected to respect user configuration, and can provide their own configuration options.
      * @param powermodeConfig The Power Mode extension configuration
      */
-    onDidChangeConfiguration(powermodeConfig: WorkspaceConfiguration): void;
+    onDidChangeConfiguration(powermodeConfig: T): void;
 }

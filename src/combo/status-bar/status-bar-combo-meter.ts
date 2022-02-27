@@ -1,22 +1,12 @@
 import * as vscode from 'vscode';
-import { Plugin, PowermodeChangeTextDocumentEventData } from './plugin';
+import { getConfigValue } from '../../config/config';
+import { Plugin, PowermodeChangeTextDocumentEventData } from '../../plugin';
+import { EditorComboMeterConfig } from '../editor-combo-meter';
 
-export interface StatusBarItemConfig {
-    enableStatusBarComboCounter?: boolean;
-}
+export class StatusBarComboMeter implements Plugin<EditorComboMeterConfig> {
 
-export class StatusBarComboMeter implements Plugin {
-
-    private config: StatusBarItemConfig = {};
+    private config: EditorComboMeterConfig | undefined;
     private statusBarItem: vscode.StatusBarItem;
-
-    public activate = () => {
-        if (this.statusBarItem) {
-            return;
-        }
-        this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
-        this.statusBarItem.show();
-    }
 
     dispose = () => {
         if (!this.statusBarItem) {
@@ -46,13 +36,26 @@ export class StatusBarComboMeter implements Plugin {
         this.updateStatusBar(data.currentCombo, data.isPowermodeActive);
     }
 
-    public onDidChangeConfiguration = (config: vscode.WorkspaceConfiguration) => {
-        this.config.enableStatusBarComboCounter = config.get<boolean>('enableStatusBarComboCounter', true);
-        if (this.config.enableStatusBarComboCounter) {
+    public onDidChangeConfiguration = (config: EditorComboMeterConfig) => {
+        if (this.config?.enableComboCounter === config.enableComboCounter) {
+            return;
+        }
+
+        this.config = config;
+
+        if (this.config.enableComboCounter) {
             this.activate();
         } else {
             this.dispose();
         }
+    }
+
+    private activate = () => {
+        if (this.statusBarItem) {
+            return;
+        }
+        this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+        this.statusBarItem.show();
     }
 
     private updateStatusBar = (combo: number, powermode?: boolean) => {

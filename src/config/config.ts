@@ -13,7 +13,7 @@ export interface ExtensionConfig extends ThemeConfig {
     comboTimeout?: number;
 }
 
-export function getConfigValue<T>(key: string, vscodeConfig: WorkspaceConfiguration, themeConfig: any): T {
+export function getConfigValue<T>(key: string, vscodeConfig: WorkspaceConfiguration, themeConfig: any = {}): T {
     // If the config is explicitly set, use that value
     if (isConfigSet(key, vscodeConfig)) {
         return vscodeConfig.get<T>(key);
@@ -30,12 +30,12 @@ export function getConfigValue<T>(key: string, vscodeConfig: WorkspaceConfigurat
     return vscodeConfig.get<T>(key);
 }
 
-function isNullOrUndefined(value: any) {
-    return value === null || value === undefined;
-}
-
-function isConfigSet(key: string, config: WorkspaceConfiguration): boolean {
+export function isConfigSet(key: string, config: WorkspaceConfiguration): boolean {
     const inspectionResults = config.inspect(key);
     return !isNullOrUndefined(inspectionResults.globalValue) ||
            !isNullOrUndefined(inspectionResults.workspaceValue);
+}
+
+function isNullOrUndefined(value: any) {
+    return value === null || value === undefined;
 }

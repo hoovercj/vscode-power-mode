@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { Plugin } from './plugin';
-import { ThemeConfig, getConfigValue } from './config/config';
+import { ThemeConfig } from './config/config';
 import { Particles } from './config/particles';
 import { Fireworks } from './config/fireworks';
 import { Flames } from './config/flames';
@@ -9,9 +9,7 @@ import { Clippy } from './config/clippy';
 import { SimpleRift, ExplodingRift } from './config/rift';
 import { ScreenShaker } from './screen-shaker/screen-shaker';
 import { CursorExploder } from './cursor-exploder/cursor-exploder';
-import { ProgressBarTimer } from './status-bar-timer';
-import { StatusBarComboMeter } from './status-bar-combo-meter';
-import { ComboMeter } from './combo-meter';
+import { ComboPlugin } from './combo/combo-plugin';
 
 const DEFAULT_TIMEOUT = 10;
 
@@ -26,9 +24,7 @@ let comboTimeoutHandle: NodeJS.Timer;
 // Native plugins
 let screenShaker: ScreenShaker;
 let cursorExploder: CursorExploder;
-let statusBarItem: StatusBarComboMeter;
-let progressBarTimer: ProgressBarTimer;
-let comboMeter: ComboMeter;
+let comboPlugin: ComboPlugin;
 
 // PowerMode components
 let plugins: Plugin[] = [];
@@ -61,16 +57,12 @@ function init(config: vscode.WorkspaceConfiguration, activeTheme: ThemeConfig) {
     // The native plugins need this special theme, a subset of the config
     screenShaker = new ScreenShaker(activeTheme),
     cursorExploder = new CursorExploder(activeTheme),
-    statusBarItem = new StatusBarComboMeter();
-    progressBarTimer = new ProgressBarTimer();
-    comboMeter = new ComboMeter();
+    comboPlugin = new ComboPlugin();
 
     plugins.push(
         screenShaker,
         cursorExploder,
-        statusBarItem,
-        progressBarTimer,
-        comboMeter,
+        comboPlugin,
     );
 
 

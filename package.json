@@ -81,20 +81,38 @@
           "default": true,
           "description": "Set to false to disable explosions while typing"
         },
-        "powermode.enableEditorComboCounter": {
-          "type": "boolean",
-          "default": false,
-          "description": "Set to true to enable showing the combo in the editor"
+        "powermode.enableComboCounter": {
+          "type": "string",
+          "default": "default",
+          "enum": ["show", "hide", "default"],
+          "enumDescriptions": ["Show the combo counter", "Hide the combo counter", "Use the default value. May be overridden by other settings."],
+          "description": "Control whether the combo counter is visible."
+        },
+        "powermode.enableComboTimer": {
+          "type": "string",
+          "default": "default",
+          "enum": ["show", "hide", "default"],
+          "enumDescriptions": ["Show the combo timer", "Hide the combo timer", "Use the default value. May be overridden by other settings."],
+          "description": "Control whether the combo timer is visible."
+        },
+        "powermode.comboLocation": {
+          "type": "string",
+          "default": "default",
+          "enum": ["editor", "statusbar", "default", "off"],
+          "enumDescriptions": ["Show the combo in the editor. The true 'Power Mode' experience", "Use the status bar. A more subdued experience.", "Use the default value. May be overiddent by other settings.", "Turn off the combo entirely."],
+          "description": "Control where all the combo information is visible."
         },
         "powermode.enableStatusBarComboCounter": {
           "type": "boolean",
-          "default": true,
-          "description": "Set to false to disable showing the combo in the statusbar"
+          "default": null,
+          "description": "Set to false to disable showing the combo in the statusbar",
+          "markdownDeprecationMessage": "Use `powermode.comboLocation` and `powermode.enableComboCounter` instead. This will be removed in a future version."
         },
         "powermode.enableStatusBarComboTimer": {
           "type": "boolean",
-          "default": true,
-          "description": "Set to false to disable showing the timer in the statusbar"
+          "default": null,
+          "description": "Set to false to disable showing the timer in the statusbar",
+          "markdownDeprecationMessage": "Use `powermode.comboLocation` and `powermode.enableComboTimer` instead. This will be removed in a future version."
         },
         "powermode.enableShake": {
           "type": "boolean",
@@ -130,25 +148,27 @@
           "type": "array",
           "items": "string",
           "default": [],
-          "description": "Use anything that can go in the 'url()' part of a background image such as a base64 encoded gif or absolute file path WITHOUT quotes. Urls must be https."
+          "markdownDescription": "This value will go into the 'url()' part of a background image. It should be a base64 encoded gif or **https** URL _without_ quotes."
         },
         "powermode.backgroundMode": {
           "type": "string",
+          "default": "mask",
           "enum": [
             "mask",
             "image"
           ],
-          "default": "mask",
-          "description": "Affects the css properties used to display the gif. `mask` uses the gifs as a mask to let the background come through (similar to atom power mode) and `image` will display the actual gif."
+          "enumDescriptions": ["Uses the gifs as a mask to let the background color come through (similar to atom power mode)", "Display the actual gif."],
+          "description": "Affects the css properties used to display the gif."
         },
         "powermode.gifMode": {
           "type": "string",
+          "default": "continue",
           "enum": [
             "continue",
             "restart"
           ],
-          "default": "continue",
-          "description": "`restart` will restart the gif each time it is shown, `continue` will resume playing it from its previous point"
+          "enumDescriptions": ["Restart the gif each time it is shown. This is useful when you have multiple visible gifs, but may reduce performance", "Resume playing it from its previous point"],
+          "description": "Control the 'playback' mode of the gifs."
         },
         "powermode.explosionOrder": {
           "description": "Determines how the explosions are cycled. 'random' (default) picks from the list randomly. 'sequential' goes through the list in order, and a number will select the explosion at that (zero based)index in the list",

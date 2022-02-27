@@ -23,32 +23,6 @@ export class ScreenShaker implements Plugin {
 
     constructor(public themeConfig: ThemeConfig) {}
 
-    public activate = () => {
-        this.dispose();
-        this.negativeX = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
-            textDecoration: `none; margin-left: 0px;`
-        });
-
-        this.positiveX = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
-            textDecoration: `none; margin-left: ${this.config.shakeIntensity}px;`
-        });
-
-        this.negativeY = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
-            textDecoration: `none; line-height:inherit`
-        });
-
-        this.positiveY = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
-            textDecoration: `none; line-height:${(this.config.shakeIntensity/2)+1};`,
-        });
-
-        this.shakeDecorations = [
-            this.negativeX,
-            this.positiveX,
-            this.negativeY,
-            this.positiveY
-        ];
-    }
-
     public dispose = () => {
         clearTimeout(this.shakeTimeout);
         this.shakeDecorations.forEach(decoration => decoration.dispose());
@@ -111,6 +85,32 @@ export class ScreenShaker implements Plugin {
             this.dispose();
             return;
         }
+    }
+
+    private activate = () => {
+        this.dispose();
+        this.negativeX = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
+            textDecoration: `none; margin-left: 0px;`
+        });
+
+        this.positiveX = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
+            textDecoration: `none; margin-left: ${this.config.shakeIntensity}px;`
+        });
+
+        this.negativeY = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
+            textDecoration: `none; line-height:inherit`
+        });
+
+        this.positiveY = vscode.window.createTextEditorDecorationType(<vscode.DecorationRenderOptions>{
+            textDecoration: `none; line-height:${(this.config.shakeIntensity/2)+1};`,
+        });
+
+        this.shakeDecorations = [
+            this.negativeX,
+            this.positiveX,
+            this.negativeY,
+            this.positiveY
+        ];
     }
 
     /**

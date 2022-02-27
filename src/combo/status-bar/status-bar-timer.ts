@@ -1,28 +1,25 @@
 import * as vscode from 'vscode';
-import { Plugin, PowermodeChangeTextDocumentEventData } from './plugin';
+import { Plugin, PowermodeChangeTextDocumentEventData } from '../../plugin';
+import { EditorComboMeterConfig } from '../editor-combo-meter';
 
-export interface ProgressBarTimerConfig {
-    enableStatusBarComboTimer?: boolean;
-}
+export class StatusBarTimer implements Plugin<EditorComboMeterConfig> {
 
-export class ProgressBarTimer implements Plugin {
-
-    private config: ProgressBarTimerConfig = {};
+    private config: EditorComboMeterConfig | undefined;
     private secondsRemaining = 0;
     private progressDisposer: () => void;
     private timerHandle: NodeJS.Timer;
     private active: boolean;
 
-    public onDidChangeConfiguration = (config: vscode.WorkspaceConfiguration) => {
-        this.config.enableStatusBarComboTimer = config.get<boolean>('enableStatusBarComboTimer', true);
+    public onDidChangeConfiguration = (config: EditorComboMeterConfig) => {
+        if (this.config?.enableComboTimer === config.enableComboTimer) {
+            return;
+        }
 
-        if (!this.config.enableStatusBarComboTimer) {
+        this.config = config;
+
+        if (!this.config.enableComboTimer) {
             this.stopTimer();
         }
-    }
-
-    public activate(): void {
-        // Do nothing
     }
 
     public dispose(): void {
@@ -42,7 +39,7 @@ export class ProgressBarTimer implements Plugin {
     }
 
     public onDidChangeTextDocument(data: PowermodeChangeTextDocumentEventData, event: vscode.TextDocumentChangeEvent): void {
-        if (!this.config.enableStatusBarComboTimer) {
+        if (!this.config?.enableComboTimer) {
             return;
         }
 
@@ -58,7 +55,7 @@ export class ProgressBarTimer implements Plugin {
      * which displays the time remaining for the current combo
      */
     private startTimer = (timeLimit: number) => {
-        if (!this.config.enableStatusBarComboTimer) {
+        if (!this.config?.enableComboTimer) {
             return;
         }
 
