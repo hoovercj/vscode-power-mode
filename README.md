@@ -97,6 +97,8 @@ If you can provide some lightweight, attractive gifs that improve how power mode
 * Thanks to [@horvay](https://github.com/horvay) for giving me ideas to get around the limitations I had in v0.0.1
 
 ## Changelog:
+- v3.0.1
+  - Fix bug where combo meter scrolls with the page
 - v3.0.0
   - Added an improved combo meter!
   - Added commands to enable/disable Power Mode
