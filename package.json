@@ -217,8 +217,8 @@
               "restart"
             ],
             "enumDescriptions": [
-              "Restart the gif each time it is shown. This is useful when you have multiple visible gifs, but may reduce performance",
-              "Resume playing it from its previous point"
+              "Resume playing it from its previous point",
+              "Restart the gif each time it is shown. This is useful when you have multiple visible gifs, but may reduce performance"
             ],
             "description": "Control the 'playback' mode of the gifs."
           },
