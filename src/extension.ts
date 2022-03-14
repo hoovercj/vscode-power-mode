@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { Plugin } from './plugin';
-import { getConfigValue, ThemeConfig } from './config/config';
+import { getConfigValue, ThemeConfig, updateConfig } from './config/config';
 import { Particles } from './config/particles';
 import { Fireworks } from './config/fireworks';
 import { Flames } from './config/flames';
@@ -26,7 +26,6 @@ let comboPlugin: ComboPlugin;
 // PowerMode components
 let plugins: Plugin[] = [];
 
-let configurationChangeListenerDisposer: vscode.Disposable;
 let documentChangeListenerDisposer: vscode.Disposable;
 
 // Themes
@@ -48,8 +47,20 @@ export function activate(context: vscode.ExtensionContext) {
     // Try to migrate any existing configuration files
     migrateConfiguration();
 
+    const enableCommand = 'powermode.enablePowerMode';
+    const disableCommand = 'powermode.disablePowerMode';
+
+    const setEnabled = (value: boolean) => {
+        const config = vscode.workspace.getConfiguration("powermode");
+        updateConfig("enabled", value, config);
+    };
+
+    // Register enable/disable commands
+    context.subscriptions.push(vscode.commands.registerCommand(enableCommand, () => setEnabled(true)));
+    context.subscriptions.push(vscode.commands.registerCommand(disableCommand, () => setEnabled(false)));
+
     // Subscribe to configuration changes
-    configurationChangeListenerDisposer = vscode.workspace.onDidChangeConfiguration(onDidChangeConfiguration);
+    context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(onDidChangeConfiguration));
 
     // Initialize from the current configuration
     onDidChangeConfiguration();
@@ -82,8 +93,6 @@ function init(config: vscode.WorkspaceConfiguration, activeTheme: ThemeConfig) {
  * when the extension is deactivated
  */
 export function deactivate() {
-    configurationChangeListenerDisposer.dispose();
-
     resetState();
 }
 
@@ -118,7 +127,7 @@ function onDidChangeConfiguration() {
 
     // Switching from enabled to disabled
     if (oldEnabled && !enabled) {
-        deactivate();
+        resetState();
         return;
     }
 

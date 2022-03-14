@@ -11,6 +11,7 @@ export class EditorComboMeter implements Plugin<EditorComboMeterConfig> {
     private comboTimerDecoration: vscode.TextEditorDecorationType;
     private comboCountDecoration: vscode.TextEditorDecorationType;
 
+    private renderedRange: vscode.Range = undefined;
     private renderedComboCount: number = undefined;
     private combo: number = 0;
     private isPowermodeActive: boolean = false;
@@ -104,6 +105,9 @@ export class EditorComboMeter implements Plugin<EditorComboMeterConfig> {
     }
 
     private removeDecorations = () => {
+        this.renderedComboCount = 0;
+        this.renderedRange = undefined;
+
         if (this.comboCountDecoration) {
             this.comboCountDecoration.dispose();
             this.comboCountDecoration = null;
@@ -138,10 +142,12 @@ export class EditorComboMeter implements Plugin<EditorComboMeterConfig> {
         }
 
         const position = firstVisibleRange.start;
-        const ranges = [new vscode.Range(position, position)];
+        const range = new vscode.Range(position, position);
 
-        if (this.combo !== this.renderedComboCount) {
+        if (this.combo !== this.renderedComboCount || !range.isEqual(this.renderedRange)) {
             this.renderedComboCount = this.combo;
+            this.renderedRange = range;
+            const ranges = [range];
             this.createComboCountDecoration(this.combo, ranges, editor);
             this.createComboTimerDecoration(ranges, editor);
         }
