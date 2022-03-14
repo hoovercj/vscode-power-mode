@@ -74,7 +74,7 @@ You can choose explosions with a single setting: `powermode.presets`. Check out 
 ## Advanced Settings:
 Power Mode should work great right out of the box, but if it doesn't I've tried to make it as configurable as possible. Tweak the settings for performance or for fun. From doge to clippy, the only limit is your imagination. Some of the options are explained below:
 
-* `powermode.shake.enable`: Uncheck this to disable screen shaking entirely
+* `powermode.shake.enabled`: Uncheck this to disable screen shaking entirely
 * `powermode.combo.location`: Control where the combo counter appears
 * `powermode.explosions.customExplosions`: Choose your own explosions with base64 encoded gifs or full web URLs (i.e. "data:image/gif;base64,1337GIF", "https://coolgif.io"). **NOTE:** Security precautions in the browser engine prevent referencing local files, so for offline-support, please base64 encode the gif.
 * `powermode.explosions.backgroundMode`: `mask` will use the gif as a mask, letting the shape of the gif through with the color of the text. `image` will use the gif itself as the background.
