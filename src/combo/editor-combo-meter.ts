@@ -213,15 +213,19 @@ export class EditorComboMeter implements Plugin<EditorComboMeterConfig> {
                 }
             };
 
-            this.comboTimerDecoration?.dispose();
-            this.comboTimerDecoration = vscode.window.createTextEditorDecorationType({
+            
+            const newComboTimerDecoration = vscode.window.createTextEditorDecorationType({
                 // Decorations cannot use the same pseudoelement
                 ...createComboTimerBeforeDecoration(),
                 rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
                 light: createComboTimerBeforeDecoration(true),
             });
 
-            editor.setDecorations(this.comboTimerDecoration, ranges);
+            editor.setDecorations(newComboTimerDecoration, ranges);
+
+            this.comboTimerDecoration?.dispose();
+
+            this.comboTimerDecoration = newComboTimerDecoration;
         }
 
         this.comboTimerDecorationTimer = setInterval(updateComboTimerDecoration, this.TIMER_UPDATE_INTERVAL);
@@ -235,7 +239,6 @@ export class EditorComboMeter implements Plugin<EditorComboMeterConfig> {
         }
 
         const animateComboCountDecoration = (frameCount: number) => {
-            this.comboCountDecoration?.dispose();
 
             const { textSize, color } = this.getSharedStyles(count, frameCount);
 
@@ -261,14 +264,18 @@ export class EditorComboMeter implements Plugin<EditorComboMeterConfig> {
                 };
             }
 
-            this.comboCountDecoration = vscode.window.createTextEditorDecorationType({
+            const newComboCountDecoration = vscode.window.createTextEditorDecorationType({
                 // Note: Different decorations cannot use the same pseudoelement
                 ...createComboCountAfterDecoration(),
                 rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
                 light: createComboCountAfterDecoration(true),
             });
 
-            editor.setDecorations(this.comboCountDecoration, ranges);
+            editor.setDecorations(newComboCountDecoration, ranges);
+
+            this.comboCountDecoration?.dispose();
+
+            this.comboCountDecoration = newComboCountDecoration;
 
             // Only animate in power mode
             if (this.isPowermodeActive && frameCount < 100) {
