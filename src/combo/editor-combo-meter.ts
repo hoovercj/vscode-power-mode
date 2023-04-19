@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { Plugin, PowermodeChangeTextDocumentEventData } from '../plugin';
 import { ComboPluginConfig } from './config';
 
-export type EditorComboMeterConfig = Pick<ComboPluginConfig, "enableComboCounter" | "enableComboTimer" | "comboCounterSize">;
+export type EditorComboMeterConfig = Pick<ComboPluginConfig, "enableComboCounter" | "enableComboTimer" | "comboCounterSize" | "comboCounterThreshold">;
 
 export class EditorComboMeter implements Plugin<EditorComboMeterConfig> {
 
@@ -135,8 +135,9 @@ export class EditorComboMeter implements Plugin<EditorComboMeterConfig> {
         }
 
         const firstVisibleRange = editor.visibleRanges.sort().find(range => !range.isEmpty);
+        const comboThreshold = this.config?.comboCounterThreshold || 1;
 
-        if (!firstVisibleRange || this.combo < 1) {
+        if (!firstVisibleRange || this.combo < comboThreshold) {
             this.removeDecorations();
             return;
         }

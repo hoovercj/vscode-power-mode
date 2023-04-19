@@ -6,6 +6,7 @@ export const ConfigurationKeys = [
     "combo.timeout",
     "combo.counterEnabled",
     "combo.counterSize",
+    "combo.counterThreshold",
     "combo.timerEnabled",
     "shake.enabled",
     "shake.intensity",

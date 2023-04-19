@@ -9,4 +9,5 @@ export interface ComboPluginConfig {
     enableComboTimer: boolean;
     enableComboCounter: boolean;
     comboCounterSize: number;
+    comboCounterThreshold: number;
 }
