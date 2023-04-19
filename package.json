@@ -141,6 +141,12 @@
             "minimum": 0,
             "description": "Control the size of the Combo Meter text"
           },
+          "powermode.combo.counterThreshold": {
+            "type": "number",
+            "default": 1,
+            "minimum": 1,
+            "description": "The combo number needed to show the counter."
+          },
           "powermode.combo.timerEnabled": {
             "type": "string",
             "default": "default",
