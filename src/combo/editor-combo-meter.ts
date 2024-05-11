@@ -29,7 +29,7 @@ export class EditorComboMeter implements Plugin<EditorComboMeterConfig> {
         // NOTE: This positions the element off the screen when there is horizontal scroll
         // so this feature works best when "word wrap" is enabled.
         // Using "5vw" instead did not limit the position to the viewable width.
-        right: "5%",
+        left: "calc(100vw - 25rem)",
         top: "20px",
 
         ['font-family']: "monospace",
