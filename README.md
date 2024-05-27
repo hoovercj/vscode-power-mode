@@ -13,7 +13,7 @@ I present you, VSCODE POWER MODE!!! (now with atom-like explosions and an improv
 ## Features:
 * NEW: POWERFUL Combo Meter!
 * Strong default settings
-* Easily choose from a variety of [built-in effects](#choose-your-explosions) including explosions, interdeminsional portals, and clippy. Or quickly edd your own!
+* Easily choose from a variety of [built-in effects](#choose-your-explosions) including explosions, interdeminsional portals, and clippy. Or quickly add your own!
 * Extremely Customizable -- 20+ settings to get exactly the experience you want
 
 ![settings](images/settings.png)
