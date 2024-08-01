@@ -25,12 +25,13 @@ export class EditorComboMeter implements Plugin<EditorComboMeterConfig> {
     private comboCountAnimationTimer: NodeJS.Timer;
 
     private static readonly DEFAULT_CSS = EditorComboMeter.objectToCssString({
-        position: 'absolute',
+        position: 'relative',
         // NOTE: This positions the element off the screen when there is horizontal scroll
         // so this feature works best when "word wrap" is enabled.
         // Using "5vw" instead did not limit the position to the viewable width.
-        right: "5%",
-        top: "20px",
+        // right: "5%",
+        right: "calc(-50rem)",
+        top: "40px",
 
         ['font-family']: "monospace",
         ['font-weight']: "900",
