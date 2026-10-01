@@ -11,6 +11,14 @@ export class EditorComboMeter implements Plugin<EditorComboMeterConfig> {
     private comboTimerDecoration: vscode.TextEditorDecorationType;
     private comboCountDecoration: vscode.TextEditorDecorationType;
 
+    // Since VS Code 1.88 the text of each line is wrapped in an absolutely positioned span, which becomes
+    // the containing block of the combo meter so "right: 5%" is relative to the line's text instead of the editor.
+    // The marker is rendered on the combo meter's line, and the line reset decoration injects a nested CSS rule
+    // that makes the span of the marked line static again so the meter is positioned relative to the whole line.
+    private lineMarkerDecoration: vscode.TextEditorDecorationType;
+    private lineResetDecoration: vscode.TextEditorDecorationType;
+    private markedEditor: vscode.TextEditor = undefined;
+
     private renderedRange: vscode.Range = undefined;
     private renderedComboCount: number = undefined;
     private combo: number = 0;
@@ -29,8 +37,7 @@ export class EditorComboMeter implements Plugin<EditorComboMeterConfig> {
         // NOTE: This positions the element off the screen when there is horizontal scroll
         // so this feature works best when "word wrap" is enabled.
         // Using "5vw" instead did not limit the position to the viewable width.
-        // right: "5%",
-        left: "calc(100vw - 33rem)",
+        right: "5%",
         top: "20px",
 
         ['font-family']: "monospace",
@@ -100,6 +107,16 @@ export class EditorComboMeter implements Plugin<EditorComboMeterConfig> {
     }
 
     private activate = () => {
+        this.lineMarkerDecoration = vscode.window.createTextEditorDecorationType({
+            before: { contentText: "" },
+        });
+        this.lineResetDecoration = vscode.window.createTextEditorDecorationType({
+            // NOTE: "&" is required so the nested selector is not scoped to this decoration's own element.
+            // The marker's css class is "ced-<id>-<key>-<ruleType>".
+            textDecoration: `none; :root:not(&) .monaco-editor .view-lines > .view-line > span:has([class*="-${this.lineMarkerDecoration.key}-"]) { position: static; }`,
+        });
+        this.disposables.push(this.lineMarkerDecoration, this.lineResetDecoration);
+
         this.disposables.push(vscode.window.onDidChangeTextEditorVisibleRanges((e: vscode.TextEditorVisibleRangesChangeEvent) => {
             this.updateDecorations(e.textEditor);
         }));
@@ -108,6 +125,9 @@ export class EditorComboMeter implements Plugin<EditorComboMeterConfig> {
     private removeDecorations = () => {
         this.renderedComboCount = 0;
         this.renderedRange = undefined;
+
+        this.markedEditor?.setDecorations(this.lineMarkerDecoration, []);
+        this.markedEditor = undefined;
 
         if (this.comboCountDecoration) {
             this.comboCountDecoration.dispose();
@@ -149,6 +169,11 @@ export class EditorComboMeter implements Plugin<EditorComboMeterConfig> {
             this.renderedComboCount = this.combo;
             this.renderedRange = range;
             const ranges = [range];
+            if (this.markedEditor && this.markedEditor !== editor) {
+                this.markedEditor.setDecorations(this.lineMarkerDecoration, []);
+            }
+            this.markedEditor = editor;
+            editor.setDecorations(this.lineMarkerDecoration, ranges);
             this.createComboCountDecoration(this.combo, ranges, editor);
             this.createComboTimerDecoration(ranges, editor);
         }
